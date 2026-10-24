@@ -381,9 +381,7 @@
   let isOffline = false;
   let filters = { free: false, wild: false, farm: false, fuel: false, water: false, elec: false, drain: false };
 
-  // Base de données élargie de spots 100% gratuits et stations éco (France, Espagne, Portugal, Maroc)
   const spots = [
-    // FRANCE
     { name: 'Aire Gratuite de Guérande', address: 'Rue de la Mer, 44350 Guérande', lat: 47.328, lng: -2.429, type: 'free', icon: '🏕️', price: '0 € (Gratuit)', stay: '48 heures max', photo: '' },
     { name: 'Dodo Sauvage Falaise St-Estèphe', address: 'Route de l’Estuaire, 33180 Saint-Estèphe', lat: 45.266, lng: -0.771, type: 'wild', icon: '🌙', price: '0 € (Gratuit)', stay: '1 nuit autorisée', photo: '' },
     { name: 'Ferme Bio Saint-Jean-d’Assé', address: 'Le Bourg, 72380 Saint-Jean-d’Assé', lat: 48.150, lng: 0.116, type: 'farm', icon: '🚜', price: '0 € (Accueil Partenaire)', stay: '24h (Accueil Paysan)', photo: '' },
@@ -397,18 +395,15 @@
     { name: 'Borne Vidange & Eau Meaux', address: 'Avenue de la Marne, 77100 Meaux', lat: 48.959, lng: 2.880, type: 'drain', icon: '🛠️', price: '0 € (Gratuit)', stay: 'Services complets', photo: '' },
     { name: 'Station Carburant Le Mans Nord', address: 'Zone Commerciale, 72000 Le Mans', lat: 48.030, lng: 0.190, type: 'fuel', icon: '⛽', price: 'Prix Carrefour / E.Leclerc', stay: 'Ravitaillement', photo: '' },
     
-    // ESPAGNE
     { name: 'Ferme Olive & Huile - Séville', address: 'Carretera de Carmona, Séville, Espagne', lat: 37.389, lng: -5.984, type: 'farm', icon: '🚜', price: '0 € (Gratuit)', stay: '48h sur réservation', photo: '' },
     { name: 'Aire Gratuite San Sebastián', address: 'Paseo de Berio, 20018 San Sebastián, Espagne', lat: 43.308, lng: -2.004, type: 'free', icon: '🏕️', price: '0 € (Gratuit)', stay: 'Services inclus', photo: '' },
     { name: 'Dodo Sauvage Costa Brava', address: 'Cala Canyelles, 17310 Lloret de Mar, Espagne', lat: 41.701, lng: 2.881, type: 'wild', icon: '🌙', price: '0 € (Gratuit)', stay: 'Vue mer', photo: '' },
     { name: 'Borne Eau & Vidange Madrid Nord', address: 'Avenida de Burgos, Madrid, Espagne', lat: 40.480, lng: -3.670, type: 'water', icon: '💧', price: '0 € (Gratuit)', stay: 'Gratuit 24h/24', photo: '' },
 
-    // PORTUGAL
     { name: 'Aire Gratuite Nazaré', address: 'Estrada da Pederneira, 2450 Nazaré, Portugal', lat: 39.598, lng: -9.068, type: 'free', icon: '🏕️', price: '0 € (Gratuit)', stay: 'Vue sur la falaise', photo: '' },
     { name: 'Dodo Sauvage Algarve - Sagres', address: 'Cabo de São Vicente, 8650 Sagres, Portugal', lat: 37.023, lng: -8.996, type: 'wild', icon: '🌙', price: '0 € (Gratuit)', stay: 'Coucher de soleil spot', photo: '' },
     { name: 'Ferme Éco-Agricole Évora', address: 'Estrada de Alcácer, 7005 Évora, Portugal', lat: 38.567, lng: -7.910, type: 'farm', icon: '🚜', price: '0 € (Gratuit)', stay: 'Accueil vignoble', photo: '' },
 
-    // MAROC
     { name: 'Dodo Sauvage Oasis - Tanger', address: 'Route de Cap Spartel, Tanger, Maroc', lat: 35.759, lng: -5.833, type: 'wild', icon: '🌙', price: '0 € (Gratuit)', stay: 'Illimité (Zone calme)', photo: '' },
     { name: 'Aire d’Accueil Palmeraie Marrakech', address: 'Route de Fez, Marrakech, Maroc', lat: 31.660, lng: -7.970, type: 'free', icon: '🏕️', price: '0 € (Gratuit)', stay: 'Gardé et ombragé', photo: '' },
     { name: 'Point d’Eau Potable Essaouira', address: 'Route de Agadir, Essaouira, Maroc', lat: 31.500, lng: -9.760, type: 'water', icon: '💧', price: '0 € (Gratuit)', stay: 'Ravitaillement eau', photo: '' }
@@ -419,9 +414,9 @@
   function initMap() {
     if (map) return;
     map = L.map('map').setView([46.603354, 1.888334], 5);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
     
     markersGroup = L.layerGroup().addTo(map);
@@ -644,7 +639,6 @@
     resultDiv.innerHTML = `<b>📊 Itinéraire calculé pour votre gabarit :</b><br>• Départ : ${start}<br>• Arrivée : ${dest}<br>• Gabarit pris en compte (Hauteur 2.90m max, passages étroits évités).<br>• Coût estimé carburant : ~24.50 €`;
   }
 
-  // Initialisation au chargement de la page
   window.onload = function() {
     initMap();
   };
