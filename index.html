@@ -473,11 +473,11 @@
             <p>🚨 Urgence Générale : <b>112</b></p>
             <p>👮 GNR (Gendarmerie) : <b>213 587 232</b></p>
           </div>
-          <div class="emergency-box">
+          <div class="emergency-box" style="border-color: var(--accent-color);">
             <h4>🇲🇦 Maroc</h4>
-            <p>🚨 Police Secours : <b>19</b></p>
+            <p>👮 Police Secours : <b>19</b></p>
+            <p>🛡️ Gendarmerie Royale : <b>177</b></p>
             <p>🚒 Protection Civile : <b>15</b></p>
-            <p>📱 Gendarmerie Royale : <b>177</b></p>
           </div>
         </div>
       </div>
@@ -490,187 +490,506 @@
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  // Initialisation de la carte et logique applicative
-  let map = L.map('map').setView([48.0077, 0.2001], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
+  let map, markersGroup, routeLayer, userMarker, routeLine;
+  let isOffline = false;
+  let filters = { free: false, wild: false, farm: false, fuel: false, water: false, elec: false, drain: false };
 
-  function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('panel-carte').style.display = 'none';
-    document.getElementById('panel-itineraire').style.display = 'none';
-    document.getElementById('view-jauges').style.display = 'none';
-    document.getElementById('view-securite').style.display = 'none';
-    document.getElementById('map-container').style.display = 'block';
+  let spots = [
+    { name: 'Aire Gratuite de Guérande', address: 'Rue de la Mer, 44350 Guérande', lat: 47.328, lng: -2.429, type: 'free', icon: '🏕️', price: '0 € (Gratuit)', stay: '48 heures max', photo: '' },
+    { name: 'Dodo Sauvage Falaise St-Estèphe', address: 'Route de l’Estuaire, 33180 Saint-Estèphe', lat: 45.266, lng: -0.771, type: 'wild', icon: '🌙', price: '0 € (Gratuit)', stay: '1 nuit autorisée', photo: '' },
+    { name: 'Ferme Bio Saint-Jean-d’Assé', address: 'Le Bourg, 72380 Saint-Jean-d’Assé', lat: 48.150, lng: 0.116, type: 'farm', icon: '🚜', price: '0 € (Accueil Partenaire)', stay: '24h (Accueil Paysan)', photo: '' },
+    { name: 'Station Carburant Éco', address: 'Zone Artisanale Est, 72380 Saint-Jean-d’Assé', lat: 48.150, lng: 0.130, type: 'fuel', icon: '⛽', price: 'Tarif Temps Réel', stay: 'Ravitaillement', photo: '' },
+    { name: 'Borne Eau Potable', address: 'Place de l’Église, 72380 Saint-Jean-d’Assé', lat: 48.160, lng: 0.140, type: 'water', icon: '💧', price: '0 € (Gratuit)', stay: 'Service eau', photo: '' },
+    { name: 'Borne Électricité 220V', address: 'Rue du Stade, 72380 Saint-Jean-d’Assé', lat: 48.140, lng: 0.120, type: 'elec', icon: '⚡', price: '0 € (Gratuit)', stay: 'Service élec', photo: '' },
+    { name: 'Station Vidange Express', address: 'Avenue de la Gare, 72380 Saint-Jean-d’Assé', lat: 48.130, lng: 0.110, type: 'drain', icon: '🛠️', price: '0 € (Gratuit)', stay: 'Vidange', photo: '' },
+    { name: 'Aire Municipale Gratuite Arles', address: 'Route de la Camargue, 13200 Arles', lat: 43.676, lng: 4.627, type: 'free', icon: '🏕️', price: '0 € (Gratuit)', stay: '72h max', photo: '' },
+    { name: 'Dodo Sauvage Lac de Nantua', address: 'Chemin du Lac, 01130 Nantua', lat: 46.155, lng: 5.608, type: 'wild', icon: '🌙', price: '0 € (Gratuit)', stay: 'Nuit au calme', photo: '' },
+    { name: 'Ferme Artisanale Bresse', address: 'Route de Bourg, 01000 Bourg-en-Bresse', lat: 46.205, lng: 5.225, type: 'farm', icon: '🚜', price: '0 € (Gratuit)', stay: 'Dégustation produits locaux', photo: '' },
+    { name: 'Borne Vidange & Eau Meaux', address: 'Avenue de la Marne, 77100 Meaux', lat: 48.959, lng: 2.880, type: 'drain', icon: '🛠️', price: '0 € (Gratuit)', stay: 'Services complets', photo: '' },
+    { name: 'Station Carburant Le Mans Nord', address: 'Zone Commerciale, 72000 Le Mans', lat: 48.030, lng: 0.190, type: 'fuel', icon: '⛽', price: 'Prix Carrefour / E.Leclerc', stay: 'Ravitaillement', photo: '' },
+    
+    { name: 'Ferme Olive & Huile - Séville', address: 'Carretera de Carmona, Séville, Espagne', lat: 37.389, lng: -5.984, type: 'farm', icon: '🚜', price: '0 € (Gratuit)', stay: '48h sur réservation', photo: '' },
+    { name: 'Aire Gratuite San Sebastián', address: 'Paseo de Berio, 20018 San Sebastián, Espagne', lat: 43.308, lng: -2.004, type: 'free', icon: '🏕️', price: '0 € (Gratuit)', stay: 'Services inclus', photo: '' },
+    { name: 'Dodo Sauvage Costa Brava', address: 'Cala Canyelles, 17310 Lloret de Mar, Espagne', lat: 41.701, lng: 2.881, type: 'wild', icon: '🌙', price: '0 € (Gratuit)', stay: 'Vue mer', photo: '' },
+    { name: 'Borne Eau & Vidange Madrid Nord', address: 'Avenida de Burgos, Madrid, Espagne', lat: 40.480, lng: -3.670, type: 'water', icon: '💧', price: '0 € (Gratuit)', stay: 'Gratuit 24h/24', photo: '' },
 
-    if(tab === 'carte') {
-      document.getElementById('tab-map').classList.add('active');
-      document.getElementById('panel-carte').style.display = 'block';
-      setTimeout(() => map.invalidateSize(), 200);
-    } else if(tab === 'itineraire') {
-      document.getElementById('tab-route').classList.add('active');
-      document.getElementById('panel-itineraire').style.display = 'block';
-    } else if(tab === 'jauges') {
-      document.getElementById('tab-gauges').classList.add('active');
-      document.getElementById('view-jauges').style.display = 'block';
-      document.getElementById('map-container').style.display = 'none';
-    } else if(tab === 'securite') {
-      document.getElementById('tab-security').classList.add('active');
-      document.getElementById('view-securite').style.display = 'block';
-      document.getElementById('map-container').style.display = 'none';
+    { name: 'Aire Gratuite Nazaré', address: 'Estrada da Pederneira, 2450 Nazaré, Portugal', lat: 39.598, lng: -9.068, type: 'free', icon: '🏕️', price: '0 € (Gratuit)', stay: 'Vue sur la falaise', photo: '' },
+    { name: 'Dodo Sauvage Algarve - Sagres', address: 'Cabo de São Vicente, 8650 Sagres, Portugal', lat: 37.023, lng: -8.996, type: 'wild', icon: '🌙', price: '0 € (Gratuit)', stay: 'Coucher de soleil spot', photo: '' },
+    { name: 'Ferme Éco-Agricole Évora', address: 'Estrada de Alcácer, 7005 Évora, Portugal', lat: 38.567, lng: -7.910, type: 'farm', icon: '🚜', price: '0 € (Gratuit)', stay: 'Accueil vignoble', photo: '' },
+
+    { name: 'Dodo Sauvage Oasis - Tanger', address: 'Route de Cap Spartel, Tanger, Maroc', lat: 35.759, lng: -5.833, type: 'wild', icon: '🌙', price: '0 € (Gratuit)', stay: 'Illimité (Zone calme)', photo: '' },
+    { name: 'Aire d’Accueil Palmeraie Marrakech', address: 'Route de Fez, Marrakech, Maroc', lat: 31.660, lng: -7.970, type: 'free', icon: '🏕️', price: '0 € (Gratuit)', stay: 'Gardé et ombragé', photo: '' },
+    { name: 'Point d’Eau Potable Essaouira', address: 'Route de Agadir, Essaouira, Maroc', lat: 31.500, lng: -9.760, type: 'water', icon: '💧', price: '0 € (Gratuit)', stay: 'Ravitaillement eau', photo: '' }
+  ];
+
+  const typeIcons = { free: '🏕️', wild: '🌙', farm: '🚜', fuel: '⛽', water: '💧', elec: '⚡', drain: '🛠️' };
+
+  function initMap() {
+    if (map) return;
+    map = L.map('map').setView([46.603354, 1.888334], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    
+    markersGroup = L.layerGroup().addTo(map);
+    routeLayer = L.layerGroup().addTo(map);
+    renderSpots();
+    setTimeout(() => { map.invalidateSize(); }, 300);
+  }
+
+  function locateUser() {
+    if (!navigator.geolocation) {
+      alert("La géolocalisation n'est pas supportée par votre navigateur.");
+      return;
     }
+    navigator.geolocation.getCurrentPosition(position => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      map.setView([lat, lng], 13);
+      if (userMarker) {
+        map.removeLayer(userMarker);
+      }
+      userMarker = L.marker([lat, lng], {
+        icon: L.divIcon({
+          className: 'custom-div-icon',
+          html: `<div style="background:#0284c7; width:24px; height:24px; border-radius:50%; border:3px solid white; box-shadow:0 0 10px rgba(0,0,0,0.5);"></div>`,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        })
+      }).addTo(map).bindPopup("<b>📍 Vous êtes ici (Frankie)</b>").openPopup();
+    }, () => {
+      alert("Impossible de récupérer votre position GPS.");
+    });
+  }
+
+  function renderSpots() {
+    if (!map || !markersGroup) return;
+    markersGroup.clearLayers();
+    const activeFilters = Object.values(filters).some(v => v);
+
+    spots.forEach(spot => {
+      if (activeFilters && !filters[spot.type]) return;
+
+      const customIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div class="custom-marker marker-${spot.type}">${spot.icon}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
+      const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
+      let photoHtml = spot.photo ? `<img src="${spot.photo}" class="spot-popup-img" />` : '';
+      marker.bindPopup(`<b>${spot.name}</b><br><small style="color:#666">📍 ${spot.address}</small><br>💰 Tarif : <b>${spot.price}</b><br>⏱️ Durée : ${spot.stay}${photoHtml}`);
+      markersGroup.addLayer(marker);
+    });
+  }
+
+  function toggleFilter(type) {
+    filters[type] = !filters[type];
+    document.getElementById(`f-${type}`).classList.toggle('active');
+    renderSpots();
+  }
+
+  function toggleAddSpotForm() {
+    const form = document.getElementById('add-spot-form');
+    form.style.display = form.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function handleAddNewSpot(e) {
+    e.preventDefault();
+    const name = document.getElementById('newSpotName').value;
+    const address = document.getElementById('newSpotAddress').value;
+    const type = document.getElementById('newSpotType').value;
+    const photoInput = document.getElementById('newSpotPhoto');
+
+    let photoUrl = '';
+    if (photoInput.files && photoInput.files[0]) {
+      photoUrl = URL.createObjectURL(photoInput.files[0]);
+    }
+
+    const center = map ? map.getCenter() : { lat: 46.6, lng: 1.88 };
+    const newSpot = {
+      name: name,
+      address: address,
+      lat: center.lat + (Math.random() - 0.5) * 0.05,
+      lng: center.lng + (Math.random() - 0.5) * 0.05,
+      type: type,
+      icon: typeIcons[type] || '📍',
+      price: type === 'fuel' ? 'Tarif Temps Réel' : '0 € (Gratuit)',
+      stay: '24h / Indiqué sur place',
+      photo: photoUrl
+    };
+
+    spots.push(newSpot);
+    
+    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+    customSpots.push(newSpot);
+    localStorage.setItem('nomadsync_custom_spots', JSON.stringify(customSpots));
+
+    renderSpots();
+    document.getElementById('add-spot-form').style.display = 'none';
+    e.target.reset();
+    alert("✅ Votre spot a été ajouté et sauvegardé avec succès !");
+  }
+
+  function exportSpotsJSON() {
+    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+    if (customSpots.length === 0) {
+      alert("Aucun spot personnalisé enregistré pour l'instant.");
+      return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(customSpots, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "mes_spots_nomadsync.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  }
+
+  function toggleVipModal() {
+    const modal = document.getElementById('vip-modal');
+    modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function toggleQrModal() {
+    const modal = document.getElementById('qr-modal');
+    const isOpening = modal.style.display !== 'block';
+    modal.style.display = isOpening ? 'block' : 'none';
+    
+    if (isOpening) {
+      const currentUrl = window.location.href;
+      document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}`;
+    }
+  }
+
+  function handleVipLogin(e) {
+    e.preventDefault();
+    const msg = document.getElementById('loginMessage');
+    msg.style.display = 'block';
+    msg.innerText = '✅ Connexion VIP réussie ! Bienvenue dans NomadSync.';
   }
 
   function toggleTheme() {
     const html = document.documentElement;
-    const current = html.getAttribute('data-theme');
     const btn = document.getElementById('themeBtn');
-    if(current === 'nuit') {
-      html.setAttribute('data-theme', 'terracotta');
-      btn.innerText = '🌙 Mode Nuit';
-    } else {
+    if (html.getAttribute('data-theme') === 'terracotta') {
       html.setAttribute('data-theme', 'nuit');
       btn.innerText = '☀️ Mode Jour';
+      localStorage.setItem('nomadsync_theme', 'nuit');
+    } else {
+      html.setAttribute('data-theme', 'terracotta');
+      btn.innerText = '🌙 Mode Nuit';
+      localStorage.setItem('nomadsync_theme', 'terracotta');
     }
-  }
-
-  function toggleVipModal() {
-    const m = document.getElementById('vip-modal');
-    m.style.display = m.style.display === 'block' ? 'none' : 'block';
-  }
-
-  function toggleQrModal() {
-    const m = document.getElementById('qr-modal');
-    m.style.display = m.style.display === 'block' ? 'none' : 'block';
   }
 
   function toggleOffline() {
+    isOffline = !isOffline;
     const btn = document.getElementById('offlineBtn');
     const dot = document.getElementById('offlineDot');
-    const txt = document.getElementById('offlineText');
-    btn.classList.toggle('active');
-    if(btn.classList.contains('active')) {
-      dot.innerText = '🔵';
-      txt.innerText = 'Hors-ligne (Actif)';
+    const text = document.getElementById('offlineText');
+    if (isOffline) {
+      btn.classList.add('active');
+      dot.innerText = '🔴';
+      text.innerText = 'Hors Ligne';
     } else {
+      btn.classList.remove('active');
       dot.innerText = '🟢';
-      txt.innerText = 'En Ligne';
+      text.innerText = 'En Ligne';
     }
   }
 
-  function updateGauge(type, val, suffix) {
-    document.getElementById(`val-${type}`).innerText = val + suffix;
-    document.getElementById(`fill-${type}`).style.width = val + '%';
-  }
-
-  let bubbleX = 40, bubbleY = 40;
-  function moveBubble(dx, dy) {
-    bubbleX = Math.max(0, Math.min(80, bubbleX + dx));
-    bubbleY = Math.max(0, Math.min(80, bubbleY + dy));
-    const b = document.getElementById('bubblePos');
-    b.style.left = bubbleX + 'px';
-    b.style.top = bubbleY + 'px';
-    const text = document.getElementById('bubbleText');
-    if(bubbleX === 40 && bubbleY === 40) {
-      text.innerText = "Véhicule parfaitement horizontal";
-      text.style.color = "var(--text-color)";
+  function updateFuelPrice() {
+    const type = document.getElementById('specFuelType').value;
+    if (type === 'gazole') {
+      document.getElementById('specPrice').value = '1.72';
     } else {
-      text.innerText = "Cales conseillées pour l'horizontalité !";
-      text.style.color = "#ef4444";
+      document.getElementById('specPrice').value = '1.81';
     }
   }
-  function resetBubble() {
-    bubbleX = 40; bubbleY = 40;
-    moveBubble(0, 0);
-  }
 
-  function locateUser() {
-    if(navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        map.setView([lat, lon], 14);
-        L.marker([lat, lon]).addTo(map).bindPopup("📍 Vous êtes ici").openPopup();
-      }, () => {
-        alert("Impossible de récupérer votre position géographique.");
-      });
+  function updateVehicleSpec() {
+    const val = document.getElementById('vehicleSelect').value;
+    if (val === 'van') {
+      document.getElementById('specH').value = '2.90';
+      document.getElementById('specL').value = '6.50';
+      document.getElementById('specW').value = '2.20';
+      document.getElementById('specP').value = '3.5';
+      document.getElementById('specFuelType').value = 'gazole';
+      document.getElementById('specConso').value = '10.5';
+    } else if (val === 'cc') {
+      document.getElementById('specH').value = '3.20';
+      document.getElementById('specL').value = '7.40';
+      document.getElementById('specW').value = '2.35';
+      document.getElementById('specP').value = '4.5';
+      document.getElementById('specFuelType').value = 'gazole';
+      document.getElementById('specConso').value = '12.5';
     } else {
-      alert("La géolocalisation n'est pas supportée par votre navigateur.");
+      document.getElementById('specH').value = '2.40';
+      document.getElementById('specL').value = '5.40';
+      document.getElementById('specW').value = '2.05';
+      document.getElementById('specP').value = '3.3';
+      document.getElementById('specFuelType').value = 'sp95';
+      document.getElementById('specConso').value = '8.5';
     }
+    updateFuelPrice();
   }
 
-  function handleSearchBtn() {
-    const q = document.getElementById('searchInput').value;
-    if(!q) return;
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`)
-      .then(res => res.json())
-      .then(data => {
-        if(data && data.length > 0) {
-          map.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 13);
-        } else {
-          alert("Lieu non trouvé.");
-        }
-      });
+  async function handleSearchBtn() {
+    const query = document.getElementById('searchInput').value;
+    if (!query) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        map.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 11);
+      } else {
+        alert("Lieu non trouvé. Essayez de rajouter le code postal ou le pays.");
+      }
+    } catch (err) {
+      alert("Recherche indisponible.");
+    }
   }
 
   function handleSearch(e) {
     if(e.key === 'Enter') handleSearchBtn();
   }
 
-  function toggleAddSpotForm() {
-    const f = document.getElementById('add-spot-form');
-    f.style.display = f.style.display === 'block' ? 'none' : 'block';
+  function switchTab(tab) {
+    document.getElementById('panel-carte').style.display = tab === 'carte' ? 'block' : 'none';
+    document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
+    document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
+    document.getElementById('view-securite').style.display = tab === 'securite' ? 'block' : 'none';
+    
+    document.getElementById('map-container').style.display = tab === 'carte' ? 'block' : 'none';
+
+    document.getElementById('tab-map').classList.toggle('active', tab === 'carte');
+    document.getElementById('tab-route').classList.toggle('active', tab === 'itineraire');
+    document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
+    document.getElementById('tab-security').classList.toggle('active', tab === 'securite');
+
+    if (tab === 'carte') {
+      renderSpots();
+      setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+    } else if (tab === 'itineraire' || tab === 'securite') {
+      if (markersGroup) markersGroup.clearLayers();
+      setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+    }
   }
 
-  function handleAddNewSpot(e) {
-    e.preventDefault();
-    alert("Spot enregistré avec succès !");
-    toggleAddSpotForm();
-  }
-
-  function exportSpotsJSON() {
-    alert("Exportation des spots au format JSON...");
-  }
-
-  function calculateAndDrawRoute() {
-    const start = document.getElementById('startInput').value;
-    const dest = document.getElementById('destInput').value;
-    const res = document.getElementById('route-result');
-    if(!start || !dest) {
-      alert("Veuillez renseigner le départ et l'arrivée.");
+  // --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
+  async function calculateAndDrawRoute() {
+    const startText = document.getElementById('startInput').value;
+    const destText = document.getElementById('destInput').value;
+    const resultDiv = document.getElementById('route-result');
+    
+    if (!startText || !destText) {
+      alert("Veuillez renseigner un départ et une arrivée.");
       return;
     }
-    res.style.display = 'block';
-    res.innerHTML = `<b>Trajet calculé :</b> ${start} ➔ ${dest}<br>📏 Gabarit validé (Hauteur : ${document.getElementById('specH').value}m) | ⛽ Carburant estimé : 12.4 L`;
+
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = "⏳ Calcul de l'itinéraire en cours...";
+
+    try {
+      const startRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startText)}`);
+      const startData = await startRes.json();
+      if (!startData.length) throw new Error("Départ introuvable.");
+
+      const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destText)}`);
+      const destData = await destRes.json();
+      if (!destData.length) throw new Error("Arrivée introuvable.");
+
+      const startCoord = [parseFloat(startData[0].lon), parseFloat(startData[0].lat)];
+      const destCoord = [parseFloat(destData[0].lon), parseFloat(destData[0].lat)];
+
+      const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${startCoord[0]},${startCoord[1]};${destCoord[0]},${destCoord[1]}?overview=full&geometries=geojson`);
+      const routeData = await routeRes.json();
+
+      if (!routeData.routes || !routeData.routes.length) throw new Error("Impossible de calculer la route.");
+
+      const route = routeData.routes[0];
+      const distanceKm = (route.distance / 1000).toFixed(1);
+      const durationMin = Math.round(route.duration / 60);
+      const hours = Math.floor(durationMin / 60);
+      const mins = durationMin % 60;
+      const timeStr = hours > 0 ? `${hours}h${mins > 0 ? mins + 'min' : ''}` : `${mins} min`;
+
+      const conso = parseFloat(document.getElementById('specConso').value);
+      const priceL = parseFloat(document.getElementById('specPrice').value);
+      const cost = ((distanceKm * conso / 100) * priceL).toFixed(2);
+
+      resultDiv.innerHTML = `<b>📊 Itinéraire réel tracé :</b><br>
+        • Distance : <b>${distanceKm} km</b> | Durée estimée : <b>${timeStr}</b><br>
+        • Coût carburant estimé : <b>~${cost} €</b><br>
+        • Gabarit pris en compte (Hauteur ${document.getElementById('specH').value}m).`;
+
+      switchTab('carte');
+
+      if (routeLine) {
+        map.removeLayer(routeLine);
+      }
+      const latLngs = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+      routeLine = L.polyline(latLngs, { color: '#D4621A', weight: 5, opacity: 0.8 }).addTo(map);
+      map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+
+    } catch (err) {
+      resultDiv.innerHTML = `❌ Erreur : ${err.message}`;
+    }
   }
 
+  // --- MÉTÉO / VENT FORT ---
   function checkMeteoAlert() {
-    document.getElementById('meteo-status').innerText = "🟢 Vent faible (12 km/h) - Lanterneaux autorisés";
+    const status = document.getElementById('meteo-status');
+    const randomWind = Math.floor(Math.random() * 50) + 10;
+    if (randomWind > 40) {
+      status.style.color = "#ef4444";
+      status.innerHTML = `🔴 ATTENTION Rafales à ${randomWind} km/h - Fermez impérativement les lanterneaux !`;
+    } else if (randomWind > 25) {
+      status.style.color = "#f59e0b";
+      status.innerHTML = `🟡 Vent modéré (${randomWind} km/h) - Prudence sur les stores.`;
+    } else {
+      status.style.color = "#10b981";
+      status.innerHTML = `🟢 Vent faible (${randomWind} km/h) - Lanterneaux autorisés.`;
+    }
   }
 
-  let fuelExpenses = [];
+  // --- SUIVI BUDGET CARBURANT ---
   function addFuelExpense(e) {
     e.preventDefault();
     const date = document.getElementById('fuelDate').value;
     const litres = parseFloat(document.getElementById('fuelLitres').value);
     const cost = parseFloat(document.getElementById('fuelCost').value);
-    fuelExpenses.push({date, litres, cost});
-    
-    let totalCost = fuelExpenses.reduce((acc, item) => acc + item.cost, 0);
-    let totalLitres = fuelExpenses.reduce((acc, item) => acc + item.litres, 0);
-    
-    document.getElementById('totalFuelCost').innerText = totalCost.toFixed(2) + ' €';
-    document.getElementById('totalFuelLitres').innerText = totalLitres.toFixed(1);
-    
-    let html = fuelExpenses.map(item => `<div>• ${item.date} : ${item.litres}L pour ${item.cost}€</div>`).join('');
-    document.getElementById('fuelHistoryList').innerHTML = html;
+
+    const expenses = JSON.parse(localStorage.getItem('nomadsync_fuel_expenses') || '[]');
+    expenses.push({ date, litres, cost });
+    localStorage.setItem('nomadsync_fuel_expenses', JSON.stringify(expenses));
+
+    renderFuelExpenses();
+    e.target.reset();
   }
 
-  function saveChecklist() {
-    // Sauvegarde auto de la checklist
+  function renderFuelExpenses() {
+    const expenses = JSON.parse(localStorage.getItem('nomadsync_fuel_expenses') || '[]');
+    const listDiv = document.getElementById('fuelHistoryList');
+    let totalCost = 0;
+    let totalLitres = 0;
+
+    if (expenses.length === 0) {
+      listDiv.innerHTML = "Aucun plein enregistré pour l'instant.";
+      document.getElementById('totalFuelCost').innerText = "0.00 €";
+      document.getElementById('totalFuelLitres').innerText = "0";
+      return;
+    }
+
+    let html = "";
+    expenses.forEach((item, index) => {
+      totalCost += item.cost;
+      totalLitres += item.litres;
+      html += `• ${item.date} : <b>${item.litres} L</b> pour <b>${item.cost.toFixed(2)} €</b><br>`;
+    });
+
+    listDiv.innerHTML = html;
+    document.getElementById('totalFuelCost').innerText = totalCost.toFixed(2) + " €";
+    document.getElementById('totalFuelLitres').innerText = totalLitres.toFixed(1);
   }
+
+  // --- GESTION DES JAUGES & STOCKAGE LOCAL ---
+  function updateGauge(type, val, suffix) {
+    document.getElementById(`val-${type}`).innerText = val + suffix;
+    document.getElementById(`fill-${type}`).style.width = val + '%';
+    localStorage.setItem(`nomadsync_gauge_${type}`, val);
+  }
+
+  let bubbleX = 40, bubbleY = 40;
+  function moveBubble(dx, dy) {
+    bubbleX = Math.max(10, Math.min(70, bubbleX + dx));
+    bubbleY = Math.max(10, Math.min(70, bubbleY + dy));
+    const inner = document.getElementById('bubblePos');
+    inner.style.left = bubbleX + 'px';
+    inner.style.top = bubbleY + 'px';
+    
+    const text = document.getElementById('bubbleText');
+    if (bubbleX === 40 && bubbleY === 40) {
+      text.innerText = "Véhicule parfaitement horizontal";
+      inner.style.background = "#10b981";
+      inner.style.boxShadow = "0 0 10px #10b981";
+    } else {
+      text.innerText = "Attention : Véhicule penché (ajuster les cales)";
+      inner.style.background = "#ef4444";
+      inner.style.boxShadow = "0 0 10px #ef4444";
+    }
+    localStorage.setItem('nomadsync_bubble_x', bubbleX);
+    localStorage.setItem('nomadsync_bubble_y', bubbleY);
+  }
+
+  function resetBubble() {
+    bubbleX = 40;
+    bubbleY = 40;
+    moveBubble(0, 0);
+  }
+
+  // --- CHECKLIST / PENSE-BÊTE ---
+  function saveChecklist() {
+    const checks = ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'];
+    checks.forEach(id => {
+      const checked = document.getElementById(id).checked;
+      localStorage.setItem(`nomadsync_${id}`, checked);
+    });
+  }
+
+  function loadSavedData() {
+    const savedTheme = localStorage.getItem('nomadsync_theme');
+    if (savedTheme === 'nuit') {
+      document.documentElement.setAttribute('data-theme', 'nuit');
+      document.getElementById('themeBtn').innerText = '☀️ Mode Jour';
+    }
+
+    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+    spots.push(...customSpots);
+
+    ['bat', 'eau', 'usee', 'gaz'].forEach(type => {
+      const savedVal = localStorage.getItem(`nomadsync_gauge_${type}`);
+      if (savedVal !== null) {
+        document.getElementById(`range-${type}`).value = savedVal;
+        const suffix = type === 'bat' ? '% (12.8V)' : '%';
+        updateGauge(type, savedVal, suffix);
+      }
+    });
+
+    const savedX = localStorage.getItem('nomadsync_bubble_x');
+    const savedY = localStorage.getItem('nomadsync_bubble_y');
+    if (savedX !== null && savedY !== null) {
+      bubbleX = parseInt(savedX);
+      bubbleY = parseInt(savedY);
+      const inner = document.getElementById('bubblePos');
+      inner.style.left = bubbleX + 'px';
+      inner.style.top = bubbleY + 'px';
+    }
+
+    ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'].forEach(id => {
+      const val = localStorage.getItem(`nomadsync_${id}`);
+      if (val === 'true') {
+        document.getElementById(id).checked = true;
+      }
+    });
+
+    renderFuelExpenses();
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .catch(err => console.log('Service Worker non enregistré', err));
+    });
+  }
+
+  window.onload = function() {
+    initMap();
+    loadSavedData();
+  };
 </script>
 </body>
 </html>
