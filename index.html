@@ -220,10 +220,11 @@
 
     <!-- PANEL CARTE -->
     <div id="panel-carte">
-      <form class="search-bar" onsubmit="handleSearch(event)">
-        <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." />
-        <button type="submit">Chercher</button>
-      </form>
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" />
+        <button onclick="handleSearchBtn()">Chercher</button>
+        <button onclick="locateUser()" style="background:#0284c7; color:white; border:none; padding:12px 16px; border-radius:8px; font-weight:bold; cursor:pointer;" title="Me géolocaliser">📍 Ma Position</button>
+      </div>
 
       <div class="filters-grid">
         <div class="filter-chips-group">
@@ -318,7 +319,7 @@
     <!-- JAUGES & VAN -->
     <div id="view-jauges" style="display: none;">
       
-      <!-- MODULE BLUETOOTH POUR CAMPING-CARS RÉCENTS -->
+      <!-- MODULE BLUETOOTH -->
       <div class="bluetooth-card">
         <h3 style="margin-top: 0; color: var(--accent-color); display: flex; align-items: center; gap: 8px;">
           <span>📡 Synchronisation Bluetooth (Véhicules Récents)</span>
@@ -332,29 +333,44 @@
         </button>
       </div>
 
+      <!-- PENSE-BÊTE / CHECKLIST DÉPART -->
+      <div class="bluetooth-card" style="border-color: #10b981;">
+        <h3 style="margin-top: 0; color: #10b981; display: flex; align-items: center; gap: 8px;">
+          <span>📋 Pense-bête / Checklist avant le départ</span>
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 0.9rem; margin-top: 10px;">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-step" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🦶 Rentrer le marchepied</label>
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-roof" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🌤️ Fermer les lanterneaux</label>
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-blocks" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🧱 Ranger les cales de roues</label>
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-fridge" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> ❄️ Verrouiller le frigo</label>
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-shore" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🔌 Débrancher la prise 220V</label>
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-door" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🚪 Verrouiller porte cellule & soutes</label>
+        </div>
+      </div>
+
       <div class="gauges-grid">
         <div class="gauge-card">
           <div class="gauge-header"><span>🔋 Batterie Cellule</span><span id="val-bat">85% (12.8V)</span></div>
           <div class="progress-bar"><div class="progress-fill" id="fill-bat" style="width: 85%; background: #10b981;"></div></div>
-          <input type="range" min="0" max="100" value="85" oninput="updateGauge('bat', this.value, '% (12.8V)')">
+          <input type="range" id="range-bat" min="0" max="100" value="85" oninput="updateGauge('bat', this.value, '% (12.8V)')">
         </div>
 
         <div class="gauge-card">
           <div class="gauge-header"><span>💧 Eau Propre</span><span id="val-eau">60%</span></div>
           <div class="progress-bar"><div class="progress-fill" id="fill-eau" style="width: 60%; background: #0284c7;"></div></div>
-          <input type="range" min="0" max="100" value="60" oninput="updateGauge('eau', this.value, '%')">
+          <input type="range" id="range-eau" min="0" max="100" value="60" oninput="updateGauge('eau', this.value, '%')">
         </div>
 
         <div class="gauge-card">
           <div class="gauge-header"><span>🛢 Eaux Usées</span><span id="val-usee">30%</span></div>
           <div class="progress-bar"><div class="progress-fill" id="fill-usee" style="width: 30%; background: #f59e0b;"></div></div>
-          <input type="range" min="0" max="100" value="30" oninput="updateGauge('usee', this.value, '%')">
+          <input type="range" id="range-usee" min="0" max="100" value="30" oninput="updateGauge('usee', this.value, '%')">
         </div>
 
         <div class="gauge-card">
           <div class="gauge-header"><span>🔥 Gaz Propane</span><span id="val-gaz">50%</span></div>
           <div class="progress-bar"><div class="progress-fill" id="fill-gaz" style="width: 50%; background: #a855f7;"></div></div>
-          <input type="range" min="0" max="100" value="50" oninput="updateGauge('gaz', this.value, '%')">
+          <input type="range" id="range-gaz" min="0" max="100" value="50" oninput="updateGauge('gaz', this.value, '%')">
         </div>
 
         <div class="bubble-card">
@@ -377,7 +393,7 @@
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  let map, markersGroup, routeLayer;
+  let map, markersGroup, routeLayer, userMarker;
   let isOffline = false;
   let filters = { free: false, wild: false, farm: false, fuel: false, water: false, elec: false, drain: false };
 
@@ -423,6 +439,31 @@
     routeLayer = L.layerGroup().addTo(map);
     renderSpots();
     setTimeout(() => { map.invalidateSize(); }, 300);
+  }
+
+  function locateUser() {
+    if (!navigator.geolocation) {
+      alert("La géolocalisation n'est pas supportée par votre navigateur.");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(position => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      map.setView([lat, lng], 13);
+      if (userMarker) {
+        map.removeLayer(userMarker);
+      }
+      userMarker = L.marker([lat, lng], {
+        icon: L.divIcon({
+          className: 'custom-div-icon',
+          html: `<div style="background:#0284c7; width:24px; height:24px; border-radius:50%; border:3px solid white; box-shadow:0 0 10px rgba(0,0,0,0.5);"></div>`,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        })
+      }).addTo(map).bindPopup("<b>📍 Vous êtes ici (Frankie)</b>").openPopup();
+    }, () => {
+      alert("Impossible de récupérer votre position GPS.");
+    });
   }
 
   function renderSpots() {
@@ -565,8 +606,7 @@
     updateFuelPrice();
   }
 
-  async function handleSearch(e) {
-    e.preventDefault();
+  async function handleSearchBtn() {
     const query = document.getElementById('searchInput').value;
     if (!query) return;
     try {
@@ -580,6 +620,10 @@
     } catch (err) {
       alert("Recherche indisponible.");
     }
+  }
+
+  function handleSearch(e) {
+    if(e.key === 'Enter') handleSearchBtn();
   }
 
   function switchTab(tab) {
@@ -596,9 +640,11 @@
     }
   }
 
+  // --- GESTION DES JAUGES & STOCKAGE LOCAL ---
   function updateGauge(type, val, suffix) {
     document.getElementById(`val-${type}`).innerText = val + suffix;
     document.getElementById(`fill-${type}`).style.width = val + '%';
+    localStorage.setItem(`nomadsync_gauge_${type}`, val);
   }
 
   let bubbleX = 40, bubbleY = 40;
@@ -619,12 +665,54 @@
       inner.style.background = "#ef4444";
       inner.style.boxShadow = "0 0 10px #ef4444";
     }
+    localStorage.setItem('nomadsync_bubble_x', bubbleX);
+    localStorage.setItem('nomadsync_bubble_y', bubbleY);
   }
 
   function resetBubble() {
     bubbleX = 40;
     bubbleY = 40;
     moveBubble(0, 0);
+  }
+
+  // --- CHECKLIST / PENSE-BÊTE ---
+  function saveChecklist() {
+    const checks = ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'];
+    checks.forEach(id => {
+      const checked = document.getElementById(id).checked;
+      localStorage.setItem(`nomadsync_${id}`, checked);
+    });
+  }
+
+  function loadSavedData() {
+    // Jauges
+    ['bat', 'eau', 'usee', 'gaz'].forEach(type => {
+      const savedVal = localStorage.getItem(`nomadsync_gauge_${type}`);
+      if (savedVal !== null) {
+        document.getElementById(`range-${type}`).value = savedVal;
+        const suffix = type === 'bat' ? '% (12.8V)' : '%';
+        updateGauge(type, savedVal, suffix);
+      }
+    });
+
+    // Niveau à bulle
+    const savedX = localStorage.getItem('nomadsync_bubble_x');
+    const savedY = localStorage.getItem('nomadsync_bubble_y');
+    if (savedX !== null && savedY !== null) {
+      bubbleX = parseInt(savedX);
+      bubbleY = parseInt(savedY);
+      const inner = document.getElementById('bubblePos');
+      inner.style.left = bubbleX + 'px';
+      inner.style.top = bubbleY + 'px';
+    }
+
+    // Checklist
+    ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'].forEach(id => {
+      const val = localStorage.getItem(`nomadsync_${id}`);
+      if (val === 'true') {
+        document.getElementById(id).checked = true;
+      }
+    });
   }
 
   function calculateRoute() {
@@ -641,6 +729,7 @@
 
   window.onload = function() {
     initMap();
+    loadSavedData();
   };
 </script>
 </body>
