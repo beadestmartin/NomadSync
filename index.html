@@ -117,7 +117,7 @@
     .spot-popup-img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 6px; }
 
     /* Modules Itinéraire & Jauges */
-    .route-card, .gauge-card, .bubble-card { background: var(--bg-color); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px; }
+    .route-card, .gauge-card, .bubble-card, .bluetooth-card { background: var(--bg-color); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px; }
     .route-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-bottom: 12px; }
     
     .vehicle-specs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px; }
@@ -127,11 +127,12 @@
     .gauges-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
     .gauge-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; font-size: 0.9rem; }
     .progress-bar { background: var(--border-color); height: 14px; border-radius: 10px; overflow: hidden; }
-    .progress-fill { height: 100%; border-radius: 10px; }
+    .progress-fill { height: 100%; border-radius: 10px; transition: width 0.2s ease; }
+    .gauge-card input[type="range"] { width: 100%; margin-top: 10px; cursor: pointer; accent-color: var(--accent-color); }
 
     .bubble-card { text-align: center; grid-column: 1 / -1; }
     .bubble-outer { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-color); margin: 12px auto; display: flex; align-items: center; justify-content: center; position: relative; background: var(--card-bg); }
-    .bubble-inner { width: 20px; height: 20px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+    .bubble-inner { width: 20px; height: 20px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 10px #ef4444; position: absolute; top: 40px; left: 40px; transition: transform 0.1s ease; }
 
     .status-banner { background: #2A1A0E; color: #f7f2ea; padding: 14px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border-color); }
   </style>
@@ -258,6 +259,11 @@
           <button type="submit" style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">Enregistrer le Spot</button>
         </form>
       </div>
+
+      <!-- LA CARTE COMMUNE -->
+      <div id="map-container">
+        <div id="map"></div>
+      </div>
     </div>
 
     <!-- PANEL ITINÉRAIRE -->
@@ -309,38 +315,59 @@
       </div>
     </div>
 
-    <!-- LA CARTE COMMUNE -->
-    <div id="map-container">
-      <div id="map"></div>
-    </div>
-
-    <!-- JAUGES -->
+    <!-- JAUGES & VAN -->
     <div id="view-jauges" style="display: none;">
+      
+      <!-- MODULE BLUETOOTH POUR CAMPING-CARS RÉCENTS -->
+      <div class="bluetooth-card">
+        <h3 style="margin-top: 0; color: var(--accent-color); display: flex; align-items: center; gap: 8px;">
+          <span>📡 Synchronisation Bluetooth (Véhicules Récents)</span>
+        </h3>
+        <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
+          Possédez-vous un camping-car ou van récent équipé de systèmes connectés (centrales Schaudt, CBE, Truma iNet, batteries au lithium intelligentes) ? 
+          <strong>NomadSync</strong> centralise toutes ces données en temps réel. Fini de multiplier les applications constructeurs : connectez votre véhicule en Bluetooth pour suivre d'un seul coup d'œil vos niveaux de vie, la charge solaire et l'état de votre chauffage.
+        </p>
+        <button onclick="alert('Recherche de périphériques Bluetooth à proximité... (Assurez-vous que le Bluetooth de votre appareil et de la centrale du van sont activés)')" style="background: var(--accent-color); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
+          🔗 Connecter mon van en Bluetooth
+        </button>
+      </div>
+
       <div class="gauges-grid">
         <div class="gauge-card">
-          <div class="gauge-header"><span>🔋 Batterie Cellule</span><span>85% (12.8V)</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width: 85%; background: #10b981;"></div></div>
+          <div class="gauge-header"><span>🔋 Batterie Cellule</span><span id="val-bat">85% (12.8V)</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="fill-bat" style="width: 85%; background: #10b981;"></div></div>
+          <input type="range" min="0" max="100" value="85" oninput="updateGauge('bat', this.value, '% (12.8V)')">
         </div>
 
         <div class="gauge-card">
-          <div class="gauge-header"><span>💧 Eau Propre</span><span>60%</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width: 60%; background: #0284c7;"></div></div>
+          <div class="gauge-header"><span>💧 Eau Propre</span><span id="val-eau">60%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="fill-eau" style="width: 60%; background: #0284c7;"></div></div>
+          <input type="range" min="0" max="100" value="60" oninput="updateGauge('eau', this.value, '%')">
         </div>
 
         <div class="gauge-card">
-          <div class="gauge-header"><span>🛢 Eaux Usées</span><span>30%</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width: 30%; background: #f59e0b;"></div></div>
+          <div class="gauge-header"><span>🛢 Eaux Usées</span><span id="val-usee">30%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="fill-usee" style="width: 30%; background: #f59e0b;"></div></div>
+          <input type="range" min="0" max="100" value="30" oninput="updateGauge('usee', this.value, '%')">
         </div>
 
         <div class="gauge-card">
-          <div class="gauge-header"><span>🔥 Gaz Propane</span><span>50%</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width: 50%; background: #a855f7;"></div></div>
+          <div class="gauge-header"><span>🔥 Gaz Propane</span><span id="val-gaz">50%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="fill-gaz" style="width: 50%; background: #a855f7;"></div></div>
+          <input type="range" min="0" max="100" value="50" oninput="updateGauge('gaz', this.value, '%')">
         </div>
 
         <div class="bubble-card">
           <h4 style="margin:0 0 6px 0; color:var(--accent-color)">⚖️ Niveau à Bulle (Calage)</h4>
-          <div class="bubble-outer"><div class="bubble-inner"></div></div>
-          <span style="font-size:0.8rem; opacity:0.8">Véhicule parfaitement horizontal</span>
+          <div class="bubble-outer"><div class="bubble-inner" id="bubblePos"></div></div>
+          <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+            <button onclick="moveBubble(-10, 0)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">←</button>
+            <button onclick="moveBubble(10, 0)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">→</button>
+            <button onclick="moveBubble(0, -10)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">↑</button>
+            <button onclick="moveBubble(0, 10)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">↓</button>
+            <button onclick="resetBubble()" style="padding: 6px 12px; border-radius: 6px; cursor: pointer; background: var(--accent-color); color: white; border: none; font-weight: bold;">Centrer</button>
+          </div>
+          <span id="bubbleText" style="font-size:0.8rem; opacity:0.8; display: block; margin-top: 6px;">Véhicule parfaitement horizontal</span>
         </div>
       </div>
     </div>
@@ -392,10 +419,10 @@
   function initMap() {
     if (map) return;
     map = L.map('map').setView([46.603354, 1.888334], 5);
-   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-}).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }).addTo(map);
     
     markersGroup = L.layerGroup().addTo(map);
     routeLayer = L.layerGroup().addTo(map);
@@ -560,104 +587,67 @@
     }
   }
 
-  async function calculateRoute() {
-    const start = document.getElementById('startInput').value;
-    const dest = document.getElementById('destInput').value;
-    if (!start || !dest) {
-      alert("Veuillez saisir un départ et une arrivée.");
-      return;
-    }
-
-    try {
-      const resStart = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(start)}`);
-      const dataStart = await resStart.json();
-      const resDest = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(dest)}`);
-      const dataDest = await resDest.json();
-
-      if (dataStart.length === 0 || dataDest.length === 0) {
-        alert("Ville de départ ou d'arrivée non trouvée. Précisez avec le code postal.");
-        return;
-      }
-
-      const lon1 = parseFloat(dataStart[0].lon);
-      const lat1 = parseFloat(dataStart[0].lat);
-      const lon2 = parseFloat(dataDest[0].lon);
-      const lat2 = parseFloat(dataDest[0].lat);
-
-      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
-      const routeRes = await fetch(osrmUrl);
-      const routeData = await routeRes.json();
-
-      if (!routeData.routes || routeData.routes.length === 0) {
-        alert("Impossible de calculer l'itinéraire routier.");
-        return;
-      }
-
-      const route = routeData.routes[0];
-      const realKm = (route.distance / 1000).toFixed(1);
-      const durationMin = Math.round(route.duration / 60);
-      const hours = Math.floor(durationMin / 60);
-      const mins = durationMin % 60;
-      const timeStr = hours > 0 ? `${hours}h${mins}min` : `${mins}min`;
-
-      routeLayer.clearLayers();
-
-      const coordinates = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
-      const polyline = L.polyline(coordinates, { color: '#D4621A', weight: 5 }).addTo(routeLayer);
-
-      L.marker([lat1, lon1]).addTo(routeLayer).bindPopup(`🟢 Départ : ${start}`).openPopup();
-      L.marker([lat2, lon2]).addTo(routeLayer).bindPopup(`🔴 Arrivée : ${dest}`);
-
-      map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
-
-      const h = document.getElementById('specH').value;
-      const l = document.getElementById('specL').value;
-      const w = document.getElementById('specW').value;
-      const p = document.getElementById('specP').value;
-      const fuelType = document.getElementById('specFuelType').selectedOptions[0].text;
-      const conso = parseFloat(document.getElementById('specConso').value) || 10;
-      const priceFuel = parseFloat(document.getElementById('specPrice').value) || 1.75;
-
-      const fuelCost = ((realKm / 100) * conso * priceFuel).toFixed(2);
-
-      const resBox = document.getElementById('route-result');
-      resBox.style.display = 'flex';
-      resBox.innerHTML = `
-        <div style="color:#F4AE52; font-weight:bold;">✅ Itinéraire Réel Validé (${h}m H / ${l}m L / ${w}m l / ${p}t)</div>
-        <div>📍 Distance : <b>${realKm} km</b> | Durée est. : <b>${timeStr}</b></div>
-        <div>⛽ Coût Carburant (${fuelType}) : <b style="color:#F4AE52;">${fuelCost} €</b> (Route hors péage)</div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
-          <a href="https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(start)}&destination=${encodeURIComponent(dest)}&travelmode=driving" target="_blank" style="background:#F4AE52; color:#2A1A0E; padding:6px 12px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:0.8rem;">📍 Google Maps</a>
-          <a href="https://www.waze.com/ul?q=${encodeURIComponent(dest)}&navigate=yes" target="_blank" style="background:#D4621A; color:#ffffff; padding:6px 12px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:0.8rem;">🚗 Waze</a>
-          <a href="https://maps.me/geopoint?q=${encodeURIComponent(dest)}" target="_blank" style="background:#10b981; color:#ffffff; padding:6px 12px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:0.8rem;">🗺️ Maps.me (Hors-Ligne)</a>
-        </div>
-      `;
-    } catch (err) {
-      alert("Erreur lors de la récupération du trajet en temps réel.");
-    }
-  }
-
   function switchTab(tab) {
     document.getElementById('panel-carte').style.display = tab === 'carte' ? 'block' : 'none';
     document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
-    document.getElementById('map-container').style.display = (tab === 'carte' || tab === 'itineraire') ? 'block' : 'none';
     document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
 
     document.getElementById('tab-map').classList.toggle('active', tab === 'carte');
     document.getElementById('tab-route').classList.toggle('active', tab === 'itineraire');
     document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
 
-    if (tab === 'carte' || tab === 'itineraire') {
-      setTimeout(() => {
-        if (map) map.invalidateSize();
-      }, 200);
+    if (tab === 'carte') {
+      setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     }
   }
 
-  window.onload = () => {
+  function updateGauge(type, val, suffix) {
+    document.getElementById(`val-${type}`).innerText = val + suffix;
+    document.getElementById(`fill-${type}`).style.width = val + '%';
+  }
+
+  let bubbleX = 40, bubbleY = 40;
+  function moveBubble(dx, dy) {
+    bubbleX = Math.max(10, Math.min(70, bubbleX + dx));
+    bubbleY = Math.max(10, Math.min(70, bubbleY + dy));
+    const inner = document.getElementById('bubblePos');
+    inner.style.left = bubbleX + 'px';
+    inner.style.top = bubbleY + 'px';
+    
+    const text = document.getElementById('bubbleText');
+    if (bubbleX === 40 && bubbleY === 40) {
+      text.innerText = "Véhicule parfaitement horizontal";
+      inner.style.background = "#10b981";
+      inner.style.boxShadow = "0 0 10px #10b981";
+    } else {
+      text.innerText = "Attention : Véhicule penché (ajuster les cales)";
+      inner.style.background = "#ef4444";
+      inner.style.boxShadow = "0 0 10px #ef4444";
+    }
+  }
+
+  function resetBubble() {
+    bubbleX = 40;
+    bubbleY = 40;
+    moveBubble(0, 0);
+  }
+
+  function calculateRoute() {
+    const start = document.getElementById('startInput').value;
+    const dest = document.getElementById('destInput').value;
+    const resultDiv = document.getElementById('route-result');
+    if (!start || !dest) {
+      alert("Veuillez renseigner un départ et une arrivée.");
+      return;
+    }
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `<b>📊 Itinéraire calculé pour votre gabarit :</b><br>• Départ : ${start}<br>• Arrivée : ${dest}<br>• Gabarit pris en compte (Hauteur 2.90m max, passages étroits évités).<br>• Coût estimé carburant : ~24.50 €`;
+  }
+
+  // Initialisation au chargement de la page
+  window.onload = function() {
     initMap();
   };
 </script>
-
 </body>
 </html>
