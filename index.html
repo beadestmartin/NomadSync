@@ -311,7 +311,7 @@
       </div>
     </div>
 
-    <!-- LA CARTE COMMUNE (VISIBLE SUR CARTE ET ITINÉRAIRE) -->
+    <!-- LA CARTE COMMUNE -->
     <div id="map-container">
       <div id="map"></div>
     </div>
@@ -631,14 +631,17 @@
     document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
     document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
     
-    // La carte est visible sur "carte" et "itineraire", cachée uniquement sur "jauges"
     document.getElementById('map-container').style.display = tab === 'jauges' ? 'none' : 'block';
 
     document.getElementById('tab-map').classList.toggle('active', tab === 'carte');
     document.getElementById('tab-route').classList.toggle('active', tab === 'itineraire');
     document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
 
-    if (tab === 'carte' || tab === 'itineraire') {
+    if (tab === 'carte') {
+      renderSpots(); // Affiche les spots uniquement sur l'onglet Carte
+      setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+    } else if (tab === 'itineraire') {
+      if (markersGroup) markersGroup.clearLayers(); // Masque les spots sur l'onglet Itinéraire pour garder la carte propre
       setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     }
   }
