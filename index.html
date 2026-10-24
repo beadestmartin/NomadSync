@@ -880,6 +880,54 @@
     desc: "Coin de campagne au milieu des collines toscanes et des cyprès. Sol plat et très calme."
   }
   ];
+// Fin de tes dodos sauvages
+  {
+    name: "Bivouac Val d'Orcia (Toscane, Italie)",
+    lat: 43.0612,
+    lng: 11.6145,
+    type: "wild",
+    icon: "🌲",
+    address: "53027 San Quirico d'Orcia, Italie",
+    desc: "Coin de campagne au milieu des collines toscanes et des cyprès. Sol plat et très calme."
+  }
+];
+const cheapestFuelNetworks = [
+  {
+    country: "France",
+    category: "Grande distribution et Low-cost",
+    brands: [
+      { name: "TotalEnergies Access", type: "Réseau low-cost", note: "Stations aux prix alignés sur les supermarchés avec carburant additivé." },
+      { name: "E.Leclerc", type: "Grande surface", note: "Souvent les prix les plus bas du marché hors promos." },
+      { name: "Intermarché", type: "Grande surface", note: "Très compétitif, opérations prix coûtant fréquentes." }
+    ]
+  },
+  {
+    country: "Espagne",
+    category: "Stations automatiques et discount",
+    brands: [
+      { name: "Petroprix", type: "Automatique low-cost", note: "Réseau 100% automatique très répandu." },
+      { name: "Plenoil", type: "Automatique low-cost", note: "Tarifs parmi les plus bas d'Espagne." },
+      { name: "Ballenoil", type: "Automatique low-cost", note: "Implantation forte sur tout le territoire." },
+      { name: "bonÀrea", type: "Supermarché / Station", note: "Très économique, présent surtout en Catalogne et Aragon." }
+    ]
+  },
+  {
+    country: "Portugal",
+    category: "Discounter et Grande surface",
+    brands: [
+      { name: "Prio", type: "Réseau alternatif", note: "Souvent plus économique que les majors traditionnelles." },
+      { name: "Intermarché / E.Leclerc", type: "Grande surface", note: "Bonne alternative pour les pleins en zone périurbaine." }
+    ]
+  },
+  {
+    country: "Italie",
+    category: "Pompes indépendantes (Self-service)",
+    brands: [
+      { name: "Q8 Easy / IP Matic / Eni (Self)", type: "Automatique", note: "Attention à bien choisir le mode 'Self' (libre-service) et non 'Servito'." },
+      { name: "Pompe Bianche", type: "Indépendantes", note: "Stations indépendantes sans grande marque, souvent les moins chères." }
+    ]
+  }
+];
 
   const typeIcons = { free: '🏕️', wild: '🌙', farm: '🚜', fuel: '⛽', water: '💧', elec: '⚡', drain: '🛠️' };
 
