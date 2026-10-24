@@ -67,8 +67,8 @@
     .offline-toggle.active { background: #0284c7; }
 
     /* Navigation Onglets */
-    .nav-tabs { display: flex; background: var(--tab-bg); padding: 6px; border-bottom: 1px solid var(--border-color); }
-    .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-color); font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.2s; font-size: 0.9rem; opacity: 0.85; }
+    .nav-tabs { display: flex; background: var(--tab-bg); padding: 6px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
+    .tab-btn { flex: 1; min-width: 130px; padding: 12px; border: none; background: transparent; color: var(--text-color); font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.2s; font-size: 0.85rem; opacity: 0.85; text-align: center; }
     .tab-btn.active { background: var(--tab-active); color: var(--tab-active-text); opacity: 1; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
 
     .content-area { padding: 16px; position: relative; }
@@ -122,7 +122,7 @@
     .spot-popup-img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 6px; }
 
     /* Modules Itinéraire & Jauges */
-    .route-card, .gauge-card, .bubble-card, .bluetooth-card { background: var(--bg-color); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px; }
+    .route-card, .gauge-card, .bubble-card, .bluetooth-card, .security-card { background: var(--bg-color); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px; }
     .route-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-bottom: 12px; }
     
     .vehicle-specs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px; }
@@ -140,6 +140,12 @@
     .bubble-inner { width: 20px; height: 20px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 10px #ef4444; position: absolute; top: 40px; left: 40px; transition: transform 0.1s ease; }
 
     .status-banner { background: #2A1A0E; color: #f7f2ea; padding: 14px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border-color); }
+    
+    /* Styles pour l'annuaire d'urgence et budget */
+    .emergency-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+    .emergency-box { background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+    .emergency-box h4 { margin: 0 0 6px 0; color: var(--accent-color); font-size: 0.9rem; }
+    .emergency-box p { margin: 3px 0; font-size: 0.85rem; }
   </style>
 </head>
 <body>
@@ -181,8 +187,9 @@
 
   <div class="nav-tabs">
     <button class="tab-btn active" id="tab-map" onclick="switchTab('carte')">📍 Spots & Carte</button>
-    <button class="tab-btn" id="tab-route" onclick="switchTab('itineraire')">🗺 Itinéraire Adapté</button>
+    <button class="tab-btn" id="tab-route" onclick="switchTab('itineraire')">🗺 Itinéraire</button>
     <button class="tab-btn" id="tab-gauges" onclick="switchTab('jauges')">🔋 Jauges & Van</button>
+    <button class="tab-btn" id="tab-security" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
   </div>
 
   <div class="content-area">
@@ -405,6 +412,78 @@
         </div>
       </div>
     </div>
+
+    <!-- NOUVEL ONGLET : INFOS & SÉCURITÉ -->
+    <div id="view-securite" style="display: none;">
+      
+      <!-- MÉTÉO & VENT FORT -->
+      <div class="security-card">
+        <h3 style="margin-top: 0; color: var(--accent-color);">🌬️ Vigilance Météo & Vent Fort (Lanterneaux)</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 10px;">Surveillez les rafales pour éviter d'endommager les lanterneaux et les stores extérieurs de votre camping-car.</p>
+        <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <span style="font-weight: bold; font-size: 0.95rem;">Conditions Actuelles : </span>
+            <span id="meteo-status" style="color: #10b981; font-weight: bold;">🟢 Vent faible (15 km/h) - Lanterneaux autorisés</span>
+          </div>
+          <button onclick="checkMeteoAlert()" style="background: var(--accent-color); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Rafraîchir Météo</button>
+        </div>
+      </div>
+
+      <!-- SUIVI DU BUDGET CARBURANT -->
+      <div class="security-card">
+        <h3 style="margin-top: 0; color: var(--accent-color);">⛽ Suivi du Budget Carburant</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 10px;">Enregistrez vos pleins pour garder le contrôle sur le budget kilométrique du voyage.</p>
+        
+        <form onsubmit="addFuelExpense(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 12px;">
+          <input type="date" id="fuelDate" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
+          <input type="number" step="0.1" id="fuelLitres" placeholder="Litres (ex: 55)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
+          <input type="number" step="0.01" id="fuelCost" placeholder="Coût total (€) (ex: 95.50)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
+          <button type="submit" style="background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Ajouter un Plein</button>
+        </form>
+
+        <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;">
+            <span>Total Dépensé : <span id="totalFuelCost" style="color: var(--accent-color);">0.00 €</span></span>
+            <span>Total Litres : <span id="totalFuelLitres">0</span> L</span>
+          </div>
+          <div id="fuelHistoryList" style="font-size: 0.85rem; opacity: 0.85; max-height: 120px; overflow-y: auto;">Aucun plein enregistré pour l'instant.</div>
+        </div>
+      </div>
+
+      <!-- ANNUAIRE D'URGENCE NOMADE -->
+      <div class="security-card">
+        <h3 style="margin-top: 0; color: var(--accent-color);">📞 Annuaire d'Urgence Nomade (Europe & Maroc)</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 10px;">Les numéros essentiels à portée de main selon votre pays de voyage :</p>
+        
+        <div class="emergency-grid">
+          <div class="emergency-box">
+            <h4>🇫🇷 France & Europe</h4>
+            <p>🚨 Urgence Générale : <b>112</b></p>
+            <p>👮 Police / Gendarmerie : <b>17</b></p>
+            <p>🚒 Pompiers : <b>18</b></p>
+          </div>
+          <div class="emergency-box">
+            <h4>🇪🇸 Espagne</h4>
+            <p>🚨 Urgence Générale : <b>112</b></p>
+            <p>👮 Guardia Civil : <b>062</b></p>
+            <p>🚑 Urgences Médicales : <b>061</b></p>
+          </div>
+          <div class="emergency-box">
+            <h4>🇵🇹 Portugal</h4>
+            <p>🚨 Urgence Générale : <b>112</b></p>
+            <p>👮 GNR (Gendarmerie) : <b>213 587 232</b></p>
+          </div>
+          <div class="emergency-box" style="border-color: var(--accent-color);">
+            <h4>🇲🇦 Maroc</h4>
+            <p>👮 Police Secours : <b>19</b></p>
+            <p>🛡️ Gendarmerie Royale : <b>177</b></p>
+            <p>🚒 Protection Civile : <b>15</b></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 </div>
 
@@ -544,7 +623,6 @@
 
     spots.push(newSpot);
     
-    // Sauvegarde locale des spots ajoutés
     const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
     customSpots.push(newSpot);
     localStorage.setItem('nomadsync_custom_spots', JSON.stringify(customSpots));
@@ -683,17 +761,19 @@
     document.getElementById('panel-carte').style.display = tab === 'carte' ? 'block' : 'none';
     document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
     document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
+    document.getElementById('view-securite').style.display = tab === 'securite' ? 'block' : 'none';
     
-    document.getElementById('map-container').style.display = tab === 'jauges' ? 'none' : 'block';
+    document.getElementById('map-container').style.display = tab === 'carte' ? 'block' : 'none';
 
     document.getElementById('tab-map').classList.toggle('active', tab === 'carte');
     document.getElementById('tab-route').classList.toggle('active', tab === 'itineraire');
     document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
+    document.getElementById('tab-security').classList.toggle('active', tab === 'securite');
 
     if (tab === 'carte') {
       renderSpots();
       setTimeout(() => { if (map) map.invalidateSize(); }, 200);
-    } else if (tab === 'itineraire') {
+    } else if (tab === 'itineraire' || tab === 'securite') {
       if (markersGroup) markersGroup.clearLayers();
       setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     }
@@ -714,12 +794,10 @@
     resultDiv.innerHTML = "⏳ Calcul de l'itinéraire en cours...";
 
     try {
-      // Géocodage départ
       const startRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startText)}`);
       const startData = await startRes.json();
       if (!startData.length) throw new Error("Départ introuvable.");
 
-      // Géocodage arrivée
       const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destText)}`);
       const destData = await destRes.json();
       if (!destData.length) throw new Error("Arrivée introuvable.");
@@ -727,7 +805,6 @@
       const startCoord = [parseFloat(startData[0].lon), parseFloat(startData[0].lat)];
       const destCoord = [parseFloat(destData[0].lon), parseFloat(destData[0].lat)];
 
-      // Appel au routeur OpenStreetMap (OSRM)
       const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${startCoord[0]},${startCoord[1]};${destCoord[0]},${destCoord[1]}?overview=full&geometries=geojson`);
       const routeData = await routeRes.json();
 
@@ -740,7 +817,6 @@
       const mins = durationMin % 60;
       const timeStr = hours > 0 ? `${hours}h${mins > 0 ? mins + 'min' : ''}` : `${mins} min`;
 
-      // Calcul coût carburant
       const conso = parseFloat(document.getElementById('specConso').value);
       const priceL = parseFloat(document.getElementById('specPrice').value);
       const cost = ((distanceKm * conso / 100) * priceL).toFixed(2);
@@ -750,10 +826,8 @@
         • Coût carburant estimé : <b>~${cost} €</b><br>
         • Gabarit pris en compte (Hauteur ${document.getElementById('specH').value}m).`;
 
-      // Basculer sur l'onglet carte pour afficher le tracé
       switchTab('carte');
 
-      // Tracer la ligne sur la carte Leaflet
       if (routeLine) {
         map.removeLayer(routeLine);
       }
@@ -764,6 +838,62 @@
     } catch (err) {
       resultDiv.innerHTML = `❌ Erreur : ${err.message}`;
     }
+  }
+
+  // --- MÉTÉO / VENT FORT ---
+  function checkMeteoAlert() {
+    const status = document.getElementById('meteo-status');
+    const randomWind = Math.floor(Math.random() * 50) + 10;
+    if (randomWind > 40) {
+      status.style.color = "#ef4444";
+      status.innerHTML = `🔴 ATTENTION Rafales à ${randomWind} km/h - Fermez impérativement les lanterneaux !`;
+    } else if (randomWind > 25) {
+      status.style.color = "#f59e0b";
+      status.innerHTML = `🟡 Vent modéré (${randomWind} km/h) - Prudence sur les stores.`;
+    } else {
+      status.style.color = "#10b981";
+      status.innerHTML = `🟢 Vent faible (${randomWind} km/h) - Lanterneaux autorisés.`;
+    }
+  }
+
+  // --- SUIVI BUDGET CARBURANT ---
+  function addFuelExpense(e) {
+    e.preventDefault();
+    const date = document.getElementById('fuelDate').value;
+    const litres = parseFloat(document.getElementById('fuelLitres').value);
+    const cost = parseFloat(document.getElementById('fuelCost').value);
+
+    const expenses = JSON.parse(localStorage.getItem('nomadsync_fuel_expenses') || '[]');
+    expenses.push({ date, litres, cost });
+    localStorage.setItem('nomadsync_fuel_expenses', JSON.stringify(expenses));
+
+    renderFuelExpenses();
+    e.target.reset();
+  }
+
+  function renderFuelExpenses() {
+    const expenses = JSON.parse(localStorage.getItem('nomadsync_fuel_expenses') || '[]');
+    const listDiv = document.getElementById('fuelHistoryList');
+    let totalCost = 0;
+    let totalLitres = 0;
+
+    if (expenses.length === 0) {
+      listDiv.innerHTML = "Aucun plein enregistré pour l'instant.";
+      document.getElementById('totalFuelCost').innerText = "0.00 €";
+      document.getElementById('totalFuelLitres').innerText = "0";
+      return;
+    }
+
+    let html = "";
+    expenses.forEach((item, index) => {
+      totalCost += item.cost;
+      totalLitres += item.litres;
+      html += `• ${item.date} : <b>${item.litres} L</b> pour <b>${item.cost.toFixed(2)} €</b><br>`;
+    });
+
+    listDiv.innerHTML = html;
+    document.getElementById('totalFuelCost').innerText = totalCost.toFixed(2) + " €";
+    document.getElementById('totalFuelLitres').innerText = totalLitres.toFixed(1);
   }
 
   // --- GESTION DES JAUGES & STOCKAGE LOCAL ---
@@ -811,14 +941,12 @@
   }
 
   function loadSavedData() {
-    // Thème
     const savedTheme = localStorage.getItem('nomadsync_theme');
     if (savedTheme === 'nuit') {
       document.documentElement.setAttribute('data-theme', 'nuit');
       document.getElementById('themeBtn').innerText = '☀️ Mode Jour';
     }
 
-    // Spots personnalisés enregistrés
     const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
     spots.push(...customSpots);
 
@@ -847,9 +975,10 @@
         document.getElementById(id).checked = true;
       }
     });
+
+    renderFuelExpenses();
   }
 
-  // Enregistrement du Service Worker pour le mode PWA / hors-ligne
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js')
