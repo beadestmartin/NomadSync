@@ -260,11 +260,6 @@
           <button type="submit" style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">Enregistrer le Spot</button>
         </form>
       </div>
-
-      <!-- LA CARTE COMMUNE -->
-      <div id="map-container">
-        <div id="map"></div>
-      </div>
     </div>
 
     <!-- PANEL ITINÉRAIRE -->
@@ -314,6 +309,11 @@
 
         <div id="route-result" class="status-banner" style="display: none;"></div>
       </div>
+    </div>
+
+    <!-- LA CARTE COMMUNE (VISIBLE SUR CARTE ET ITINÉRAIRE) -->
+    <div id="map-container">
+      <div id="map"></div>
     </div>
 
     <!-- JAUGES & VAN -->
@@ -630,12 +630,15 @@
     document.getElementById('panel-carte').style.display = tab === 'carte' ? 'block' : 'none';
     document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
     document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
+    
+    // La carte est visible sur "carte" et "itineraire", cachée uniquement sur "jauges"
+    document.getElementById('map-container').style.display = tab === 'jauges' ? 'none' : 'block';
 
     document.getElementById('tab-map').classList.toggle('active', tab === 'carte');
     document.getElementById('tab-route').classList.toggle('active', tab === 'itineraire');
     document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
 
-    if (tab === 'carte') {
+    if (tab === 'carte' || tab === 'itineraire') {
       setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     }
   }
@@ -685,7 +688,6 @@
   }
 
   function loadSavedData() {
-    // Jauges
     ['bat', 'eau', 'usee', 'gaz'].forEach(type => {
       const savedVal = localStorage.getItem(`nomadsync_gauge_${type}`);
       if (savedVal !== null) {
@@ -695,7 +697,6 @@
       }
     });
 
-    // Niveau à bulle
     const savedX = localStorage.getItem('nomadsync_bubble_x');
     const savedY = localStorage.getItem('nomadsync_bubble_y');
     if (savedX !== null && savedY !== null) {
@@ -706,7 +707,6 @@
       inner.style.top = bubbleY + 'px';
     }
 
-    // Checklist
     ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'].forEach(id => {
       const val = localStorage.getItem(`nomadsync_${id}`);
       if (val === 'true') {
