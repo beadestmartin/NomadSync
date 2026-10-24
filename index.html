@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NomadSync VIP 🧭</title>
   
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#D4621A">
+
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
@@ -182,7 +186,7 @@
 
   <div class="content-area">
     
-    <!-- MODAL QR CODE DE PARTAGE (GRATUIT & LIBRE) -->
+    <!-- MODAL QR CODE DE PARTAGE -->
     <div id="qr-modal">
       <h3>📱 Partager NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleQrModal()">✕</span></h3>
       <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Faites flasher ce QR code avec un autre téléphone pour partager instantanément l'application :</p>
@@ -749,6 +753,14 @@
     }
     resultDiv.style.display = 'block';
     resultDiv.innerHTML = `<b>📊 Itinéraire calculé pour votre gabarit :</b><br>• Départ : ${start}<br>• Arrivée : ${dest}<br>• Gabarit pris en compte (Hauteur 2.90m max, passages étroits évités).<br>• Coût estimé carburant : ~24.50 €`;
+  }
+
+  // Enregistrement du Service Worker pour le mode PWA / hors-ligne
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .catch(err => console.log('Service Worker non enregistré', err));
+    });
   }
 
   window.onload = function() {
