@@ -1168,44 +1168,23 @@
     const savedX = localStorage.getItem('nomadsync_bubble_x');
     const savedY = localStorage.getItem('nomadsync_bubble_y');
     if (savedX !== null && savedY !== null) {
-      bubbleX = parseInt(savedX);
-      bubbleY = parseInt(savedY);
-      const inner = document.getElementById('bubblePos');
-      inner.style.left = bubbleX + 'px';
-      inner.style.top = bubbleY + 'px';
-    }
-
-    ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'].forEach(id => {
-      const val = localStorage.getItem(`nomadsync_${id}`);
-      if (val === 'true') {
+    bubbleX = parseInt(savedX);
+    bubbleY = parseInt(savedY);
+    const inner = document.getElementById('bubblePos');
+    inner.style.left = bubbleX + 'px';
+    inner.style.top = bubbleY + 'px';
+['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'].forEach(id => {
+    const val = localStorage.getItem(`nomadsync_${id}`);
+    if (val === 'true') {
         document.getElementById(id).checked = true;
-      }
-    });
-const translations = {
-    fr: { title: "NomadSync", modeBtn: "Mode Nuit/Jour", exportBtn: "Exporter JSON" },
-    en: { title: "NomadSync", modeBtn: "Night/Day Mode", exportBtn: "Export JSON" },
-    es: { title: "NomadSync", modeBtn: "Modo Noche/Día", exportBtn: "Exportar JSON" },
-    de: { title: "NomadSync", modeBtn: "Nacht/Tag-Modus", exportBtn: "JSON exportieren" }
-};
-
-function changeLanguage(lang) {
-    const t = translations[lang];
-    if (!t) return;
-    const titleEl = document.querySelector("h1");
-    if (titleEl) titleEl.innerText = t.title;
-}
-
-function toggleTheme() {
-    const current = document.documentElement.getAttribute("data-theme");
-    const next = current === "terracotta" ? "dark" : "terracotta";
-    document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("theme", next);
-}
+    }
+});
 
 window.onload = function() {
     initMap();
     loadSavedData();
 };
+
 </script>
 </body>
 </html>
