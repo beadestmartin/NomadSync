@@ -149,7 +149,12 @@
   </style>
 </head>
 <body>
-
+<select id="langSelect" onchange="changeLanguage(this.value)">
+    <option value="fr">Français</option>
+    <option value="en">English</option>
+    <option value="es">Español</option>
+    <option value="de">Deutsch</option>
+</select>
 <div class="app-card">
   <!-- Bandeau Déroulant -->
   <div class="ticker-wrap">
@@ -1185,8 +1190,36 @@
       navigator.serviceWorker.register('sw.js')
         .catch(err => console.log('Service Worker non enregistré', err));
     });
-  }
+const translations = {
+        fr: {
+            title: "NomadSync",
+            modeBtn: "Mode Nuit/Jour",
+            exportBtn: "Exporter JSON"
+        },
+        en: {
+            title: "NomadSync",
+            modeBtn: "Night/Day Mode",
+            exportBtn: "Export JSON"
+        },
+        es: {
+            title: "NomadSync",
+            modeBtn: "Modo Noche/Día",
+            exportBtn: "Exportar JSON"
+        },
+        de: {
+            title: "NomadSync",
+            modeBtn: "Nacht/Tag-Modus",
+            exportBtn: "JSON exportieren"
+        }
+    };
 
+    function changeLanguage(lang) {
+        const t = translations[lang];
+        if (!t) return;
+        const titleEl = document.querySelector("h1");
+        if (titleEl) titleEl.innerText = t.title;
+    }
+ 
   window.onload = function() {
     initMap();
     loadSavedData();
