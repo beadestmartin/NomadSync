@@ -1181,49 +1181,31 @@
         document.getElementById(id).checked = true;
       }
     });
-
-    renderFuelExpenses();
-  }
-
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .catch(err => console.log('Service Worker non enregistré', err));
-    });
 const translations = {
-        fr: {
-            title: "NomadSync",
-            modeBtn: "Mode Nuit/Jour",
-            exportBtn: "Exporter JSON"
-        },
-        en: {
-            title: "NomadSync",
-            modeBtn: "Night/Day Mode",
-            exportBtn: "Export JSON"
-        },
-        es: {
-            title: "NomadSync",
-            modeBtn: "Modo Noche/Día",
-            exportBtn: "Exportar JSON"
-        },
-        de: {
-            title: "NomadSync",
-            modeBtn: "Nacht/Tag-Modus",
-            exportBtn: "JSON exportieren"
-        }
-    };
+    fr: { title: "NomadSync", modeBtn: "Mode Nuit/Jour", exportBtn: "Exporter JSON" },
+    en: { title: "NomadSync", modeBtn: "Night/Day Mode", exportBtn: "Export JSON" },
+    es: { title: "NomadSync", modeBtn: "Modo Noche/Día", exportBtn: "Exportar JSON" },
+    de: { title: "NomadSync", modeBtn: "Nacht/Tag-Modus", exportBtn: "JSON exportieren" }
+};
 
-    function changeLanguage(lang) {
-        const t = translations[lang];
-        if (!t) return;
-        const titleEl = document.querySelector("h1");
-        if (titleEl) titleEl.innerText = t.title;
-    }
- 
-  window.onload = function() {
+function changeLanguage(lang) {
+    const t = translations[lang];
+    if (!t) return;
+    const titleEl = document.querySelector("h1");
+    if (titleEl) titleEl.innerText = t.title;
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute("data-theme");
+    const next = current === "terracotta" ? "dark" : "terracotta";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+}
+
+window.onload = function() {
     initMap();
     loadSavedData();
-  };
+};
 </script>
 </body>
 </html>
