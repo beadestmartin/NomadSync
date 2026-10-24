@@ -909,21 +909,24 @@
     updateFuelPrice();
   }
 
-  async function handleSearchBtn() {
-    const query = document.getElementById('searchInput').value;
-    if (!query) return;
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      if (data && data.length > 0) {
-        map.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 11);
-      } else {
-        alert("Lieu non trouvé. Essayez de rajouter le code postal ou le pays.");
+ async function handleSearchBtn() {
+  const query = document.getElementById('searchInput').value;
+  if (!query) return;
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`, {      headers: {
+        'User-Agent': 'NomadSyncApp/1.0'
       }
-    } catch (err) {
-      alert("Recherche indisponible.");
+    });
+    const data = await res.json();
+    if (data && data.length > 0) {
+      map.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 11);
+    } else {
+      alert("Lieu non trouvé. Essayez de rajouter le code postal ou le pays.");
     }
+  } catch (err) {
+    alert("Recherche indisponible.");
   }
+}
 
   function handleSearch(e) {
     if(e.key === 'Enter') handleSearchBtn();
