@@ -143,7 +143,7 @@
   <!-- Bandeau Déroulant -->
   <div class="ticker-wrap">
     <div class="ticker">
-      🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 (Prix Réels) | 🏕️ Aires & Dodos 100% Gratuits (0 €) | 📍 Couverture : France, Espagne, Portugal, Maroc
+      🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 (Prix Réels) | 🏕️ Aires & Dodos 100% Gratuits (0 €) | 📍 Couverture : Europe & Maroc
     </div>
   </div>
 
@@ -638,10 +638,10 @@
     document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
 
     if (tab === 'carte') {
-      renderSpots(); // Affiche les spots uniquement sur l'onglet Carte
+      renderSpots();
       setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     } else if (tab === 'itineraire') {
-      if (markersGroup) markersGroup.clearLayers(); // Masque les spots sur l'onglet Itinéraire pour garder la carte propre
+      if (markersGroup) markersGroup.clearLayers();
       setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     }
   }
