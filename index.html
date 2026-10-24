@@ -93,6 +93,7 @@
     .filter-chip.active { color: white; border-color: transparent; }
 
     .add-spot-btn { background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .export-spots-btn { background: #3b82f6; color: white; border: none; padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
     #f-free.active { background: #ef4444; }
     #f-wild.active { background: #f97316; }
@@ -250,7 +251,10 @@
           <button class="filter-chip" id="f-elec" onclick="toggleFilter('elec')">⚡ Élec</button>
           <button class="filter-chip" id="f-drain" onclick="toggleFilter('drain')">🟣 Vidange</button>
         </div>
-        <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un Spot</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="export-spots-btn" onclick="exportSpotsJSON()">💾 Exporter Spots</button>
+          <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un Spot</button>
+        </div>
       </div>
 
       <!-- FORMULAIRE AJOUT DE SPOT -->
@@ -316,9 +320,9 @@
         </div>
 
         <div class="route-grid">
-          <input type="text" id="startInput" class="search-bar" style="margin:0" placeholder="Départ (ex: 72000 Le Mans)" />
-          <input type="text" id="destInput" class="search-bar" style="margin:0" placeholder="Arrivée (ex: 77100 Meaux)" />
-          <button onclick="calculateRoute()" style="background:var(--accent-color); border:none; color:white; border-radius:8px; padding:10px 16px; font-weight:bold; cursor:pointer;">Calculer & Tracer</button>
+          <input type="text" id="startInput" class="search-bar" style="margin:0" placeholder="Départ (ex: Le Mans)" />
+          <input type="text" id="destInput" class="search-bar" style="margin:0" placeholder="Arrivée (ex: Meaux)" />
+          <button onclick="calculateAndDrawRoute()" style="background:var(--accent-color); border:none; color:white; border-radius:8px; padding:10px 16px; font-weight:bold; cursor:pointer;">Calculer & Tracer</button>
         </div>
 
         <div id="route-result" class="status-banner" style="display: none;"></div>
@@ -407,11 +411,11 @@
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  let map, markersGroup, routeLayer, userMarker;
+  let map, markersGroup, routeLayer, userMarker, routeLine;
   let isOffline = false;
   let filters = { free: false, wild: false, farm: false, fuel: false, water: false, elec: false, drain: false };
 
-  const spots = [
+  let spots = [
     { name: 'Aire Gratuite de Guérande', address: 'Rue de la Mer, 44350 Guérande', lat: 47.328, lng: -2.429, type: 'free', icon: '🏕️', price: '0 € (Gratuit)', stay: '48 heures max', photo: '' },
     { name: 'Dodo Sauvage Falaise St-Estèphe', address: 'Route de l’Estuaire, 33180 Saint-Estèphe', lat: 45.266, lng: -0.771, type: 'wild', icon: '🌙', price: '0 € (Gratuit)', stay: '1 nuit autorisée', photo: '' },
     { name: 'Ferme Bio Saint-Jean-d’Assé', address: 'Le Bourg, 72380 Saint-Jean-d’Assé', lat: 48.150, lng: 0.116, type: 'farm', icon: '🚜', price: '0 € (Accueil Partenaire)', stay: '24h (Accueil Paysan)', photo: '' },
@@ -526,7 +530,7 @@
     }
 
     const center = map ? map.getCenter() : { lat: 46.6, lng: 1.88 };
-    spots.push({
+    const newSpot = {
       name: name,
       address: address,
       lat: center.lat + (Math.random() - 0.5) * 0.05,
@@ -536,12 +540,34 @@
       price: type === 'fuel' ? 'Tarif Temps Réel' : '0 € (Gratuit)',
       stay: '24h / Indiqué sur place',
       photo: photoUrl
-    });
+    };
+
+    spots.push(newSpot);
+    
+    // Sauvegarde locale des spots ajoutés
+    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+    customSpots.push(newSpot);
+    localStorage.setItem('nomadsync_custom_spots', JSON.stringify(customSpots));
 
     renderSpots();
     document.getElementById('add-spot-form').style.display = 'none';
     e.target.reset();
-    alert("✅ Votre spot a été ajouté avec succès sur la carte !");
+    alert("✅ Votre spot a été ajouté et sauvegardé avec succès !");
+  }
+
+  function exportSpotsJSON() {
+    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+    if (customSpots.length === 0) {
+      alert("Aucun spot personnalisé enregistré pour l'instant.");
+      return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(customSpots, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "mes_spots_nomadsync.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
   }
 
   function toggleVipModal() {
@@ -573,9 +599,11 @@
     if (html.getAttribute('data-theme') === 'terracotta') {
       html.setAttribute('data-theme', 'nuit');
       btn.innerText = '☀️ Mode Jour';
+      localStorage.setItem('nomadsync_theme', 'nuit');
     } else {
       html.setAttribute('data-theme', 'terracotta');
       btn.innerText = '🌙 Mode Nuit';
+      localStorage.setItem('nomadsync_theme', 'terracotta');
     }
   }
 
@@ -671,6 +699,73 @@
     }
   }
 
+  // --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
+  async function calculateAndDrawRoute() {
+    const startText = document.getElementById('startInput').value;
+    const destText = document.getElementById('destInput').value;
+    const resultDiv = document.getElementById('route-result');
+    
+    if (!startText || !destText) {
+      alert("Veuillez renseigner un départ et une arrivée.");
+      return;
+    }
+
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = "⏳ Calcul de l'itinéraire en cours...";
+
+    try {
+      // Géocodage départ
+      const startRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startText)}`);
+      const startData = await startRes.json();
+      if (!startData.length) throw new Error("Départ introuvable.");
+
+      // Géocodage arrivée
+      const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destText)}`);
+      const destData = await destRes.json();
+      if (!destData.length) throw new Error("Arrivée introuvable.");
+
+      const startCoord = [parseFloat(startData[0].lon), parseFloat(startData[0].lat)];
+      const destCoord = [parseFloat(destData[0].lon), parseFloat(destData[0].lat)];
+
+      // Appel au routeur OpenStreetMap (OSRM)
+      const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${startCoord[0]},${startCoord[1]};${destCoord[0]},${destCoord[1]}?overview=full&geometries=geojson`);
+      const routeData = await routeRes.json();
+
+      if (!routeData.routes || !routeData.routes.length) throw new Error("Impossible de calculer la route.");
+
+      const route = routeData.routes[0];
+      const distanceKm = (route.distance / 1000).toFixed(1);
+      const durationMin = Math.round(route.duration / 60);
+      const hours = Math.floor(durationMin / 60);
+      const mins = durationMin % 60;
+      const timeStr = hours > 0 ? `${hours}h${mins > 0 ? mins + 'min' : ''}` : `${mins} min`;
+
+      // Calcul coût carburant
+      const conso = parseFloat(document.getElementById('specConso').value);
+      const priceL = parseFloat(document.getElementById('specPrice').value);
+      const cost = ((distanceKm * conso / 100) * priceL).toFixed(2);
+
+      resultDiv.innerHTML = `<b>📊 Itinéraire réel tracé :</b><br>
+        • Distance : <b>${distanceKm} km</b> | Durée estimée : <b>${timeStr}</b><br>
+        • Coût carburant estimé : <b>~${cost} €</b><br>
+        • Gabarit pris en compte (Hauteur ${document.getElementById('specH').value}m).`;
+
+      // Basculer sur l'onglet carte pour afficher le tracé
+      switchTab('carte');
+
+      // Tracer la ligne sur la carte Leaflet
+      if (routeLine) {
+        map.removeLayer(routeLine);
+      }
+      const latLngs = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+      routeLine = L.polyline(latLngs, { color: '#D4621A', weight: 5, opacity: 0.8 }).addTo(map);
+      map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+
+    } catch (err) {
+      resultDiv.innerHTML = `❌ Erreur : ${err.message}`;
+    }
+  }
+
   // --- GESTION DES JAUGES & STOCKAGE LOCAL ---
   function updateGauge(type, val, suffix) {
     document.getElementById(`val-${type}`).innerText = val + suffix;
@@ -716,6 +811,17 @@
   }
 
   function loadSavedData() {
+    // Thème
+    const savedTheme = localStorage.getItem('nomadsync_theme');
+    if (savedTheme === 'nuit') {
+      document.documentElement.setAttribute('data-theme', 'nuit');
+      document.getElementById('themeBtn').innerText = '☀️ Mode Jour';
+    }
+
+    // Spots personnalisés enregistrés
+    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+    spots.push(...customSpots);
+
     ['bat', 'eau', 'usee', 'gaz'].forEach(type => {
       const savedVal = localStorage.getItem(`nomadsync_gauge_${type}`);
       if (savedVal !== null) {
@@ -741,18 +847,6 @@
         document.getElementById(id).checked = true;
       }
     });
-  }
-
-  function calculateRoute() {
-    const start = document.getElementById('startInput').value;
-    const dest = document.getElementById('destInput').value;
-    const resultDiv = document.getElementById('route-result');
-    if (!start || !dest) {
-      alert("Veuillez renseigner un départ et une arrivée.");
-      return;
-    }
-    resultDiv.style.display = 'block';
-    resultDiv.innerHTML = `<b>📊 Itinéraire calculé pour votre gabarit :</b><br>• Départ : ${start}<br>• Arrivée : ${dest}<br>• Gabarit pris en compte (Hauteur 2.90m max, passages étroits évités).<br>• Coût estimé carburant : ~24.50 €`;
   }
 
   // Enregistrement du Service Worker pour le mode PWA / hors-ligne
