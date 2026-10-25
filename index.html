@@ -167,14 +167,17 @@
         <span style="font-size:0.75rem; opacity:0.85">Navigation & Gestion Nomade</span>
       </div>
     </div>
-
-    <div class="user-controls">
-<div class="language-bar" style="text-align: right; margin-bottom: 10px;">
-    <button onclick="changeLanguage('fr')">FR</button>
-    <button onclick="changeLanguage('en')">EN</button>
-    <button onclick="changeLanguage('es')">ES</button>
-    <button onclick="changeLanguage('de')">DE</button>
-</div>
+<div class="user-controls">
+    <select id="langSelect" class="badge-vip" style="background:#334155; color:white; padding:6px 12px; border-radius:6px; border:none; cursor:pointer;" onchange="changeLanguage(this.value)">
+        <option value="fr">🇫🇷 FR</option>
+        <option value="en">🇬🇧 EN</option>
+        <option value="es">🇪🇸 ES</option>
+        <option value="de">🇩🇪 DE</option>
+    </select>
+    <button class="badge-vip" style="background:#0284c7;" onclick="toggleQrModal()">📱 Partager (QR)</button>
+    <button class="badge-vip" onclick="toggleVipModal()">⭐ ESPACE VIP</button>
+    <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Mode Nuit</button>
+   </div>
       <button class="badge-vip" style="background:#0284c7;" onclick="toggleQrModal()">📱 Partager (QR)</button>
       <button class="badge-vip" onclick="toggleVipModal()">⭐ ESPACE VIP</button>
       <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Mode Nuit</button>
@@ -1066,10 +1069,38 @@
 
 <script>
 const translations = {
-    fr: { title: "NomadSync", subtitle: "Navigation & Gestion Nomade" },
-    en: { title: "NomadSync", subtitle: "Nomadic Navigation & Management" },
-    es: { title: "NomadSync", subtitle: "Navegación y Gestión Nómada" },
-    de: { title: "NomadSync", subtitle: "Nomadische Navigation & Verwaltung" }
+    fr: {
+        title: "NomadSync",
+        subtitle: "Navigation & Gestion Nomade",
+        tab1: "Spots & Carte",
+        tab2: "Itinéraire",
+        tab3: "Jauges & Van",
+        tab4: "Infos & Sécurité"
+    },
+    en: {
+        title: "NomadSync",
+        subtitle: "Nomadic Navigation & Management",
+        tab1: "Spots & Map",
+        tab2: "Route",
+        tab3: "Gauges & Van",
+        tab4: "Info & Security"
+    },
+    es: {
+        title: "NomadSync",
+        subtitle: "Navegación y Gestión Nómada",
+        tab1: "Spots y Mapa",
+        tab2: "Ruta",
+        tab3: "Niveles y Van",
+        tab4: "Info y Seguridad"
+    },
+    de: {
+        title: "NomadSync",
+        subtitle: "Nomadische Navigation & Verwaltung",
+        tab1: "Spots & Karte",
+        tab2: "Route",
+        tab3: "Füllstände & Van",
+        tab4: "Info & Sicherheit"
+    }
 };
 
 function changeLanguage(lang) {
@@ -1078,13 +1109,29 @@ function changeLanguage(lang) {
     
     const h1 = document.querySelector('header h1');
     const subtitle = document.querySelector('header span[style*="font-size:0.75rem"]');
+    const tab1 = document.querySelector('button[onclick*="Spots"]');
+    const tab2 = document.querySelector('button[onclick*="Itineraire"]');
+    const tab3 = document.querySelector('button[onclick*="Jauges"]');
+    const tab4 = document.querySelector('button[onclick*="Infos"]');
     
     if (h1) h1.innerText = t.title;
     if (subtitle) subtitle.innerText = t.subtitle;
+    if (tab1) tab1.innerText = "📍 " + t.tab1;
+    if (tab2) tab2.innerText = "🛣️ " + t.tab2;
+    if (tab3) tab3.innerText = "📊 " + t.tab3;
+    if (tab4) tab4.innerText = "🛡️ " + t.tab4;
     
     localStorage.setItem('nomadsync_lang', lang);
 }
-</script>
 
+window.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('nomadsync_lang');
+    if (savedLang) {
+        const select = document.getElementById('langSelect');
+        if (select) select.value = savedLang;
+        changeLanguage(savedLang);
+    }
+});
+</script>
 </body>
 </html>
