@@ -169,12 +169,6 @@
     </div>
 
     <div class="user-controls">
-      <select id="langSelect" class="vehicle-select" onchange="changeLanguage(this.value)">
-        <option value="fr">Français</option>
-        <option value="en">English</option>
-        <option value="es">Español</option>
-        <option value="de">Deutsch</option>
-      </select>
       <button class="badge-vip" style="background:#0284c7;" onclick="toggleQrModal()">📱 Partager (QR)</button>
       <button class="badge-vip" onclick="toggleVipModal()">⭐ ESPACE VIP</button>
       <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Mode Nuit</button>
@@ -198,7 +192,8 @@
     <button class="tab-btn" id="tab-security" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
   </div>
 
-  <div class="content-area">   
+  <div class="content-area">
+    
     <!-- MODAL QR CODE DE PARTAGE -->
     <div id="qr-modal">
       <h3>📱 Partager NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleQrModal()">✕</span></h3>
@@ -492,29 +487,9 @@
   </div>
 </div>
 
-<!-- Leaflet JS et Script NomadSync -->
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
-let map, markersGroup, routeLayer, userMarker, routeLine;
-
-const translations = {
-    fr: { title: "NomadSync", subtitle: "Navigation & Gestion Nomade", map: "📍 Spots & Carte", route: "🗺 Itinéraire" },
-    en: { title: "NomadSync", subtitle: "Nomadic Navigation & Management", map: "📍 Spots & Map", route: "🗺 Route" },
-    es: { title: "NomadSync", subtitle: "Navegación y Gestión Nómada", map: "📍 Spots y Mapa", route: "🗺 Ruta" },
-    de: { title: "NomadSync", subtitle: "Nomadische Navigation & Verwaltung", map: "📍 Spots & Karte", route: "🗺 Route" }
-};
-
-function changeLanguage(lang) {
-    const t = translations[lang];
-    if (!t) return;
-    document.querySelector('h1').innerText = t.title;
-    document.getElementById('tab-map').innerText = t.map;
-    document.getElementById('tab-route').innerText = t.route;
-    localStorage.setItem('nomadsync_lang', lang);
-}
-</script>
-
   let map, markersGroup, routeLayer, userMarker, routeLine;
   let isOffline = false;
   let filters = { free: false, wild: false, farm: false, fuel: false, water: false, elec: false, drain: false };
