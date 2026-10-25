@@ -1164,15 +1164,16 @@
         updateGauge(type, savedVal, suffix);
       }
     });
-
-    const savedX = localStorage.getItem('nomadsync_bubble_x');
-    const savedY = localStorage.getItem('nomadsync_bubble_y');
-    if (savedX !== null && savedY !== null) {
+const savedX = localStorage.getItem('nomadsync_bubble_x');
+const savedY = localStorage.getItem('nomadsync_bubble_y');
+if (savedX !== null && savedY !== null) {
     bubbleX = parseInt(savedX);
     bubbleY = parseInt(savedY);
     const inner = document.getElementById('bubblePos');
     inner.style.left = bubbleX + 'px';
     inner.style.top = bubbleY + 'px';
+} // <-- Accolade fermante ajoutée ici
+
 ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'].forEach(id => {
     const val = localStorage.getItem(`nomadsync_${id}`);
     if (val === 'true') {
@@ -1184,7 +1185,7 @@ window.onload = function() {
     initMap();
     loadSavedData();
 };
-
+   
 </script>
 </body>
 </html>
