@@ -11,8 +11,8 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-<style>
+  
+  <style>
     :root {
       --bg-color: #f7f2ea;
       --card-bg: #ffffff;
@@ -123,9 +123,8 @@
 
     /* Modules Itinéraire & Jauges */
     .route-card, .gauge-card, .bubble-card, .bluetooth-card, .security-card { background: var(--bg-color); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px; }
-
-  .route-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 12px; }
-
+    .route-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-bottom: 12px; }
+    
     .vehicle-specs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px; }
     .vehicle-specs-grid label { font-size: 0.75rem; font-weight: bold; color: var(--accent-color); display: block; margin-bottom: 2px; }
     .vehicle-specs-grid input, .vehicle-specs-grid select { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem; }
@@ -147,79 +146,56 @@
     .emergency-box { background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
     .emergency-box h4 { margin: 0 0 6px 0; color: var(--accent-color); font-size: 0.9rem; }
     .emergency-box p { margin: 3px 0; font-size: 0.85rem; }
-
-.route-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 10px;
-        margin-bottom: 12px;
-    }
-    input, select {
-        width: 100% !important;
-        box-sizing: border-box;
-    }
-    .route-container, form, .card {
-        padding-bottom: 100px !important;
-    }
-    #map {
-        height: 450px !important;
-        width: 100% !important;
-        display: block !important;
-        position: relative !important;
-        z-index: 1;
-    }
-    .button-group, .btn-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-        margin-top: 10px;
-    }
-</style>
-   </head>
+  </style>
+</head>
 <body>
-<div class="app-card" style="padding: 8px 12px;">
-  <!-- Bandeau Déroulant Compact -->
-  <div class="ticker-wrap" style="margin-bottom: 6px; overflow: hidden; white-space: nowrap; font-size: 0.75rem; opacity: 0.9;">
+
+<div class="app-card">
+  <!-- Bandeau Déroulant -->
+  <div class="ticker-wrap">
     <div class="ticker">
-      🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 | 🏕️ Aires & Dodos 100% Gratuits
+      🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 (Prix Réels) | 🏕️ Aires & Dodos 100% Gratuits (0 €) | 📍 Couverture : Europe & Maroc
     </div>
   </div>
 
-  <!-- En-tête Compact et Équilibré -->
-  <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-    
-    <div class="brand" style="display: flex; align-items: center; gap: 6px;">
-      <span class="brand-icon" style="font-size: 1.2rem;">🧭</span>
+  <!-- En-tête -->
+  <header>
+    <div class="brand">
+      <span class="brand-icon">🧭</span>
       <div>
-        <h1 style="font-size: 0.95rem; margin: 0; line-height: 1.2; color: white;">NomadSync</h1>
-        <span style="font-size: 0.6rem; opacity: 0.85; color: white;">Navigation Nomade</span>
+        <h1>NomadSync</h1>
+        <span style="font-size:0.75rem; opacity:0.85">Navigation & Gestion Nomade</span>
       </div>
     </div>
-    
-    <div class="user-controls" style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
-      <select id="langSelect" style="background:rgba(255,255,255,0.2); color:white; padding:5px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); font-size:0.75rem; cursor:pointer;" onchange="changeLanguage(this.value)">
-          <option value="fr" style="color:black;">FR</option>
-          <option value="en" style="color:black;">EN</option>
-          <option value="es" style="color:black;">ES</option>
-          <option value="de" style="color:black;">DE</option>
-      </select>
-      
-      <select id="vehicleSelect" style="background:rgba(255,255,255,0.2); color:white; padding:5px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); font-size:0.75rem; cursor:pointer;" onchange="updateVehicleSpec()">
-          <option value="van" style="color:black;">🚐 Van</option>
-          <option value="cc" style="color:black;">🚛 CC</option>
-          <option value="fourgon" style="color:black;">🚐 Fourgon</option>
-      </select>
-      
-      <button style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:5px 8px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleQrModal()" title="QR Code">📱 QR</button>
-      <button style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:5px 8px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleVipModal()" title="VIP">⭐ VIP</button>
-      <button id="themeBtn" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:5px 8px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleTheme()" title="Thème">🌙</button>
-      <button id="offlineBtn" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:5px 8px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleOffline()" title="Statut réseau">🟢</button>
+
+<header>
+    <div class="brand">
+      <span class="brand-icon">🧭</span>
+      <div>
+        <h1>NomadSync</h1>
+        <span style="font-size:0.75rem; opacity:0.85">Navigation & Gestion Nomade</span>
+      </div>
     </div>
-
-  </header>
-</div>
-
+    <div class="user-controls">
+        <select id="langSelect" class="badge-vip" style="background:#334155; color:white; padding:6px 12px; border-radius:6px; border:none; cursor:pointer;" onchange="changeLanguage(this.value)">
+            <option value="fr">🇫🇷 FR</option>
+            <option value="en">🇬🇧 EN</option>
+            <option value="es">🇪🇸 ES</option>
+            <option value="de">🇩🇪 DE</option>
+        </select>
+        <button class="badge-vip" style="background:#0284c7;" onclick="toggleQrModal()">📱 Partager (QR)</button>
+        <button class="badge-vip" onclick="toggleVipModal()">⭐ ESPACE VIP</button>
+        <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Mode Nuit</button>
+        <select class="vehicle-select" id="vehicleSelect" onchange="updateVehicleSpec()">
+            <option value="van">🚐 Van 3.5t (H: 2.90m)</option>
+            <option value="cc">🚛 Camping-Car PL (H: 3.20m)</option>
+            <option value="fourgon">🚐 Fourgon Compact (H: 2.40m)</option>
+        </select>
+        <button class="offline-toggle" id="offlineBtn" onclick="toggleOffline()">
+            <span id="offlineDot">🟢</span> <span id="offlineText">En Ligne</span>
+        </button>
+    </div>
+</header>
   <div class="nav-tabs">
     <button class="tab-btn active" id="tab-map" onclick="switchTab('carte')">📍 Spots & Carte</button>
     <button class="tab-btn" id="tab-route" onclick="switchTab('itineraire')">🗺 Itinéraire</button>
@@ -276,36 +252,29 @@
     </div>
 
     <!-- PANEL CARTE -->
-         <div class="search-bar">
+    <div id="panel-carte">
+      <div class="search-bar">
         <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" />
         <button onclick="handleSearchBtn()">Chercher</button>
         <button onclick="locateUser()" style="background:#0284c7; color:white; border:none; padding:12px 16px; border-radius:8px; font-weight:bold; cursor:pointer;" title="Me géolocaliser">📍 Ma Position</button>
       </div>
 
-      <!-- Boutons d'itinéraire -->
-      <div class="itinerary-buttons" style="display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap;">
-          <a href="https://www.google.com/maps/dir/?api=1&destination=" target="_blank" id="btn-gmaps" style="background: #4285F4; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">🧭 Google Maps</a>
-          <a href="https://www.waze.com/ul?q=" target="_blank" id="btn-waze" style="background: #33ccff; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">🚗 Waze</a>
-          <a href="maps://?" target="_blank" id="btn-offline" style="background: #2E7D32; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">🗺️ Maps.me (Hors-ligne)</a>
+      <div class="filters-grid">
+        <div class="filter-chips-group">
+          <button class="filter-chip" id="f-free" onclick="toggleFilter('free')">🔴 Aires Gratuites</button>
+          <button class="filter-chip" id="f-wild" onclick="toggleFilter('wild')">🟠 Dodos Sauvages</button>
+          <button class="filter-chip" id="f-farm" onclick="toggleFilter('farm')">🟢 Fermes</button>
+          <button class="filter-chip" id="f-fuel" onclick="toggleFilter('fuel')">⛽ Carburant</button>
+          <button class="filter-chip" id="f-water" onclick="toggleFilter('water')">💧 Eau</button>
+          <button class="filter-chip" id="f-elec" onclick="toggleFilter('elec')">⚡ Élec</button>
+          <button class="filter-chip" id="f-drain" onclick="toggleFilter('drain')">🟣 Vidange</button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="export-spots-btn" onclick="exportSpotsJSON()">💾 Exporter Spots</button>
+          <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un Spot</button>
+        </div>
       </div>
 
-<div class="filters-grid"> 	
-  <div class="filter-chips-group">
-    <button class="filter-chip" id="f-free" onclick="toggleFilter('free')">🔴 Aires Gratuites</button>
-    <button class="filter-chip" id="f-wild" onclick="toggleFilter('wild')">🟠 Dodos Sauvages</button>
-    <button class="filter-chip" id="f-farm" onclick="toggleFilter('farm')">🟢 Fermes</button>
-    <button class="filter-chip" id="f-fuel" onclick="toggleFilter('fuel')">⛽ Carburant</button>
-    <button class="filter-chip" id="f-water" onclick="toggleFilter('water')">💧 Eau</button>
-    <button class="filter-chip" id="f-elec" onclick="toggleFilter('elec')">⚡ Élec</button>
-    <button class="filter-chip" id="f-drain" onclick="toggleFilter('drain')">🟣 Vidange</button>
-  </div>
-  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
-    <button class="export-spots-btn" onclick="exportSpotsJSON()">💾 Exporter Spots</button>
-    <button class="import-spots-btn" onclick="importSpotsJSON()">📥 Importer Spots</button>
-    <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un Spot</button>
-  </div>
-</div>
-      
       <!-- FORMULAIRE AJOUT DE SPOT -->
       <div id="add-spot-form">
         <h4 style="margin-top:0; color:#10b981;">📍 Partager un nouveau spot nomade</h4>
@@ -1105,11 +1074,11 @@ const translations = {
     fr: {
         title: "NomadSync",
         subtitle: "Navigation & Gestion Nomade",
+        tab1: "Spots & Carte",
         tab2: "Itinéraire",
         tab3: "Jauges & Van",
         tab4: "Infos & Sécurité"
-    }
-};
+    },
     en: {
         title: "NomadSync",
         subtitle: "Nomadic Navigation & Management",
