@@ -123,8 +123,9 @@
 
     /* Modules Itinéraire & Jauges */
     .route-card, .gauge-card, .bubble-card, .bluetooth-card, .security-card { background: var(--bg-color); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px; }
-    .route-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-bottom: 12px; }
-    
+
+  .route-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 12px; }
+
     .vehicle-specs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px; }
     .vehicle-specs-grid label { font-size: 0.75rem; font-weight: bold; color: var(--accent-color); display: block; margin-bottom: 2px; }
     .vehicle-specs-grid input, .vehicle-specs-grid select { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem; }
@@ -147,40 +148,25 @@
     .emergency-box h4 { margin: 0 0 6px 0; color: var(--accent-color); font-size: 0.9rem; }
     .emergency-box p { margin: 3px 0; font-size: 0.85rem; }
 
-    @media (max-width: 768px) {
-        /* Force l'empilement vertical des éléments */
-        form div, .route-container div {
-            max-width: 100% !important;
-            box-sizing: border-box;
-        }
-
-        /* Fait passer les champs de saisie en disposition verticale */
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Assure que les boîtes de texte prennent toute la largeur */
-        input, select {
-            width: 100% !important;
-        }
-
-        /* Augmente l'espace en bas pour afficher tous les boutons */
-        .route-container, form, .card {
-            padding-bottom: 100px !important;
-        }
-@media (max-width: 768px) {
-        input, select {
-            width: 100% !important;
-            box-sizing: border-box;
-        }
-        .route-container, form, .card {
-            padding-bottom: 100px !important;
-        }
+.route-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+        margin-bottom: 12px;
     }
-    
-  </style>  
- </head>
+    input, select {
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+    .route-container, form, .card {
+        padding-bottom: 100px !important;
+    }
+    #map {
+        height: 450px !important;
+        width: 100% !important;
+    }
+</style>
+   </head>
 <body>
 
 <div class="app-card">
