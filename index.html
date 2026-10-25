@@ -159,7 +159,7 @@
   </div>
 
   <!-- En-tête -->
-  <header>
+ <header>
     <div class="brand">
       <span class="brand-icon">🧭</span>
       <div>
@@ -167,32 +167,26 @@
         <span style="font-size:0.75rem; opacity:0.85">Navigation & Gestion Nomade</span>
       </div>
     </div>
-<div class="user-controls">
-    <select id="langSelect" class="badge-vip" style="background:#334155; color:white; padding:6px 12px; border-radius:6px; border:none; cursor:pointer;" onchange="changeLanguage(this.value)">
-        <option value="fr">🇫🇷 FR</option>
-        <option value="en">🇬🇧 EN</option>
-        <option value="es">🇪🇸 ES</option>
-        <option value="de">🇩🇪 DE</option>
-    </select>
-    <button class="badge-vip" style="background:#0284c7;" onclick="toggleQrModal()">📱 Partager (QR)</button>
-    <button class="badge-vip" onclick="toggleVipModal()">⭐ ESPACE VIP</button>
-    <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Mode Nuit</button>
-</div>
-      <button class="badge-vip" style="background:#0284c7;" onclick="toggleQrModal()">📱 Partager (QR)</button>
-      <button class="badge-vip" onclick="toggleVipModal()">⭐ ESPACE VIP</button>
-      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Mode Nuit</button>
-
-      <select class="vehicle-select" id="vehicleSelect" onchange="updateVehicleSpec()">
-        <option value="van">🚐 Van 3.5t (H: 2.90m)</option>
-        <option value="cc">🚛 Camping-Car PL (H: 3.20m)</option>
-        <option value="fourgon">🚐 Fourgon Compact (H: 2.40m)</option>
-      </select>
-
-      <button class="offline-toggle" id="offlineBtn" onclick="toggleOffline()">
-        <span id="offlineDot">🟢</span> <span id="offlineText">En Ligne</span>
-      </button>
+    <div class="user-controls">
+        <select id="langSelect" style="background:rgba(255,255,255,0.2); color:white; padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); cursor:pointer;" onchange="changeLanguage(this.value)">
+            <option value="fr" style="color:black;">🇫🇷 FR</option>
+            <option value="en" style="color:black;">🇬🇧 EN</option>
+            <option value="es" style="color:black;">🇪🇸 ES</option>
+            <option value="de" style="color:black;">🇩🇪 DE</option>
+        </select>
+        <button style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:6px 10px; border-radius:6px; cursor:pointer;" onclick="toggleQrModal()">📱 QR</button>
+        <button style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:6px 10px; border-radius:6px; cursor:pointer;" onclick="toggleVipModal()">⭐ VIP</button>
+        <button id="themeBtn" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:6px 10px; border-radius:6px; cursor:pointer;" onclick="toggleTheme()">🌙 Nuit</button>
+        <select id="vehicleSelect" style="background:rgba(255,255,255,0.2); color:white; padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); cursor:pointer;" onchange="updateVehicleSpec()">
+            <option value="van" style="color:black;">🚐 Van 3.5t</option>
+            <option value="cc" style="color:black;">🚛 Camping-Car</option>
+            <option value="fourgon" style="color:black;">🚐 Fourgon</option>
+        </select>
+        <button id="offlineBtn" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:6px 10px; border-radius:6px; cursor:pointer;" onclick="toggleOffline()">
+            <span id="offlineDot">🟢</span> <span id="offlineText">En Ligne</span>
+        </button>
     </div>
-  </header>
+</header>
 
   <div class="nav-tabs">
     <button class="tab-btn active" id="tab-map" onclick="switchTab('carte')">📍 Spots & Carte</button>
