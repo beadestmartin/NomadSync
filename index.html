@@ -187,36 +187,39 @@
     </div>
   </div>
 
-  <!-- En-tête -->
- <header>
-    <div class="brand">
-      <span class="brand-icon">🧭</span>
+  <!-- En-tête Compact -->
+  <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 12px;">
+    <div class="brand" style="display: flex; align-items: center; gap: 6px;">
+      <span class="brand-icon" style="font-size: 1.2rem;">🧭</span>
       <div>
-        <h1>NomadSync</h1>
-        <span style="font-size:0.75rem; opacity:0.85">Navigation & Gestion Nomade</span>
+        <h1 style="font-size: 1rem; margin: 0; line-height: 1.2;">NomadSync</h1>
+        <span style="font-size: 0.65rem; opacity: 0.85;">Navigation Nomade</span>
       </div>
     </div>
-    <div class="user-controls">
-        <select id="langSelect" style="background:rgba(255,255,255,0.2); color:white; padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); cursor:pointer;" onchange="changeLanguage(this.value)">
-            <option value="fr" style="color:black;">🇫🇷 FR</option>
-            <option value="en" style="color:black;">🇬🇧 EN</option>
-            <option value="es" style="color:black;">🇪🇸 ES</option>
-            <option value="de" style="color:black;">🇩🇪 DE</option>
-        </select>
-        <button style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:6px 10px; border-radius:6px; cursor:pointer;" onclick="toggleQrModal()">📱 QR</button>
-        <button style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:6px 10px; border-radius:6px; cursor:pointer;" onclick="toggleVipModal()">⭐ VIP</button>
-        <button id="themeBtn" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:6px 10px; border-radius:6px; cursor:pointer;" onclick="toggleTheme()">🌙 Nuit</button>
-        <select id="vehicleSelect" style="background:rgba(255,255,255,0.2); color:white; padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); cursor:pointer;" onchange="updateVehicleSpec()">
-            <option value="van" style="color:black;">🚐 Van 3.5t</option>
-            <option value="cc" style="color:black;">🚛 Camping-Car</option>
-            <option value="fourgon" style="color:black;">🚐 Fourgon</option>
-        </select>
-        <button id="offlineBtn" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:6px 10px; border-radius:6px; cursor:pointer;" onclick="toggleOffline()">
-            <span id="offlineDot">🟢</span> <span id="offlineText">En Ligne</span>
-        </button>
+    
+    <div class="user-controls" style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+      <select id="langSelect" style="background:rgba(255,255,255,0.2); color:white; padding:4px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); font-size:0.75rem; cursor:pointer;" onchange="changeLanguage(this.value)">
+          <option value="fr" style="color:black;">FR</option>
+          <option value="en" style="color:black;">EN</option>
+          <option value="es" style="color:black;">ES</option>
+          <option value="de" style="color:black;">DE</option>
+      </select>
+      
+      <select id="vehicleSelect" style="background:rgba(255,255,255,0.2); color:white; padding:4px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); font-size:0.75rem; cursor:pointer;" onchange="updateVehicleSpec()">
+          <option value="van" style="color:black;">Van</option>
+          <option value="cc" style="color:black;">CC</option>
+          <option value="fourgon" style="color:black;">Fourgon</option>
+      </select>
+      
+      <button style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 6px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleQrModal()" title="QR Code">📱</button>
+      <button style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 6px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleVipModal()" title="VIP">⭐</button>
+      <button id="themeBtn" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 6px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleTheme()" title="Thème">🌙</button>
+      <button id="offlineBtn" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 6px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleOffline()" title="Statut réseau">
+          <span id="offlineDot">🟢</span>
+      </button>
     </div>
-</header>
-
+  </header>
+</div>
   <div class="nav-tabs">
     <button class="tab-btn active" id="tab-map" onclick="switchTab('carte')">📍 Spots & Carte</button>
     <button class="tab-btn" id="tab-route" onclick="switchTab('itineraire')">🗺 Itinéraire</button>
