@@ -169,6 +169,12 @@
     </div>
 
     <div class="user-controls">
+<div class="language-bar" style="text-align: right; margin-bottom: 10px;">
+    <button onclick="changeLanguage('fr')">FR</button>
+    <button onclick="changeLanguage('en')">EN</button>
+    <button onclick="changeLanguage('es')">ES</button>
+    <button onclick="changeLanguage('de')">DE</button>
+</div>
       <button class="badge-vip" style="background:#0284c7;" onclick="toggleQrModal()">📱 Partager (QR)</button>
       <button class="badge-vip" onclick="toggleVipModal()">⭐ ESPACE VIP</button>
       <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Mode Nuit</button>
@@ -1052,10 +1058,33 @@
     });
   }
 
-  window.onload = function() {
+ window.onload = function() {
     initMap();
     loadSavedData();
-  };
+};
 </script>
+
+<script>
+const translations = {
+    fr: { title: "NomadSync", subtitle: "Navigation & Gestion Nomade" },
+    en: { title: "NomadSync", subtitle: "Nomadic Navigation & Management" },
+    es: { title: "NomadSync", subtitle: "Navegación y Gestión Nómada" },
+    de: { title: "NomadSync", subtitle: "Nomadische Navigation & Verwaltung" }
+};
+
+function changeLanguage(lang) {
+    const t = translations[lang];
+    if (!t) return;
+    
+    const h1 = document.querySelector('header h1');
+    const subtitle = document.querySelector('header span[style*="font-size:0.75rem"]');
+    
+    if (h1) h1.innerText = t.title;
+    if (subtitle) subtitle.innerText = t.subtitle;
+    
+    localStorage.setItem('nomadsync_lang', lang);
+}
+</script>
+
 </body>
 </html>
