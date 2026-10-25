@@ -162,8 +162,7 @@
       🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 (Prix Réels) | 🏕️ Aires & Dodos 100% Gratuits (0 €) | 📍 Couverture : Europe & Maroc
     </div>
   </div>
-
-  <!-- En-tête -->
+<!-- En-tête -->
   <header>
     <div class="brand">
       <span class="brand-icon">🧭</span>
@@ -174,10 +173,15 @@
     </div>
 
     <div class="user-controls">
+      <select id="langSelect" class="vehicle-select" onchange="changeLanguage(this.value)">
+        <option value="fr">Français</option>
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="de">Deutsch</option>
+      </select>
       <button class="badge-vip" style="background:#0284c7;" onclick="toggleQrModal()">📱 Partager (QR)</button>
       <button class="badge-vip" onclick="toggleVipModal()">⭐ ESPACE VIP</button>
       <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Mode Nuit</button>
-
       <select class="vehicle-select" id="vehicleSelect" onchange="updateVehicleSpec()">
         <option value="van">🚐 Van 3.5t (H: 2.90m)</option>
         <option value="cc">🚛 Camping-Car PL (H: 3.20m)</option>
