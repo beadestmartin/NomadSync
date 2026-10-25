@@ -11,8 +11,8 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  
-  <style>
+
+<style>
     :root {
       --bg-color: #f7f2ea;
       --card-bg: #ffffff;
@@ -146,16 +146,32 @@
     .emergency-box { background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
     .emergency-box h4 { margin: 0 0 6px 0; color: var(--accent-color); font-size: 0.9rem; }
     .emergency-box p { margin: 3px 0; font-size: 0.85rem; }
-.emergency-box h4 { margin: 0 0 6px 0; color: var(--accent-color); font-size: 0.9rem; }
-    .emergency-box p { margin: 3px 0; font-size: 0.85rem; }
 
     @media (max-width: 768px) {
+        /* Force l'empilement vertical des éléments */
+        form div, .route-container div {
+            max-width: 100% !important;
+            box-sizing: border-box;
+        }
+
+        /* Fait passer les champs de saisie en disposition verticale */
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Assure que les boîtes de texte prennent toute la largeur */
+        input, select {
+            width: 100% !important;
+        }
+
+        /* Augmente l'espace en bas pour afficher tous les boutons */
         .route-container, form, .card {
-            padding-bottom: 60px;
+            padding-bottom: 100px !important;
         }
     }
-  </style>
-</head>
+  </style>  
+ </head>
 <body>
 
 <div class="app-card">
