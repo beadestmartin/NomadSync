@@ -979,7 +979,8 @@
       const priceL = parseFloat(document.getElementById('specPrice').value);
       const cost = ((distanceKm * conso / 100) * priceL).toFixed(2);
 
-      resultDiv.innerHTML = `<b>📊 Itinéraire réel tracé :</b><br>
+      resultDiv.innerHTML = `<b>📊 Itinéraire réel tracé :</b
+><br>
         • Distance : <b>${distanceKm} km</b> | Durée estimée : <b>${timeStr}</b><br>
         • Coût carburant estimé : <b>~${cost} €</b><br>
         • Gabarit pris en compte (Hauteur ${document.getElementById('specH').value}m).`;
@@ -1179,6 +1180,132 @@ const translations = {
     de: {
         title: "NomadSync",
         subtitle: "Nomadische Navigation & Verwaltung",
+        tab1: "Spots & Karte",
+        tab2: "Route",
+        tab3: "Füllstände & Van",
+        tab4: "Info & Sicherheit"
+    }
+};
+const translations = {
+    fr: {
+        title: "NomadSync",
+        subtitle: "Navigation Nomade",
+        tab1: "Spots & Carte",
+        tab2: "Itinéraire",
+        tab3: "Jauges & Van",
+        tab4: "Infos & Sécurité"
+    },
+    en: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        tab1: "Spots & Map",
+        tab2: "Route",
+        tab3: "Gauges & Van",
+        tab4: "Info & Safety"
+    }
+};
+
+function changeLanguage(lang) {
+    }
+const translations = {
+    fr: {
+        title: "NomadSync",
+        subtitle: "Navigation Nomade",
+        tab1: "Spots & Carte",
+        tab2: "Itinéraire",
+        tab3: "Jauges & Van",
+        tab4: "Infos & Sécurité"
+    },
+    en: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        tab1: "Spots & Map",
+        tab2: "Route",
+        tab3: "Gauges & Van",
+        tab4: "Info & Safety"
+    },
+    es: {
+        title: "NomadSync",
+        subtitle: "Navegación Nómada",
+        tab1: "Puntos y Mapa",
+        tab2: "Ruta",
+        tab3: "Niveles y Van",
+        tab4: "Info y Seguridad"
+    },
+    de: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        tab1: "Spots & Karte",
+        tab2: "Route",
+        tab3: "Füllstände & Van",
+        tab4: "Info & Sicherheit"
+    }
+};
+
+function changeLanguage(lang) {
+ const translations = {
+    fr: {
+        title: "NomadSync",
+        subtitle: "Navigation Nomade",
+        tab1: "Spots & Carte",
+        tab2: "Itinéraire",
+        tab3: "Jauges & Van",
+        tab4: "Infos & Sécurité"
+    },
+    en: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        tab1: "Spots & Map",
+        tab2: "Route",
+        tab3: "Gauges & Van",
+        tab4: "Info & Safety"
+    },
+    es: {
+        title: "NomadSync",
+        subtitle: "Navegación Nómada",
+        tab1: "Puntos y Mapa",
+        tab2: "Ruta",
+        tab3: "Niveles y Van",
+        tab4: "Info y Seguridad"
+    },
+    de: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        tab1: "Spots & Karte",
+        tab2: "Route",
+        tab3: "Füllstände & Van",
+        tab4: "Info & Sicherheit"
+    }
+};
+<script>
+const translations = {
+    fr: {
+        title: "NomadSync",
+        subtitle: "Navigation Nomade",
+        tab1: "Spots & Carte",
+        tab2: "Itinéraire",
+        tab3: "Jauges & Van",
+        tab4: "Infos & Sécurité"
+    },
+    en: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        tab1: "Spots & Map",
+        tab2: "Route",
+        tab3: "Gauges & Van",
+        tab4: "Info & Safety"
+    },
+    es: {
+        title: "NomadSync",
+        subtitle: "Navegación Nómada",
+        tab1: "Puntos y Mapa",
+        tab2: "Ruta",
+        tab3: "Niveles y Van",
+        tab4: "Info y Seguridad"
+    },
+    de: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
         tab1: "Spots & Karte",
         tab2: "Route",
         tab3: "Füllstände & Van",
