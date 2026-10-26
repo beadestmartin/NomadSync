@@ -911,7 +911,8 @@
   function handleSearch(e) {
     if(e.key === 'Enter') handleSearchBtn();
   }
-function switchTab(tab) {
+
+  function switchTab(tab) {
     document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
     document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
     document.getElementById('view-securite').style.display = tab === 'securite' ? 'block' : 'none';
@@ -920,12 +921,7 @@ function switchTab(tab) {
     document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
     document.getElementById('tab-security').classList.toggle('active', tab === 'securite');
 }
-
-// Afficher l'itinéraire par défaut au chargement de la page
-document.addEventListener("DOMContentLoaded", function() {
-    switchTab('itineraire');
-});
-     if (tab === 'carte') {
+    if (tab === 'carte') {
       renderSpots();
       setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     } else if (tab === 'itineraire' || tab === 'securite') {
