@@ -1146,7 +1146,6 @@ document.addEventListener("DOMContentLoaded", function() {
     initMap();
     loadSavedData();
 };
-</script>
 <script>
 const translations = {
     fr: {
@@ -1199,6 +1198,16 @@ function changeLanguage(lang) {
     localStorage.setItem('nomadsync_lang', lang);
 }
 
+function switchTab(tab) {
+    document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
+    document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
+    document.getElementById('view-securite').style.display = tab === 'securite' ? 'block' : 'none';
+    
+    document.getElementById('tab-route').classList.toggle('active', tab === 'itineraire');
+    document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
+    document.getElementById('tab-security').classList.toggle('active', tab === 'securite');
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     const savedLang = localStorage.getItem('nomadsync_lang');
     if (savedLang) {
@@ -1206,7 +1215,9 @@ window.addEventListener('DOMContentLoaded', () => {
         if (select) select.value = savedLang;
         changeLanguage(savedLang);
     }
+    switchTab('itineraire');
 });
+
 </script>
 </body>
 </html>
