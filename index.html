@@ -178,7 +178,7 @@
 </style>
    </head>
 <body>
-<div class="app-card" style="padding: 8px 12px;">
+<div class="app-card" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 8px 12px; background: #d35400; border-radius: 0 0 16px 16px;">
   <!-- Bandeau Déroulant Compact -->
   <div class="ticker-wrap" style="margin-bottom: 6px; overflow: hidden; white-space: nowrap; font-size: 0.75rem; opacity: 0.9;">
     <div class="ticker">
@@ -197,27 +197,29 @@
       </div>
     </div>
     
-    <div class="user-controls" style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
-      <select id="langSelect" style="background:rgba(255,255,255,0.2); color:white; padding:5px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); font-size:0.75rem; cursor:pointer;" onchange="changeLanguage(this.value)">
-          <option value="fr" style="color:black;">FR</option>
-          <option value="en" style="color:black;">EN</option>
-          <option value="es" style="color:black;">ES</option>
-          <option value="de" style="color:black;">DE</option>
+    <div class="user-controls" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+      <select id="langSelect" style="background: rgba(0,0,0,0.3); color: white; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); font-size: 0.75rem; cursor: pointer; outline: none;" onchange="changeLanguage(this.value)">
+          <option value="fr" style="color: black;">FR</option>
+          <option value="en" style="color: black;">EN</option>
+          <option value="es" style="color: black;">ES</option>
+          <option value="de" style="color: black;">DE</option>
       </select>
       
-      <select id="vehicleSelect" style="background:rgba(255,255,255,0.2); color:white; padding:5px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); font-size:0.75rem; cursor:pointer;" onchange="updateVehicleSpec()">
-          <option value="van" style="color:black;">🚐 Van</option>
-          <option value="cc" style="color:black;">🚛 CC</option>
-          <option value="fourgon" style="color:black;">🚐 Fourgon</option>
+      <select id="vehicleSelect" style="background: rgba(0,0,0,0.3); color: white; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); font-size: 0.75rem; cursor: pointer; outline: none;" onchange="updateVehicleSpec()">
+          <option value="van" style="color: black;">🚐 Van</option>
+          <option value="cc" style="color: black;">🚛 CC</option>
+          <option value="fourgon" style="color: black;">🚐 Fourgon</option>
       </select>
       
-      <button style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:5px 8px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleQrModal()" title="QR Code">📱 QR</button>
-      <button style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:5px 8px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleVipModal()" title="VIP">⭐ VIP</button>
-      <button id="themeBtn" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:5px 8px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleTheme()" title="Thème">🌙</button>
-      <button id="offlineBtn" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:5px 8px; border-radius:6px; font-size:0.75rem; cursor:pointer;" onclick="toggleOffline()" title="Statut réseau">🟢</button>
+      <button style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleQrModal()" title="QR Code">📱 QR</button>
+      <button style="background: #111; color: #f5af19; border: 1px solid #f5af19; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" onclick="toggleVipModal()" title="VIP">⭐ VIP</button>
+      <button id="themeBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleTheme()" title="Thème">🌙</button>
+      <button id="offlineBtn" style="background: rgba(46, 125, 50, 0.9); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleOffline()" title="Statut réseau">🟢</button>
     </div>
 
   </header>
+</div>
+
 </div>
 
   <div class="nav-tabs">
