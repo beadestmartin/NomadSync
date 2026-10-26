@@ -272,7 +272,6 @@
 </div>
 
   <div class="nav-tabs">
-    <button class="tab-btn active" id="tab-map" onclick="switchTab('carte')" data-i18n="tab1">📍 Spots & Carte</button>
     <button class="tab-btn" id="tab-route" onclick="switchTab('itineraire')" data-i18n="tab2">🗺 Itinéraire</button>
     <button class="tab-btn" id="tab-gauges" onclick="switchTab('jauges')" data-i18n="tab3">🔋 Jauges & Van</button>
     <button class="tab-btn" id="tab-security" onclick="switchTab('securite')" data-i18n="tab4">🛡️ Infos & Sécurité</button>
@@ -1149,14 +1148,12 @@
     loadSavedData();
 };
 </script>
-
 <script>
 const translations = {
     fr: {
         title: "NomadSync",
         subtitle: "Navigation Nomade",
         banner: "🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 | 🏕️ Aires & Dodos 100% Gratuits",
-        tab1: "📍 Spots & Carte",
         tab2: "🗺️ Itinéraire",
         tab3: "🚐 Jauges & Van",
         tab4: "🛡️ Infos & Sécurité"
@@ -1165,7 +1162,6 @@ const translations = {
         title: "NomadSync",
         subtitle: "Nomad Navigation",
         banner: "🌤️ Weather France & Europe: Favorable conditions 🚐 | ⛽ Diesel & Gas Stations 95 | 🏕️ 100% Free Spots",
-        tab1: "📍 Spots & Map",
         tab2: "🗺️ Route",
         tab3: "🚐 Gauges & Van",
         tab4: "🛡️ Info & Security"
@@ -1174,7 +1170,6 @@ const translations = {
         title: "NomadSync",
         subtitle: "Navegación Nómada",
         banner: "🌤️ Clima Francia y Europa: Condiciones favorables 🚐 | ⛽ Gasolineras 🏕️ Áreas gratuitas",
-        tab1: "📍 Puntos y Mapa",
         tab2: "🗺️ Ruta",
         tab3: "🚐 Niveles y Furgo",
         tab4: "🛡️ Info y Seguridad"
@@ -1183,12 +1178,13 @@ const translations = {
         title: "NomadSync",
         subtitle: "Nomaden-Navigation",
         banner: "🌤️ Wetter Frankreich & Europa: Günstige Bedingungen 🚐 | ⛽ Tankstellen 🏕️ Kostenlose Stellplätze",
-        tab1: "📍 Stellplätze & Karte",
         tab2: "🗺️ Route",
         tab3: "🚐 Füllstände & Van",
         tab4: "🛡️ Infos & Sicherheit"
     }
 };
+</script>
+
 function changeLanguage(lang) {
     const t = translations[lang];
     if (!t) return;
