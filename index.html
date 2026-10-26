@@ -272,12 +272,11 @@
 </div>
 
   <div class="nav-tabs">
-    <button class="tab-btn active" id="tab-map" onclick="switchTab('carte')">📍 Spots & Carte</button>
-    <button class="tab-btn" id="tab-route" onclick="switchTab('itineraire')">🗺 Itinéraire</button>
-    <button class="tab-btn" id="tab-gauges" onclick="switchTab('jauges')">🔋 Jauges & Van</button>
-    <button class="tab-btn" id="tab-security" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
-  </div>
-
+    <button class="tab-btn active" id="tab-map" onclick="switchTab('carte')" data-i18n="tab1">📍 Spots & Carte</button>
+    <button class="tab-btn" id="tab-route" onclick="switchTab('itineraire')" data-i18n="tab2">🗺 Itinéraire</button>
+    <button class="tab-btn" id="tab-gauges" onclick="switchTab('jauges')" data-i18n="tab3">🔋 Jauges & Van</button>
+    <button class="tab-btn" id="tab-security" onclick="switchTab('securite')" data-i18n="tab4">🛡️ Infos & Sécurité</button>
+</div>
   <div class="content-area">
     
     <!-- MODAL QR CODE DE PARTAGE -->
@@ -1319,17 +1318,17 @@ function changeLanguage(lang) {
     
     const h1 = document.querySelector('header h1');
     const subtitle = document.querySelector('header span[style*="font-size:0.75rem"]');
-    const tab1 = document.querySelector('button[onclick*="Spots"]');
-    const tab2 = document.querySelector('button[onclick*="Itineraire"]');
-    const tab3 = document.querySelector('button[onclick*="Jauges"]');
-    const tab4 = document.querySelector('button[onclick*="Infos"]');
+    const tab1 = document.querySelector('[data-i18n="tab1"]');
+    const tab2 = document.querySelector('[data-i18n="tab2"]');
+    const tab3 = document.querySelector('[data-i18n="tab3"]');
+    const tab4 = document.querySelector('[data-i18n="tab4"]');
     
     if (h1) h1.innerText = t.title;
     if (subtitle) subtitle.innerText = t.subtitle;
-    if (tab1) tab1.innerText = "📍 " + t.tab1;
-    if (tab2) tab2.innerText = "🛣️ " + t.tab2;
-    if (tab3) tab3.innerText = "📊 " + t.tab3;
-    if (tab4) tab4.innerText = "🛡️ " + t.tab4;
+    if (tab1) tab1.innerHTML = "📍 " + t.tab1;
+    if (tab2) tab2.innerHTML = "🗺️ " + t.tab2;
+    if (tab3) tab3.innerHTML = "🔋 " + t.tab3;
+    if (tab4) tab4.innerHTML = "🛡️ " + t.tab4;
     
     localStorage.setItem('nomadsync_lang', lang);
 }
@@ -1342,6 +1341,7 @@ window.addEventListener('DOMContentLoaded', () => {
         changeLanguage(savedLang);
     }
 });
+
 </script>
 </body>
 </html>
