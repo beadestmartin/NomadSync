@@ -226,15 +226,15 @@
     }
 </style>
    </head>
+
 <body>
 <div class="app-card" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 8px 12px; background: #d35400; border-radius: 0 0 16px 16px;">
   <!-- Bandeau Déroulant Compact -->
   <div class="ticker-wrap" style="margin-bottom: 6px; overflow: hidden; white-space: nowrap; font-size: 0.75rem; opacity: 0.9;">
-    <div class="ticker">
+    <div class="ticker" data-i18n="banner">
       🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 | 🏕️ Aires & Dodos 100% Gratuits
     </div>
   </div>
-
   <!-- En-tête Compact et Équilibré -->
   <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
     
@@ -1155,54 +1155,54 @@ const translations = {
     fr: {
         title: "NomadSync",
         subtitle: "Navigation Nomade",
-        tab1: "Spots & Carte",
-        tab2: "Itinéraire",
-        tab3: "Jauges & Van",
-        tab4: "Infos & Sécurité"
+        banner: "🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 | 🏕️ Aires & Dodos 100% Gratuits",
+        tab1: "📍 Spots & Carte",
+        tab2: "🗺️ Itinéraire",
+        tab3: "🚐 Jauges & Van",
+        tab4: "🛡️ Infos & Sécurité"
     },
     en: {
         title: "NomadSync",
         subtitle: "Nomad Navigation",
-        tab1: "Spots & Map",
-        tab2: "Route",
-        tab3: "Gauges & Van",
-        tab4: "Info & Safety"
+        banner: "🌤️ Weather France & Europe: Favorable conditions 🚐 | ⛽ Diesel & Gas Stations 95 | 🏕️ 100% Free Spots",
+        tab1: "📍 Spots & Map",
+        tab2: "🗺️ Route",
+        tab3: "🚐 Gauges & Van",
+        tab4: "🛡️ Info & Security"
     },
     es: {
         title: "NomadSync",
         subtitle: "Navegación Nómada",
-        tab1: "Puntos y Mapa",
-        tab2: "Ruta",
-        tab3: "Niveles y Van",
-        tab4: "Info y Seguridad"
+        banner: "🌤️ Clima Francia y Europa: Condiciones favorables 🚐 | ⛽ Gasolineras 🏕️ Áreas gratuitas",
+        tab1: "📍 Puntos y Mapa",
+        tab2: "🗺️ Ruta",
+        tab3: "🚐 Niveles y Furgo",
+        tab4: "🛡️ Info y Seguridad"
     },
     de: {
         title: "NomadSync",
-        subtitle: "Nomad Navigation",
-        tab1: "Spots & Karte",
-        tab2: "Route",
-        tab3: "Füllstände & Van",
-        tab4: "Info & Sicherheit"
+        subtitle: "Nomaden-Navigation",
+        banner: "🌤️ Wetter Frankreich & Europa: Günstige Bedingungen 🚐 | ⛽ Tankstellen 🏕️ Kostenlose Stellplätze",
+        tab1: "📍 Stellplätze & Karte",
+        tab2: "🗺️ Route",
+        tab3: "🚐 Füllstände & Van",
+        tab4: "🛡️ Infos & Sicherheit"
     }
 };
-
 function changeLanguage(lang) {
     const t = translations[lang];
     if (!t) return;
     
-    const h1 = document.querySelector('header h1');
-    const subtitle = document.querySelector('header span[style*="font-size:0.75rem"]');
-    const tab1 = document.querySelector('[data-i18n="tab1"]');
-    const tab2 = document.querySelector('[data-i18n="tab2"]');
-    const tab3 = document.querySelector('[data-i18n="tab3"]');
-    const tab4 = document.querySelector('[data-i18n="tab4"]');
-    
-    if (h1) h1.innerText = t.title;
-    if (subtitle) subtitle.innerText = t.subtitle;
-    if (tab1) tab1.innerHTML = "📍 " + t.tab1;
-    if (tab2) tab2.innerHTML = "🗺️ " + t.tab2;
-    if (tab3) tab3.innerHTML = "🔋 " + t.tab3;
-    if (tab4) tab4.innerHTML = "🛡️ " + t.tab4;
+    // Met à jour l'onglet du navigateur
+    document.title = t.title;
+
+    // Traduit automatiquement tous les éléments du HTML possédant data-i18n
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) {
+            el.innerHTML = t[key];
+        }
+    });
     
     localStorage.setItem('nomadsync_lang', lang);
 }
