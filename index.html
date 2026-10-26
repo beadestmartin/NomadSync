@@ -326,13 +326,15 @@
       </div>
     </div>
 
-    <!-- PANEL CARTE -->
-<div class="search-container">
-  <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" />
-  <button onclick="handleSearchBtn()">Chercher</button>
-  <button onclick="locateUser()" style="background:#0284c7; color:white; border:none; padding:12px 16px; border-radius:25px; font-weight:bold; cursor:pointer;" title="Me géolocaliser">📍 Ma Position</button>
-</div>    
-
+<!-- PANEL CARTE -->
+<div class="search-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 10px; box-sizing: border-box;">
+  <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" style="width: 100%; padding: 12px 16px; border-radius: 25px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; outline: none;" />
+  <div style="display: flex; gap: 8px; width: 100%;">
+    <button onclick="handleSearchBtn()" style="flex: 1; padding: 12px 20px; border-radius: 25px; border: none; background: #d4621a; color: white; font-weight: bold; cursor: pointer;">Chercher</button>
+    <button onclick="locateUser()" style="flex: 1; padding: 12px 16px; border-radius: 25px; border: none; background: #0284c7; color: white; font-weight: bold; cursor: pointer;" title="Me géolocaliser">📍 Ma Position</button>
+  </div>
+</div>
+  
 <div class="filters-grid"> 	
   <div class="filter-chips-group" style="display: flex; gap: 6px; flex-wrap: wrap;">
     <button class="filter-btn" id="f-free" onclick="toggleFilter('free')">🔴 Aires Gratuites</button>
