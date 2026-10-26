@@ -910,43 +910,27 @@
 
   function handleSearch(e) {
     if(e.key === 'Enter') handleSearchBtn();
+  }
+
+  function switchTab(tab) {
+    document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
+    document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
+    document.getElementById('view-securite').style.display = tab === 'securite' ? 'block' : 'none';
+    
+    document.getElementById('tab-route').classList.toggle('active', tab === 'itineraire');
+    document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
+    document.getElementById('tab-security').classList.toggle('active', tab === 'securite');
 }
-
-function switchTab(tab) {
-    // Gestion de l'affichage des panneaux
-    const p1 = document.getElementById('panel-itineraire');
-    const p2 = document.getElementById('view-jauges');
-    const p3 = document.getElementById('view-securite');
-    
-    if (p1) p1.style.display = tab === 'itineraire' ? 'block' : 'none';
-    if (p2) p2.style.display = tab === 'jauges' ? 'block' : 'none';
-    if (p3) p3.style.display = tab === 'securite' ? 'block' : 'none';
-    
-    // Gestion des boutons actifs
-    const b1 = document.getElementById('tab-route');
-    const b2 = document.getElementById('tab-gauges');
-    const b3 = document.getElementById('tab-security');
-    
-    if (b1) b1.classList.toggle('active', tab === 'itineraire');
-    if (b2) b2.classList.toggle('active', tab === 'jauges');
-    if (b3) b3.classList.toggle('active', tab === 'securite');
-
-    // Gestion de la carte (qui était coupée en dehors de la fonction)
     if (tab === 'carte') {
-        if (typeof renderSpots === 'function') renderSpots();
-        setTimeout(() => { if (typeof map !== 'undefined' && map) map.invalidateSize(); }, 200);
+      renderSpots();
+      setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     } else if (tab === 'itineraire' || tab === 'securite') {
-        if (typeof markersGroup !== 'undefined' && markersGroup) markersGroup.clearLayers();
-        setTimeout(() => { if (typeof map !== 'undefined' && map) map.invalidateSize(); }, 200);
+      if (markersGroup) markersGroup.clearLayers();
+      setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     }
-}
+  }
 
-// Afficher l'itinéraire par défaut au chargement de la page
-document.addEventListener("DOMContentLoaded", function() {
-    switchTab('itineraire');
-});
-  
-// --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
+  // --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
   async function calculateAndDrawRoute() {
     const startText = document.getElementById('startInput').value;
     const destText = document.getElementById('destInput').value;
@@ -1158,6 +1142,7 @@ document.addEventListener("DOMContentLoaded", function() {
     initMap();
     loadSavedData();
 };
+</script>
 <script>
 const translations = {
     fr: {
@@ -1210,16 +1195,6 @@ function changeLanguage(lang) {
     localStorage.setItem('nomadsync_lang', lang);
 }
 
-function switchTab(tab) {
-    document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
-    document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
-    document.getElementById('view-securite').style.display = tab === 'securite' ? 'block' : 'none';
-    
-    document.getElementById('tab-route').classList.toggle('active', tab === 'itineraire');
-    document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
-    document.getElementById('tab-security').classList.toggle('active', tab === 'securite');
-}
-
 window.addEventListener('DOMContentLoaded', () => {
     const savedLang = localStorage.getItem('nomadsync_lang');
     if (savedLang) {
@@ -1227,9 +1202,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (select) select.value = savedLang;
         changeLanguage(savedLang);
     }
-    switchTab('itineraire');
 });
-
 </script>
 </body>
 </html>
