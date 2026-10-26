@@ -282,13 +282,7 @@
         <button onclick="locateUser()" style="background:#0284c7; color:white; border:none; padding:12px 16px; border-radius:8px; font-weight:bold; cursor:pointer;" title="Me géolocaliser">📍 Ma Position</button>
       </div>
 
-      <!-- Boutons d'itinéraire -->
-      <div class="itinerary-buttons" style="display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap;">
-          <a href="https://www.google.com/maps/dir/?api=1&destination=" target="_blank" id="btn-gmaps" style="background: #4285F4; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">🧭 Google Maps</a>
-          <a href="https://www.waze.com/ul?q=" target="_blank" id="btn-waze" style="background: #33ccff; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">🚗 Waze</a>
-          <a href="maps://?" target="_blank" id="btn-offline" style="background: #2E7D32; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">🗺️ Maps.me (Hors-ligne)</a>
-      </div>
-
+    
 <div class="filters-grid"> 	
   <div class="filter-chips-group">
     <button class="filter-chip" id="f-free" onclick="toggleFilter('free')">🔴 Aires Gratuites</button>
@@ -378,10 +372,17 @@
       </div>
     </div>
 
-    <!-- LA CARTE COMMUNE -->
-    <div id="map-container">
-      <div id="map"></div>
-    </div>
+<!-- LA CARTE COMMUNE -->
+<div id="map-container" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box;">
+  <div id="map"></div>
+</div>
+
+<!-- Boutons d'itinéraire -->
+<div class="itinerary-buttons" style="display: flex; gap: 10px; margin: 15px auto; flex-wrap: wrap; max-width: 800px; box-sizing: border-box;">
+    <a href="https://www.google.com/maps/dir/?api=1&destination=" target="_blank" id="btn-gmaps" style="background: #4285F4; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; flex: 1; justify-content: center;">🧭 Google Maps</a>
+    <a href="https://www.waze.com/ul?q=" target="_blank" id="btn-waze" style="background: #33ccff; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; flex: 1; justify-content: center;">🚗 Waze</a>
+    <a href="maps://?" target="_blank" id="btn-offline" style="background: #2E7D32; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; flex: 1; justify-content: center;">🗺️ Maps.me (Hors-ligne)</a>
+</div>
 
     <!-- JAUGES & VAN -->
     <div id="view-jauges" style="display: none;">
@@ -793,22 +794,17 @@
     }
   }
 
-  function toggleOffline() {
-    isOffline = !isOffline;
-    const btn = document.getElementById('offlineBtn');
-    const dot = document.getElementById('offlineDot');
-    const text = document.getElementById('offlineText');
-    if (isOffline) {
-      btn.classList.add('active');
-      dot.innerText = '🔴';
-      text.innerText = 'Hors Ligne';
-    } else {
-      btn.classList.remove('active');
-      dot.innerText = '🟢';
-      text.innerText = 'En Ligne';
-    }
+ function toggleOffline() {
+  isOffline = !isOffline;
+  const btn = document.getElementById('offlineBtn');
+  if (isOffline) {
+    btn.classList.add('active');
+    btn.innerText = '🔴 Hors Ligne';
+  } else {
+    btn.classList.remove('active');
+    btn.innerText = '🟢 En Ligne';
   }
-
+}
   function updateFuelPrice() {
     const type = document.getElementById('specFuelType').value;
     if (type === 'gazole') {
