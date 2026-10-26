@@ -18,7 +18,6 @@
       --card-bg: #ffffff;
       --header-bg: #D4621A;
       --ticker-bg: #2A1A0E;
-
       --text-color: #2A1A0E;
       --accent-color: #D4621A;
       --border-color: #e3dbc9;
@@ -272,14 +271,14 @@
 
 </div>
 
- <div class="nav-tabs">
-    <button class="tab-btn active" id="tab-map" onclick="switchTab('carte')" data-i18n="tab1">📍 Spots & Carte</button>
-    <button class="tab-btn" id="tab-route" onclick="switchTab('itineraire')" data-i18n="tab2">🗺 Itinéraire</button>
-    <button class="tab-btn" id="tab-gauges" onclick="switchTab('jauges')" data-i18n="tab3">🔋 Jauges & Van</button>
-    <button class="tab-btn" id="tab-security" onclick="switchTab('securite')" data-i18n="tab4">🛡️ Infos & Sécurité</button>
-</div>
-  
-<div class="content-area">
+  <div class="nav-tabs">
+    <button class="tab-btn active" id="tab-map" onclick="switchTab('carte')">📍 Spots & Carte</button>
+    <button class="tab-btn" id="tab-route" onclick="switchTab('itineraire')">🗺 Itinéraire</button>
+    <button class="tab-btn" id="tab-gauges" onclick="switchTab('jauges')">🔋 Jauges & Van</button>
+    <button class="tab-btn" id="tab-security" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
+  </div>
+
+  <div class="content-area">
     
     <!-- MODAL QR CODE DE PARTAGE -->
     <div id="qr-modal">
@@ -1150,39 +1149,167 @@
     initMap();
     loadSavedData();
 };
+</script>
+
+<script>
+const translations = {
+    fr: {
+        title: "NomadSync",
+        subtitle: "Navigation & Gestion Nomade",
+        tab2: "Itinéraire",
+        tab3: "Jauges & Van",
+        tab4: "Infos & Sécurité"
+    }
+};
+    en: {
+        title: "NomadSync",
+        subtitle: "Nomadic Navigation & Management",
+        tab1: "Spots & Map",
+        tab2: "Route",
+        tab3: "Gauges & Van",
+        tab4: "Info & Security"
+    },
+    es: {
+        title: "NomadSync",
+        subtitle: "Navegación y Gestión Nómada",
+        tab1: "Spots y Mapa",
+        tab2: "Ruta",
+        tab3: "Niveles y Van",
+        tab4: "Info y Seguridad"
+    },
+    de: {
+        title: "NomadSync",
+        subtitle: "Nomadische Navigation & Verwaltung",
+        tab1: "Spots & Karte",
+        tab2: "Route",
+        tab3: "Füllstände & Van",
+        tab4: "Info & Sicherheit"
+    }
+};
+const translations = {
+    fr: {
+        title: "NomadSync",
+        subtitle: "Navigation Nomade",
+        tab1: "Spots & Carte",
+        tab2: "Itinéraire",
+        tab3: "Jauges & Van",
+        tab4: "Infos & Sécurité"
+    },
+    en: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        tab1: "Spots & Map",
+        tab2: "Route",
+        tab3: "Gauges & Van",
+        tab4: "Info & Safety"
+    }
+};
+
+function changeLanguage(lang) {
+    }
+const translations = {
+    fr: {
+        title: "NomadSync",
+        subtitle: "Navigation Nomade",
+        tab1: "Spots & Carte",
+        tab2: "Itinéraire",
+        tab3: "Jauges & Van",
+        tab4: "Infos & Sécurité"
+    },
+    en: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        tab1: "Spots & Map",
+        tab2: "Route",
+        tab3: "Gauges & Van",
+        tab4: "Info & Safety"
+    },
+    es: {
+        title: "NomadSync",
+        subtitle: "Navegación Nómada",
+        tab1: "Puntos y Mapa",
+        tab2: "Ruta",
+        tab3: "Niveles y Van",
+        tab4: "Info y Seguridad"
+    },
+    de: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        tab1: "Spots & Karte",
+        tab2: "Route",
+        tab3: "Füllstände & Van",
+        tab4: "Info & Sicherheit"
+    }
+};
+
+function changeLanguage(lang) {
+ const translations = {
+    fr: {
+        title: "NomadSync",
+        subtitle: "Navigation Nomade",
+        tab1: "Spots & Carte",
+        tab2: "Itinéraire",
+        tab3: "Jauges & Van",
+        tab4: "Infos & Sécurité"
+    },
+    en: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        tab1: "Spots & Map",
+        tab2: "Route",
+        tab3: "Gauges & Van",
+        tab4: "Info & Safety"
+    },
+    es: {
+        title: "NomadSync",
+        subtitle: "Navegación Nómada",
+        tab1: "Puntos y Mapa",
+        tab2: "Ruta",
+        tab3: "Niveles y Van",
+        tab4: "Info y Seguridad"
+    },
+    de: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        tab1: "Spots & Karte",
+        tab2: "Route",
+        tab3: "Füllstände & Van",
+        tab4: "Info & Sicherheit"
+    }
+};
 <script>
 const translations = {
     fr: {
         title: "NomadSync",
         subtitle: "Navigation Nomade",
-        tab1: "📍 Spots & Carte",
-        tab2: "🛣️ Itinéraire",
-        tab3: "📊 Jauges & Van",
-        tab4: "🛡️ Infos & Sécurité"
+        tab1: "Spots & Carte",
+        tab2: "Itinéraire",
+        tab3: "Jauges & Van",
+        tab4: "Infos & Sécurité"
     },
     en: {
         title: "NomadSync",
         subtitle: "Nomad Navigation",
-        tab1: "📍 Spots & Map",
-        tab2: "🛣️ Route",
-        tab3: "📊 Gauges & Van",
-        tab4: "🛡️ Info & Safety"
+        tab1: "Spots & Map",
+        tab2: "Route",
+        tab3: "Gauges & Van",
+        tab4: "Info & Safety"
     },
     es: {
         title: "NomadSync",
         subtitle: "Navegación Nómada",
-        tab1: "📍 Puntos y Mapa",
-        tab2: "🛣️ Ruta",
-        tab3: "📊 Niveles y Van",
-        tab4: "🛡️ Info y Seguridad"
+        tab1: "Puntos y Mapa",
+        tab2: "Ruta",
+        tab3: "Niveles y Van",
+        tab4: "Info y Seguridad"
     },
     de: {
         title: "NomadSync",
         subtitle: "Nomad Navigation",
-        tab1: "📍 Spots & Karte",
-        tab2: "🛣️ Route",
-        tab3: "📊 Füllstände & Van",
-        tab4: "🛡️ Info & Sicherheit"
+        tab1: "Spots & Karte",
+        tab2: "Route",
+        tab3: "Füllstände & Van",
+        tab4: "Info & Sicherheit"
     }
 };
 
@@ -1190,13 +1317,19 @@ function changeLanguage(lang) {
     const t = translations[lang];
     if (!t) return;
     
-    // Met à jour automatiquement tous les éléments portant l'attribut data-i18n
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (t[key]) {
-            el.innerText = t[key];
-        }
-    });
+    const h1 = document.querySelector('header h1');
+    const subtitle = document.querySelector('header span[style*="font-size:0.75rem"]');
+    const tab1 = document.querySelector('button[onclick*="Spots"]');
+    const tab2 = document.querySelector('button[onclick*="Itineraire"]');
+    const tab3 = document.querySelector('button[onclick*="Jauges"]');
+    const tab4 = document.querySelector('button[onclick*="Infos"]');
+    
+    if (h1) h1.innerText = t.title;
+    if (subtitle) subtitle.innerText = t.subtitle;
+    if (tab1) tab1.innerText = "📍 " + t.tab1;
+    if (tab2) tab2.innerText = "🛣️ " + t.tab2;
+    if (tab3) tab3.innerText = "📊 " + t.tab3;
+    if (tab4) tab4.innerText = "🛡️ " + t.tab4;
     
     localStorage.setItem('nomadsync_lang', lang);
 }
@@ -1209,7 +1342,6 @@ window.addEventListener('DOMContentLoaded', () => {
         changeLanguage(savedLang);
     }
 });
-
 </script>
 </body>
 </html>
