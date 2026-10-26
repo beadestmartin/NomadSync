@@ -271,10 +271,10 @@
 
 </div>
 
- <div style="display: flex; gap: 4px; justify-content: space-between; width: 100%; margin-bottom: 10px;">
-    <button id="tab-route" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; background: #fdfbf7; border: 1px solid #dcd6cd; border-radius: 6px;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
-    <button id="tab-gauges" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; background: #fdfbf7; border: 1px solid #dcd6cd; border-radius: 6px;" onclick="switchTab('jauges')">🚐 Jauges & Van</button>
-    <button id="tab-security" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; background: #fdfbf7; border: 1px solid #dcd6cd; border-radius: 6px;" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
+  <div class="nav-tabs">
+    <button class="tab-btn" id="tab-route" onclick="switchTab('itineraire')" data-i18n="tab2">🗺 Itinéraire</button>
+    <button class="tab-btn" id="tab-gauges" onclick="switchTab('jauges')" data-i18n="tab3">🔋 Jauges & Van</button>
+    <button class="tab-btn" id="tab-security" onclick="switchTab('securite')" data-i18n="tab4">🛡️ Infos & Sécurité</button>
 </div>
   <div class="content-area">
     
@@ -333,29 +333,30 @@
   </div>
 </div>
   
-<div class="filters-grid" style="margin-bottom: 10px;">
-    <select id="servicesFilter" class="form-select" style="width: 100%; padding: 12px; border-radius: 25px; border: 1px solid #ccc; font-weight: bold; background: white;" onchange="toggleFilter(this.value)">
-        <option value="">📂 Catégories (Tous)</option>
-        <option value="free">🔴 Aires Gratuites</option>
-        <option value="wild">🟠 Dodos Sauvages</option>
-        <option value="farm">🟢 Fermes</option>
-        <option value="fuel">⛽ Carburant</option>
-        <option value="water">💧 Eau</option>
-        <option value="elec">⚡ Élec</option>
-        <option value="drain">🟣 Vidange</option>
-    </select>
+<div class="filters-grid"> 	
+  <div class="filter-chips-group" style="display: flex; gap: 6px; flex-wrap: wrap;">
+    <button class="filter-btn" id="f-free" onclick="toggleFilter('free')">🔴 Aires Gratuites</button>
+    <button class="filter-btn" id="f-wild" onclick="toggleFilter('wild')">🟠 Dodos Sauvages</button>
+    <button class="filter-btn" id="f-farm" onclick="toggleFilter('farm')">🟢 Fermes</button>
+    <button class="filter-btn" id="f-fuel" onclick="toggleFilter('fuel')">⛽ Carburant</button>
+    <button class="filter-btn" id="f-water" onclick="toggleFilter('water')">💧 Eau</button>
+    <button class="filter-btn" id="f-elec" onclick="toggleFilter('elec')">⚡ Élec</button>
+    <button class="filter-btn" id="f-drain" onclick="toggleFilter('drain')">🟣 Vidange</button>
+  </div>
 </div>
 
-<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
     <button class="export-spots-btn" onclick="exportSpotsJSON()">💾 Exporter Spots</button>
     <button class="import-spots-btn" onclick="importSpotsJSON()">📥 Importer Spots</button>
     <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un Spot</button>
-</div>      
+  </div>
+</div>
+      
       <!-- FORMULAIRE AJOUT DE SPOT -->
       <div id="add-spot-form">
         <h4 style="margin-top:0; color:#10b981;">📍 Partager un nouveau spot nomade</h4>
         <form onsubmit="handleAddNewSpot(event)">
-          <div class="form-grid
+          <div class="form-grid">
             <input type="text" id="newSpotName" placeholder="Nom du Spot" required />
             <input type="text" id="newSpotAddress" placeholder="Adresse complète / Code Postal / Ville" required />
             <select id="newSpotType">
@@ -913,14 +914,18 @@
   }
 
   function switchTab(tab) {
+    document.getElementById('panel-carte').style.display = tab === 'carte' ? 'block' : 'none';
     document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
     document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
     document.getElementById('view-securite').style.display = tab === 'securite' ? 'block' : 'none';
     
+    document.getElementById('map-container').style.display = tab === 'carte' ? 'block' : 'none';
+
+    document.getElementById('tab-map').classList.toggle('active', tab === 'carte');
     document.getElementById('tab-route').classList.toggle('active', tab === 'itineraire');
     document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
     document.getElementById('tab-security').classList.toggle('active', tab === 'securite');
-}
+
     if (tab === 'carte') {
       renderSpots();
       setTimeout(() => { if (map) map.invalidateSize(); }, 200);
