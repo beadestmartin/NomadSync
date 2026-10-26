@@ -272,9 +272,9 @@
 </div>
 
  <div style="display: flex; gap: 4px; justify-content: space-between; width: 100%; margin-bottom: 10px;">
-    <button id="tab-route" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
-    <button id="tab-gauges" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center;" onclick="switchTab('jauges')">🚐 Jauges & Van</button>
-    <button id="tab-security" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center;" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
+    <button id="tab-route" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; background: #fdfbf7; border: 1px solid #dcd6cd; border-radius: 6px;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
+    <button id="tab-gauges" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; background: #fdfbf7; border: 1px solid #dcd6cd; border-radius: 6px;" onclick="switchTab('jauges')">🚐 Jauges & Van</button>
+    <button id="tab-security" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; background: #fdfbf7; border: 1px solid #dcd6cd; border-radius: 6px;" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
 </div>
   <div class="content-area">
     
@@ -913,18 +913,14 @@
   }
 
   function switchTab(tab) {
-    document.getElementById('panel-carte').style.display = tab === 'carte' ? 'block' : 'none';
     document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
     document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
     document.getElementById('view-securite').style.display = tab === 'securite' ? 'block' : 'none';
     
-    document.getElementById('map-container').style.display = tab === 'carte' ? 'block' : 'none';
-
-    document.getElementById('tab-map').classList.toggle('active', tab === 'carte');
     document.getElementById('tab-route').classList.toggle('active', tab === 'itineraire');
     document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
     document.getElementById('tab-security').classList.toggle('active', tab === 'securite');
-
+}
     if (tab === 'carte') {
       renderSpots();
       setTimeout(() => { if (map) map.invalidateSize(); }, 200);
