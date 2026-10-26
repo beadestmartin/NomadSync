@@ -55,28 +55,31 @@
 .search-container {
   display: flex;
   width: 100%;
-  gap: 6px;
-  margin: 8px 0;
+  max-width: 800px;
+  margin: 10px auto;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 0 10px;
 }
 .search-container input {
   flex: 1;
-  padding: 8px 12px;
-  border-radius: 20px;
+  padding: 12px 16px;
+  border-radius: 25px;
   border: 1px solid #ccc;
-  font-size: 0.85rem;
+  font-size: 1rem;
   outline: none;
+  box-sizing: border-box;
 }
 .search-container button {
-  padding: 8px 14px;
-  border-radius: 20px;
+  padding: 12px 20px;
+  border-radius: 25px;
   border: none;
   background: #d35400;
   color: white;
   font-weight: bold;
   cursor: pointer;
+  white-space: nowrap;
 }
-
-
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; margin: 0; padding: 12px; background-color: var(--bg-color); color: var(--text-color); transition: background 0.3s, color 0.3s; }
     
@@ -314,23 +317,24 @@
     </div>
 
     <!-- PANEL CARTE -->
-         <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" />
-        <button onclick="handleSearchBtn()">Chercher</button>
-        <button onclick="locateUser()" style="background:#0284c7; color:white; border:none; padding:12px 16px; border-radius:8px; font-weight:bold; cursor:pointer;" title="Me géolocaliser">📍 Ma Position</button>
-      </div>
+<div class="search-container">
+  <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" />
+  <button onclick="handleSearchBtn()">Chercher</button>
+  <button onclick="locateUser()" style="background:#0284c7; color:white; border:none; padding:12px 16px; border-radius:25px; font-weight:bold; cursor:pointer;" title="Me géolocaliser">📍 Ma Position</button>
+</div>    
 
-    
 <div class="filters-grid"> 	
-  <div class="filter-chips-group">
-    <button class="filter-chip" id="f-free" onclick="toggleFilter('free')">🔴 Aires Gratuites</button>
-    <button class="filter-chip" id="f-wild" onclick="toggleFilter('wild')">🟠 Dodos Sauvages</button>
-    <button class="filter-chip" id="f-farm" onclick="toggleFilter('farm')">🟢 Fermes</button>
-    <button class="filter-chip" id="f-fuel" onclick="toggleFilter('fuel')">⛽ Carburant</button>
-    <button class="filter-chip" id="f-water" onclick="toggleFilter('water')">💧 Eau</button>
-    <button class="filter-chip" id="f-elec" onclick="toggleFilter('elec')">⚡ Élec</button>
-    <button class="filter-chip" id="f-drain" onclick="toggleFilter('drain')">🟣 Vidange</button>
+  <div class="filter-chips-group" style="display: flex; gap: 6px; flex-wrap: wrap;">
+    <button class="filter-btn" id="f-free" onclick="toggleFilter('free')">🔴 Aires Gratuites</button>
+    <button class="filter-btn" id="f-wild" onclick="toggleFilter('wild')">🟠 Dodos Sauvages</button>
+    <button class="filter-btn" id="f-farm" onclick="toggleFilter('farm')">🟢 Fermes</button>
+    <button class="filter-btn" id="f-fuel" onclick="toggleFilter('fuel')">⛽ Carburant</button>
+    <button class="filter-btn" id="f-water" onclick="toggleFilter('water')">💧 Eau</button>
+    <button class="filter-btn" id="f-elec" onclick="toggleFilter('elec')">⚡ Élec</button>
+    <button class="filter-btn" id="f-drain" onclick="toggleFilter('drain')">🟣 Vidange</button>
   </div>
+</div>
+
   <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
     <button class="export-spots-btn" onclick="exportSpotsJSON()">💾 Exporter Spots</button>
     <button class="import-spots-btn" onclick="importSpotsJSON()">📥 Importer Spots</button>
