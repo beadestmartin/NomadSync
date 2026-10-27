@@ -269,51 +269,90 @@
   </header>
 </div>
 
-<!-- NAV TABS -->
+<!-- NAV TABS ET STYLES DE NAVIGATION -->
+<style>
+  /* Style des boutons et de l'effet terracotta actif */
+  .tab-btn.active {
+    background-color: #c85a32 !important;
+    color: white !important;
+  }
+</style>
+
 <div style="max-width: 750px; margin: 0 auto 15px auto; width: 100%; box-sizing: border-box; padding: 0 10px;">
   <div class="nav-tabs" style="display: flex; gap: 6px; width: 100%; background-color: #f5ebe0; padding: 6px; border-radius: 12px; border: 1px solid #e0d0c0; box-sizing: border-box;">
     <button id="tab-route" class="tab-btn active" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
     <button id="tab-gauges" class="tab-btn" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('jauges')">🚐 Jauges & Van</button>
     <button id="tab-security" class="tab-btn" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
   </div>
-</div>   
+</div>
 
-  <!-- MODAL QR CODE DE PARTAGE -->
-  <div id="qr-modal" style="display: none;">
-    <h3>📱 Partager NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleQrModal()">✕</span></h3>
-    <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Faites flasher ce QR code avec un autre téléphone pour partager instantanément l'application :</p>
-    <div style="text-align: center; padding: 10px;">
-      <img id="qrCodeImg" src="" alt="QR Code NomadSync" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); background: white; padding: 6px;" />
+<!-- NAV TABS ET STYLES DE NAVIGATION -->
+<style>
+  .tab-btn.active {
+    background-color: #c85a32 !important;
+    color: white !important;
+  }
+</style>
+
+<div style="max-width: 750px; margin: 0 auto 15px auto; width: 100%; box-sizing: border-box; padding: 0 10px;">
+  <div class="nav-tabs" style="display: flex; gap: 6px; width: 100%; background-color: #f5ebe0; padding: 6px; border-radius: 12px; border: 1px solid #e0d0c0; box-sizing: border-box;">
+    <button id="tab-route" class="tab-btn active" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
+    <button id="tab-gauges" class="tab-btn" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('jauges')">🚐 Jauges & Van</button>
+    <button id="tab-security" class="tab-btn" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
+  </div>
+</div>
+<!-- MODAL QR CODE DE PARTAGE -->
+<div id="qr-modal" style="display: none;">
+  <h3>📱 Partager NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleQrModal()">✕</span></h3>
+  <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Faites flasher ce QR code avec un autre téléphone pour partager instantanément l'application :</p>
+  <div style="text-align: center; padding: 10px;">
+    <img id="qrCodeImg" src="" alt="QR Code NomadSync" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); background: white; padding: 6px;" />
+  </div>
+</div>
+
+<!-- ESPACE VIP -->
+<div id="vip-modal" style="display: none;">
+  <h3>⭐ Espace VIP NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleVipModal()">✕</span></h3>
+  <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Accès illimité aux cartes hors-ligne, dodos secrets et calculateur de gabarit avancé :</p>
+  
+  <div class="vip-pricing-grid">
+    <div class="vip-price-card">
+      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">MENSUEL</div>
+      <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">2,99 €</div>
+      <div style="font-size: 0.75rem; opacity: 0.7;">Sans engagement</div>
+      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Mensuel)...')">S'abonner</button>
+    </div>
+    <div class="vip-price-card featured">
+      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">ANNUEL ⭐</div>
+      <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">24,99 €</div>
+      <div style="font-size: 0.75rem; opacity: 0.7;">Économique</div>
+      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Annuel)...')">S'abonner</button>
+    </div>
+    <div class="vip-price-card">
+      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">À VIE</div>
+      <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">49,99 €</div>
+      <div style="font-size: 0.75rem; opacity: 0.7;">Accès illimité définitif</div>
+      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (À vie)...')">Acheter</button>
     </div>
   </div>
 </div>
 
-    <!-- ESPACE VIP -->
-    <div id="vip-modal">
-      <h3>⭐ Espace VIP NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleVipModal()">✕</span></h3>
-      <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Accès illimité aux cartes hors-ligne, dodos secrets et calculateur de gabarit avancé :</p>
-      
-      <div class="vip-pricing-grid">
-        <div class="vip-price-card">
-          <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">MENSUEL</div>
-          <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">2,99 €</div>
-          <div style="font-size: 0.75rem; opacity: 0.7;">Sans engagement</div>
-          <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Mensuel)...')">S'abonner</button>
-        </div>
-        <div class="vip-price-card featured">
-          <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">ANNUEL ⭐</div>
-          <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">24,99 €</div>
-          <div style="font-size: 0.75rem; opacity: 0.7;">Économique</div>
-          <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Annuel)...')">S'abonner</button>
-        </div>
-        <div class="vip-price-card">
-          <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">À VIE</div>
-          <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">49,99 €</div>
-          <div style="font-size: 0.75rem; opacity: 0.7;">Accès illimité définitif</div>
-          <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (À vie)...')">Acheter</button>
-        </div>
-      </div>
+<!-- CONTENEURS DES ONGLETS DE CONTENU -->
+<div id="itineraire" class="tab-content">
+  <!-- Insère ici ton contenu de l'onglet Itinéraire (carte, etc.) -->
+</div>
 
+<div id="jauges" class="tab-content" style="display: none;">
+  <!-- Insère ici ton contenu de l'onglet Jauges & Van (Bluetooth, jauges, check-up) -->
+</div>
+
+<div id="securite" class="tab-content" style="display: none;">
+  <!-- Insère ici ton contenu de l'onglet Infos & Sécurité -->
+</div>
+
+<div id="securite" class="tab-content" style="display: none;">
+  <!-- Insère ici ton contenu de l'onglet Infos & Sécurité -->
+</div>
       <div style="background: var(--card-bg); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin-top: 15px;">
         <b style="font-size: 0.9rem; display: block; margin-bottom: 8px;">🔐 Connexion / Accès Membre VIP :</b>
         <form onsubmit="handleVipLogin(event)" style="display: flex; gap: 8px; flex-wrap: wrap;">
