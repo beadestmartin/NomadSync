@@ -268,7 +268,7 @@
 
   </header>
 </div>
-<!-- NAV TABS -->
+<!-- NAV TABS --
 <div style="max-width: 750px; margin: 0 auto 15px auto; width: 100%; box-sizing: border-box; padding: 0 10px;">
   <div style="display: flex; gap: 6px; width: 100%; background-color: #f5ebe0; padding: 6px; border-radius: 12px; border: 1px solid #e0d0c0; box-sizing: border-box;">
     <button id="tab-route" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
@@ -840,7 +840,7 @@ function handleAddNewSpot(e) {
     if (html.getAttribute('data-theme') === 'terracotta') {
       html.setAttribute('data-theme', 'nuit');
       btn.innerText = '☀️ Mode Jour';
-      localStorage.setItem('nomadsync_theme', 'nuit');
+      localStorage.setItem('nomadsync_theme', 'nuitineraireit');
     } else {
       html.setAttribute('data-theme', 'terracotta');
       btn.innerText = '🌙 Mode Nuit';
@@ -914,16 +914,12 @@ function handleAddNewSpot(e) {
   function handleSearch(e) {
     if(e.key === 'Enter') handleSearchBtn();
   }
-
 function switchTab(tab) {
-    document.getElementById('panel-carte').style.display = tab === 'carte' ? 'block' : 'none';
     document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
     document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
     document.getElementById('view-securite').style.display = tab === 'securite' ? 'block' : 'none';
-    
-    document.getElementById('map-container').style.display = tab === 'carte' ? 'block' : 'none';
 
-// Gestion propre des classes active sur les 3 boutons
+    // Gestion propre des classes active sur les 3 boutons
     const btnRoute = document.getElementById('tab-route');
     if (btnRoute) btnRoute.classList.toggle('active', tab === 'itineraire');
     
@@ -937,7 +933,7 @@ function switchTab(tab) {
       if (markersGroup) markersGroup.clearLayers();
       setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     }
-  }
+}
   // --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
   async function calculateAndDrawRoute() {
     const startText = document.getElementById('startInput').value;
