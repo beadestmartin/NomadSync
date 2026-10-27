@@ -325,32 +325,36 @@
     </div>
 
 <!-- PANEL CARTE -->
-<div class="search-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 10px; box-sizing: border-box;">
-  <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" style="width: 100%; padding: 12px 16px; border-radius: 25px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; outline: none;" />
-  <div style="display: flex; gap: 8px; width: 100%;">
-    <button onclick="handleSearchBtn()" style="flex: 1; padding: 12px 20px; border-radius: 25px; border: none; background: #d4621a; color: white; font-weight: bold; cursor: pointer;">Chercher</button>
-    <button onclick="locateUser()" style="flex: 1; padding: 12px 16px; border-radius: 25px; border: none; background: #0284c7; color: white; font-weight: bold; cursor: pointer;" title="Me géolocaliser">📍 Ma Position</button>
-  </div>
-</div>
+<div style="max-width: 750px; margin: 0 auto; width: 100%; box-sizing: border-box;">
   
-<div class="filters-grid" style="margin-bottom: 10px;">
-    <select id="servicesFilter" class="form-select" style="width: 100%; padding: 12px; border-radius: 25px; border: 1px solid #ccc; font-weight: bold; background: white;" onchange="toggleFilter(this.value)">
-        <option value="">📂 Catégories (Tous)</option>
-        <option value="free">🔴 Aires Gratuites</option>
-        <option value="wild">🟠 Dodos Sauvages</option>
-        <option value="farm">🟢 Fermes</option>
-        <option value="fuel">⛽ Carburant</option>
-        <option value="water">💧 Eau</option>
-        <option value="elec">⚡ Élec</option>
-        <option value="drain">🟣 Vidange</option>
-    </select>
-</div>
+  <div class="search-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 10px; box-sizing: border-box;">
+    <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" style="width: 100%; padding: 12px 16px; border-radius: 25px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; outline: none;" />
+    <div style="display: flex; gap: 8px; width: 100%;">
+      <button onclick="handleSearchBtn()" style="flex: 1; padding: 12px 20px; border-radius: 25px; border: none; background: #d4621a; color: white; font-weight: bold; cursor: pointer;">Chercher</button>
+      <button onclick="locateUser()" style="flex: 1; padding: 12px 16px; border-radius: 25px; border: none; background: #0284c7; color: white; font-weight: bold; cursor: pointer;" title="Me géolocaliser">📍 Ma Position</button>
+    </div>
+  </div>
+    
+  <div class="filters-grid" style="margin: 10px 10px 0 10px; box-sizing: border-box;">
+      <select id="servicesFilter" class="form-select" style="width: 100%; padding: 12px; border-radius: 25px; border: 1px solid #ccc; font-weight: bold; background: white; box-sizing: border-box;" onchange="toggleFilter(this.value)">
+          <option value="">📂 Catégories (Tous)</option>
+          <option value="free">🔴 Aires Gratuites</option>
+          <option value="wild">🟠 Dodos Sauvages</option>
+          <option value="farm">🟢 Fermes</option>
+          <option value="fuel">⛽ Carburant</option>
+          <option value="water">💧 Eau</option>
+          <option value="elec">⚡ Élec</option>
+          <option value="drain">🟣 Vidange</option>
+      </select>
+  </div>
 
-<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
-    <button class="export-spots-btn" onclick="exportSpotsJSON()">💾 Exporter Spots</button>
-    <button class="import-spots-btn" onclick="importSpotsJSON()">📥 Importer Spots</button>
-    <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un Spot</button>
-</div>      
+  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 10px 0 10px; box-sizing: border-box;">
+      <button class="export-spots-btn" onclick="exportSpotsJSON()">💾 Exporter Spots</button>
+      <button class="import-spots-btn" onclick="importSpotsJSON()">📥 Importer Spots</button>
+      <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un Spot</button>
+  </div>
+
+</div>
       <!-- FORMULAIRE AJOUT DE SPOT -->
       <div id="add-spot-form">
         <h4 style="margin-top:0; color:#10b981;">📍 Partager un nouveau spot nomade</h4>
