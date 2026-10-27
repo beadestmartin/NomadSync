@@ -269,24 +269,26 @@
   </header>
 </div>
 
+<!-- NAV TABS -->
+<div style="max-width: 750px; margin: 0 auto 15px auto; width: 100%; box-sizing: border-box; padding: 0 10px;">
+  <div style="display: flex; gap: 6px; width: 100%; background-color: #f5ebe0; padding: 6px; border-radius: 12px; border: 1px solid #e0d0c0; box-sizing: border-box;">
+    <button id="tab-route" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
+    <button id="tab-gauges" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('jauges')">🚐 Jauges & Van</button>
+    <button id="tab-security" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
+  </div>
 </div>
 
- <div style="display: flex; gap: 4px; justify-content: space-between; width: 100%; margin-bottom: 10px;">
-    <button id="tab-route" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
-    <button id="tab-gauges" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center;" onclick="switchTab('jauges')">🚐 Jauges & Van</button>
-    <button id="tab-security" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center;" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
-</div>
-  <div class="content-area">
+<div class="content-area" style="max-width: 750px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 0 10px;">
     
-    <!-- MODAL QR CODE DE PARTAGE -->
-    <div id="qr-modal">
-      <h3>📱 Partager NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleQrModal()">✕</span></h3>
-      <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Faites flasher ce QR code avec un autre téléphone pour partager instantanément l'application :</p>
-      <div style="text-align: center; padding: 10px;">
-        <img id="qrCodeImg" src="" alt="QR Code NomadSync" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); background: white; padding: 6px;" />
-      </div>
+  <!-- MODAL QR CODE DE PARTAGE -->
+  <div id="qr-modal" style="display: none;">
+    <h3>📱 Partager NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleQrModal()">✕</span></h3>
+    <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Faites flasher ce QR code avec un autre téléphone pour partager instantanément l'application :</p>
+    <div style="text-align: center; padding: 10px;">
+      <img id="qrCodeImg" src="" alt="QR Code NomadSync" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); background: white; padding: 6px;" />
     </div>
-
+  </div>
+</div>
     <!-- ESPACE VIP -->
     <div id="vip-modal">
       <h3>⭐ Espace VIP NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleVipModal()">✕</span></h3>
@@ -915,7 +917,7 @@ function handleAddNewSpot(e) {
     if(e.key === 'Enter') handleSearchBtn();
   }
 
-  function switchTab(tab) {
+function switchTab(tab) {
     document.getElementById('panel-carte').style.display = tab === 'carte' ? 'block' : 'none';
     document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
     document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
@@ -923,10 +925,18 @@ function handleAddNewSpot(e) {
     
     document.getElementById('map-container').style.display = tab === 'carte' ? 'block' : 'none';
 
-    document.getElementById('tab-map').classList.toggle('active', tab === 'carte');
-    document.getElementById('tab-route').classList.toggle('active', tab === 'itineraire');
-    document.getElementById('tab-gauges').classList.toggle('active', tab === 'jauges');
-    document.getElementById('tab-security').classList.toggle('active', tab === 'securite');
+    // Gestion propre des classes active sur les boutons
+    const btnMap = document.getElementById('tab-map');
+    if (btnMap) btnMap.classList.toggle('active', tab === 'carte');
+    
+    const btnRoute = document.getElementById('tab-route');
+    if (btnRoute) btnRoute.classList.toggle('active', tab === 'itineraire');
+    
+    const btnGauges = document.getElementById('tab-gauges');
+    if (btnGauges) btnGauges.classList.toggle('active', tab === 'jauges');
+    
+    const btnSecurity = document.getElementById('tab-security');
+    if (btnSecurity) btnSecurity.classList.toggle('active', tab === 'securite');
 
     if (tab === 'carte') {
       renderSpots();
@@ -936,7 +946,6 @@ function handleAddNewSpot(e) {
       setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     }
   }
-
   // --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
   async function calculateAndDrawRoute() {
     const startText = document.getElementById('startInput').value;
