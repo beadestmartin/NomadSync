@@ -723,21 +723,19 @@
     });
   }
 
-  function renderSpots() {
-    if (!map || !markersGroup) return;
-    markersGroup.clearLayers();
-    const activeFilters = Object.values(filters).some(v => v);
+ function renderSpots() {
+  if (!map || !markersGroup) return;
+  markersGroup.clearLayers();
 
-    spots.forEach(spot => {
-      if (activeFilters && !filters[spot.type]) return;
+  spots.forEach(spot => {
+    if (currentCategory && spot.type !== currentCategory) return;
 
-      const customIcon = L.divIcon({
-        className: 'custom-div-icon',
-        html: `<div class="custom-marker marker-${spot.type}">${spot.icon}</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
-      });
-
+    const customIcon = L.divIcon({
+      className: 'custom-div-icon',
+      html: `<div class="custom-marker marker-${spot.type}">${spot.icon}</div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
       const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
       let photoHtml = spot.photo ? `<img src="${spot.photo}" class="spot-popup-img" />` : '';
       marker.bindPopup(`<b>${spot.name}</b><br><small style="color:#666">📍 ${spot.address}</small><br>💰 Tarif : <b>${spot.price}</b><br>⏱️ Durée : ${spot.stay}${photoHtml}`);
@@ -745,18 +743,19 @@
     });
   }
 
-  function toggleFilter(type) {
-    filters[type] = !filters[type];
-    document.getElementById(`f-${type}`).classList.toggle('active');
-    renderSpots();
-  }
+ let currentCategory = '';
 
-  function toggleAddSpotForm() {
+function toggleFilter(type) {
+    currentCategory = type;
+    renderSpots();
+}
+
+function toggleAddSpotForm() {
     const form = document.getElementById('add-spot-form');
     form.style.display = form.style.display === 'block' ? 'none' : 'block';
-  }
-
-  function handleAddNewSpot(e) {
+}
+  
+function handleAddNewSpot(e) {
     e.preventDefault();
     const name = document.getElementById('newSpotName').value;
     const address = document.getElementById('newSpotAddress').value;
