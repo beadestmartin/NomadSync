@@ -268,7 +268,8 @@
 
   </header>
 </div>
-<!-- NAV TABS --
+
+<!-- NAV TABS -->
 <div style="max-width: 750px; margin: 0 auto 15px auto; width: 100%; box-sizing: border-box; padding: 0 10px;">
   <div style="display: flex; gap: 6px; width: 100%; background-color: #f5ebe0; padding: 6px; border-radius: 12px; border: 1px solid #e0d0c0; box-sizing: border-box;">
     <button id="tab-route" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
@@ -276,6 +277,7 @@
     <button id="tab-security" class="nav-tab" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
   </div>
 </div>
+
 <div class="content-area" style="max-width: 750px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 0 10px;">
     
   <!-- MODAL QR CODE DE PARTAGE -->
@@ -287,6 +289,7 @@
     </div>
   </div>
 </div>
+
     <!-- ESPACE VIP -->
     <div id="vip-modal">
       <h3>⭐ Espace VIP NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleVipModal()">✕</span></h3>
@@ -923,26 +926,40 @@ function handleAddNewSpot(e) {
   function handleSearch(e) {
     if(e.key === 'Enter') handleSearchBtn();
   }
+
 function switchTab(tab) {
+    const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
+    const targetElement = document.getElementById(targetId);
+
+    if (targetElement && targetElement.style.display === 'block') {
+        document.getElementById('panel-itineraire').style.display = 'none';
+        document.getElementById('view-jauges').style.display = 'none';
+        document.getElementById('view-securite').style.display = 'none';
+        ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
+            const b = document.getElementById(id);
+            if (b) b.classList.remove('active');
+        });
+        setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+        return;
+    }
+
     document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
     document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
     document.getElementById('view-securite').style.display = tab === 'securite' ? 'block' : 'none';
 
-    // Gestion propre des classes active sur les 3 boutons
     const btnRoute = document.getElementById('tab-route');
     if (btnRoute) btnRoute.classList.toggle('active', tab === 'itineraire');
-    
     const btnGauges = document.getElementById('tab-gauges');
     if (btnGauges) btnGauges.classList.toggle('active', tab === 'jauges');
-    
     const btnSecurity = document.getElementById('tab-security');
     if (btnSecurity) btnSecurity.classList.toggle('active', tab === 'securite');
 
     if (tab === 'itineraire' || tab === 'securite') {
-      if (markersGroup) markersGroup.clearLayers();
-      setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+        if (typeof markersGroup !== 'undefined' && markersGroup) markersGroup.clearLayers();
+        setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     }
 }
+
   // --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
   async function calculateAndDrawRoute() {
     const startText = document.getElementById('startInput').value;
