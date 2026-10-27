@@ -430,14 +430,6 @@
       </div>
     </div>
 
-<!-- NAV TABS -->
-<div style="max-width: 750px; margin: 0 auto 15px auto; width: 100%; box-sizing: border-box; padding: 0 10px;">
-  <div class="nav-tabs" style="border-radius: 12px; border: 1px solid #e0d0c0; background-color: #f5ebe0; gap: 6px; box-sizing: border-box;">
-    <button id="tab-route" class="tab-btn active" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
-    <button id="tab-gauges" class="tab-btn" onclick="switchTab('jauges')">🚐 Jauges & Van</button>
-    <button id="tab-security" class="tab-btn" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
-  </div>
-</div>
 
 <!-- LA CARTE COMMUNE ET SES BOUTONS ITINÉRAIRE -->
 <div id="map-container" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; position: relative;">
@@ -939,6 +931,7 @@ function switchTab(tab) {
             const b = document.getElementById(id);
             if (b) b.classList.remove('active');
         });
+
         setTimeout(() => { if (map) map.invalidateSize(); }, 200);
         return;
     }
