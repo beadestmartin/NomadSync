@@ -300,38 +300,46 @@
           <option value="drain">🟣 Vidange</option>
       </select>
   </div>
-
-  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 10px 0 10px; box-sizing: border-box;">
-      <button class="export-spots-btn" onclick="exportSpotsJSON()">💾 Exporter Spots</button>
-      <button class="import-spots-btn" onclick="importSpotsJSON()">📥 Importer Spots</button>
-      <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un Spot</button>
+<div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 10px 0 10px; box-sizing: border-box;">
+      <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un bon plan (Gratuit / Carburant)</button>
   </div>
 
 </div>
-      <!-- FORMULAIRE AJOUT DE SPOT -->
+      
+<!-- FORMULAIRE AJOUT DE SPOT -->
       <div id="add-spot-form">
-        <h4 style="margin-top:0; color:#10b981;">📍 Partager un nouveau spot nomade</h4>
+        <h4 style="margin-top:0; color:#10b981;">📍 Partager un nouveau bon plan nomade</h4>
+        
+        <!-- Avertissement esprit NomadSync -->
+        <div style="background: #f0fdf4; border: 1px solid #10b981; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; color: #065f46;">
+          💡 <strong>Esprit NomadSync :</strong><br>
+          Ici, on ne partage que :
+          <ul style="margin: 4px 0 4px 16px; padding: 0;">
+            <li>Des <strong>spots gratuits, sauvages et en pleine nature</strong> (hors campings et aires payantes).</li>
+            <li>Des <strong>stations-service low-cost ou économiques</strong> (type Leclerc, Intermarché, Total Access, etc., en évitant les pompes hors de prix ou sur autoroute).</li>
+          </ul>
+        </div>
+
         <form onsubmit="handleAddNewSpot(event)">
-          <div class="form-grid
-            <input type="text" id="newSpotName" placeholder="Nom du Spot" required />
+          <div class="form-grid">
+            <input type="text" id="newSpotName" placeholder="Nom du Spot ou de la Station" required />
             <input type="text" id="newSpotAddress" placeholder="Adresse complète / Code Postal / Ville" required />
             <select id="newSpotType">
-              <option value="free">Aire Gratuite (0 €)</option>
               <option value="wild">Dodo Sauvage (0 €)</option>
+              <option value="free">Aire Gratuite (0 €)</option>
               <option value="farm">Ferme d'Accueil (0 €)</option>
-              <option value="fuel">Station Carburant Éco</option>
+              <option value="fuel">Station Carburant Éco (Leclerc, Intermarché, Total Access...)</option>
               <option value="water">Eau Gratuite</option>
               <option value="elec">Électricité Gratuite</option>
               <option value="drain">Station Vidange</option>
             </select>
             <input type="file" id="newSpotPhoto" accept="image/*" />
           </div>
-          <button type="submit" style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">Enregistrer le Spot</button>
+          <button type="submit" style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer; margin-top: 10px;">Enregistrer le bon plan</button>
         </form>
       </div>
     </div>
-
-<!-- ZONE UNIQUE DE CONTENU D'ONGLETS -->
+ <!-- ZONE UNIQUE DE CONTENU D'ONGLETS -->
 <div class="content-area">
 
   <!-- 1. ONGLET ITINÉRAIRE (Contient le calculateur ET la carte) -->
