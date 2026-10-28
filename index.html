@@ -1045,12 +1045,35 @@ function handleAddNewSpot(e) {
   }
 
 function switchTab(tab) {
-    // 1. Cacher tous les panneaux
+    const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
+    const targetElement = document.getElementById(targetId);
+
+    // 1. Si l'onglet cliqué est DÉJÀ ouvert, on ferme tout (comportement d'origine au 2ème clic)
+    if (targetElement && targetElement.style.display === 'block') {
+        document.getElementById('panel-itineraire').style.display = 'none';
+        document.getElementById('view-jauges').style.display = 'none';
+        document.getElementById('view-securite').style.display = 'none';
+
+        // On remet tous les boutons en transparent
+        ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
+            const b = document.getElementById(id);
+            if (b) {
+                b.classList.remove('active');
+                b.style.background = 'transparent';
+                b.style.color = '#555';
+            }
+        });
+
+        setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+        return;
+    }
+
+    // 2. Sinon, on cache tous les panneaux
     document.getElementById('panel-itineraire').style.display = 'none';
     document.getElementById('view-jauges').style.display = 'none';
     document.getElementById('view-securite').style.display = 'none';
 
-    // 2. Retirer la classe active de tous les boutons et réinitialiser leur style
+    // 3. On réinitialise tous les boutons en transparent
     ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
         const b = document.getElementById(id);
         if (b) {
@@ -1060,7 +1083,7 @@ function switchTab(tab) {
         }
     });
 
-    // 3. Afficher le panneau demandé et activer le bouton correspondant en Terracotta
+    // 4. On ouvre le panneau demandé et on colore son bouton en Terracotta
     if (tab === 'itineraire') {
         document.getElementById('panel-itineraire').style.display = 'block';
         const btn = document.getElementById('tab-route');
@@ -1087,13 +1110,12 @@ function switchTab(tab) {
         }
     }
 
-    // 4. Ajuster la carte si nécessaire
+    // 5. Ajuster la carte si nécessaire
     if (tab === 'itineraire' || tab === 'securite') {
         if (typeof markersGroup !== 'undefined' && markersGroup) markersGroup.clearLayers();
         setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     }
 }
-
 // --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
   async function calculateAndDrawRoute() {
     const startText = document.getElementById('startInput').value;
