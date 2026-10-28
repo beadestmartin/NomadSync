@@ -1393,15 +1393,17 @@ function handleAddNewSpot(e) {
 function switchTab(tab) {
     const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
     const targetElement = document.getElementById(targetId);
+    
+    // On cible la carte par son ID 'map' ou par sa classe si besoin
+    const mapContainer = document.getElementById('map') || document.querySelector('.map-container');
 
-   // 1. Si l'onglet cliqué est DÉJÀ ouvert, on ferme tout
+    // 1. Si l'onglet cliqué est DÉJÀ ouvert, on ferme tout
     if (targetElement && targetElement.style.display === 'block') {
         document.getElementById('panel-itineraire').style.display = 'none';
         document.getElementById('view-jauges').style.display = 'none';
         document.getElementById('view-securite').style.display = 'none';
         
         // On réaffiche la carte par défaut quand tout se ferme
-        const mapContainer = document.getElementById('map');
         if (mapContainer) mapContainer.style.display = 'block';
 
         // On remet tous les boutons en transparent
@@ -1414,7 +1416,7 @@ function switchTab(tab) {
             }
         });
 
-        setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+        setTimeout(() => { if (typeof map !== 'undefined' && map) map.invalidateSize(); }, 200);
         return;
     }
 
@@ -1433,10 +1435,7 @@ function switchTab(tab) {
         }
     });
 
-    // Récupération de l'élément de la carte (remplace 'map' par l'ID exact de ta div de carte si besoin)
-    const mapContainer = document.getElementById('map');
-
-    // 4. On ouvre le panneau demandé, on gère la carte et on colore son bouton en Terracotta
+    // 4. On ouvre le panneau demandé et on gère l'affichage de la carte
     if (tab === 'itineraire') {
         document.getElementById('panel-itineraire').style.display = 'block';
         if (mapContainer) mapContainer.style.display = 'block'; // La carte reste visible
@@ -1469,9 +1468,10 @@ function switchTab(tab) {
     // 5. Ajuster la carte si nécessaire
     if (tab === 'itineraire') {
         if (typeof markersGroup !== 'undefined' && markersGroup) markersGroup.clearLayers();
-        setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+        setTimeout(() => { if (typeof map !== 'undefined' && map) map.invalidateSize(); }, 200);
     }
 }
+
 // --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
   async function calculateAndDrawRoute() {
     const startText = document.getElementById('startInput').value;
