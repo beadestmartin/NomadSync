@@ -1045,33 +1045,49 @@ function handleAddNewSpot(e) {
   }
 
 function switchTab(tab) {
-    const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
-    const targetElement = document.getElementById(targetId);
+    // 1. Cacher tous les panneaux
+    document.getElementById('panel-itineraire').style.display = 'none';
+    document.getElementById('view-jauges').style.display = 'none';
+    document.getElementById('view-securite').style.display = 'none';
 
-    if (targetElement && targetElement.style.display === 'block') {
-        document.getElementById('panel-itineraire').style.display = 'none';
-        document.getElementById('view-jauges').style.display = 'none';
-        document.getElementById('view-securite').style.display = 'none';
-        ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
-            const b = document.getElementById(id);
-            if (b) b.classList.remove('active');
-        });
+    // 2. Retirer la classe active de tous les boutons et réinitialiser leur style
+    ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) {
+            b.classList.remove('active');
+            b.style.background = 'transparent';
+            b.style.color = '#555';
+        }
+    });
 
-        setTimeout(() => { if (map) map.invalidateSize(); }, 200);
-        return;
+    // 3. Afficher le panneau demandé et activer le bouton correspondant en Terracotta
+    if (tab === 'itineraire') {
+        document.getElementById('panel-itineraire').style.display = 'block';
+        const btn = document.getElementById('tab-route');
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#D4621A';
+            btn.style.color = 'white';
+        }
+    } else if (tab === 'jauges') {
+        document.getElementById('view-jauges').style.display = 'block';
+        const btn = document.getElementById('tab-gauges');
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#D4621A';
+            btn.style.color = 'white';
+        }
+    } else if (tab === 'securite') {
+        document.getElementById('view-securite').style.display = 'block';
+        const btn = document.getElementById('tab-security');
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#D4621A';
+            btn.style.color = 'white';
+        }
     }
 
-    document.getElementById('panel-itineraire').style.display = tab === 'itineraire' ? 'block' : 'none';
-    document.getElementById('view-jauges').style.display = tab === 'jauges' ? 'block' : 'none';
-    document.getElementById('view-securite').style.display = tab === 'securite' ? 'block' : 'none';
-
-    const btnRoute = document.getElementById('tab-route');
-    if (btnRoute) btnRoute.classList.toggle('active', tab === 'itineraire');
-    const btnGauges = document.getElementById('tab-gauges');
-    if (btnGauges) btnGauges.classList.toggle('active', tab === 'jauges');
-    const btnSecurity = document.getElementById('tab-security');
-    if (btnSecurity) btnSecurity.classList.toggle('active', tab === 'securite');
-
+    // 4. Ajuster la carte si nécessaire
     if (tab === 'itineraire' || tab === 'securite') {
         if (typeof markersGroup !== 'undefined' && markersGroup) markersGroup.clearLayers();
         setTimeout(() => { if (map) map.invalidateSize(); }, 200);
