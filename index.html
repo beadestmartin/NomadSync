@@ -1211,35 +1211,50 @@ function changeLanguage(lang) {
 
 // Fonction pour récupérer la météo selon la position du véhicule
 function chargerMeteo(lat, lng) {
+  console.log("📍 Coordonnées reçues :", lat, lng);
   fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
-    .then(response => response.json())
+    .then(response => {
+      console.log("🌐 Réponse de l'API Open-Meteo reçue");
+      return response.json();
+    })
     .then(data => {
+      console.log("📊 Données météo brutes :", data);
       const temp = Math.round(data.current_weather.temperature);
-      const code = data.current_weather.weathercode;
+      const windSpeed = Math.round(data.current_weather.windspeed);
       
-      let condition = "Ensoleillé";
-      if (code > 2) condition = "Nuageux";
-      if (code > 50) condition = "Pluie";
-      if (code > 80) condition = "Averses";
+      let alertHtml = "";
+      if (windSpeed > 50) {
+        alertHtml = `<strong>Conditions Actuelles :</strong> 🔴 <strong>ATTENTION</strong> Rafales à ${windSpeed} km/h (${temp}°C) - Fermez impérativement les lanterneaux !`;
+      } else if (windSpeed > 25) {
+        alertHtml = `<strong>Conditions Actuelles :</strong> 🟡 Vent modéré (${windSpeed} km/h, ${temp}°C) - Prudence sur les stores.`;
+      } else {
+        alertHtml = `<strong>Conditions Actuelles :</strong> 🟢 Calme (${windSpeed} km/h, ${temp}°C) - Conditions favorables.`;
+      }
 
-      const weatherWidget = document.querySelector('.ticker-wrap');
+      const weatherWidget = document.querySelector('.weather-current-text');
       if(weatherWidget) {
-        weatherWidget.innerHTML = `🌤️ Météo locale : ${temp}°C - ${condition}`;
+        weatherWidget.innerHTML = alertHtml;
+        console.log("✅ Affichage météo mis à jour avec succès !");
+      } else {
+        console.log("⚠️ Élément '.weather-current-text' introuvable dans le HTML.");
       }
     })
-    .catch(err => console.log("Erreur météo :", err));
+    .catch(err => console.log("❌ Erreur lors de l'appel météo :", err));
 }
 
 // Utilisation de la géolocalisation du téléphone
 if (navigator.geolocation) {
+  console.log("🛰️ Demande de géolocalisation en cours...");
   navigator.geolocation.getCurrentPosition(
     position => {
       chargerMeteo(position.coords.latitude, position.coords.longitude);
     },
     error => {
-      console.log("Géolocalisation non autorisée pour la météo");
+      console.log("❌ Erreur de géolocalisation :", error.message);
     }
   );
+} else {
+  console.log("❌ La géolocalisation n'est pas supportée par ce navigateur.");
 }
 
 window.addEventListener('DOMContentLoaded', () => {
