@@ -1394,11 +1394,15 @@ function switchTab(tab) {
     const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
     const targetElement = document.getElementById(targetId);
 
-    // 1. Si l'onglet cliqué est DÉJÀ ouvert, on ferme tout (comportement d'origine au 2ème clic)
+   // 1. Si l'onglet cliqué est DÉJÀ ouvert, on ferme tout
     if (targetElement && targetElement.style.display === 'block') {
         document.getElementById('panel-itineraire').style.display = 'none';
         document.getElementById('view-jauges').style.display = 'none';
         document.getElementById('view-securite').style.display = 'none';
+        
+        // On réaffiche la carte par défaut quand tout se ferme
+        const mapContainer = document.getElementById('map');
+        if (mapContainer) mapContainer.style.display = 'block';
 
         // On remet tous les boutons en transparent
         ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
@@ -1429,9 +1433,13 @@ function switchTab(tab) {
         }
     });
 
-    // 4. On ouvre le panneau demandé et on colore son bouton en Terracotta
+    // Récupération de l'élément de la carte (remplace 'map' par l'ID exact de ta div de carte si besoin)
+    const mapContainer = document.getElementById('map');
+
+    // 4. On ouvre le panneau demandé, on gère la carte et on colore son bouton en Terracotta
     if (tab === 'itineraire') {
         document.getElementById('panel-itineraire').style.display = 'block';
+        if (mapContainer) mapContainer.style.display = 'block'; // La carte reste visible
         const btn = document.getElementById('tab-route');
         if (btn) {
             btn.classList.add('active');
@@ -1440,6 +1448,7 @@ function switchTab(tab) {
         }
     } else if (tab === 'jauges') {
         document.getElementById('view-jauges').style.display = 'block';
+        if (mapContainer) mapContainer.style.display = 'none'; // On masque la carte
         const btn = document.getElementById('tab-gauges');
         if (btn) {
             btn.classList.add('active');
@@ -1448,6 +1457,7 @@ function switchTab(tab) {
         }
     } else if (tab === 'securite') {
         document.getElementById('view-securite').style.display = 'block';
+        if (mapContainer) mapContainer.style.display = 'none'; // On masque la carte
         const btn = document.getElementById('tab-security');
         if (btn) {
             btn.classList.add('active');
@@ -1457,7 +1467,7 @@ function switchTab(tab) {
     }
 
     // 5. Ajuster la carte si nécessaire
-    if (tab === 'itineraire' || tab === 'securite') {
+    if (tab === 'itineraire') {
         if (typeof markersGroup !== 'undefined' && markersGroup) markersGroup.clearLayers();
         setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     }
