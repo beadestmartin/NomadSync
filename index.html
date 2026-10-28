@@ -509,7 +509,7 @@
       </div>
     </div>
 
-  <!-- ZONE UNIQUE DE CONTENU D'ONGLETS -->
+<!-- ZONE UNIQUE DE CONTENU D'ONGLETS -->
 <div class="content-area">
 
   <!-- 1. ONGLET ITINÉRAIRE (Contient le calculateur ET la carte) -->
@@ -545,7 +545,15 @@
           <label>⛽ Conso (L/100km)</label>
           <input type="number" step="0.5" id="specConso" value="10.5" />
         </div>
- Meaux)" />
+        <div>
+          <label>💶 Prix (€/L)</label>
+          <input type="number" step="0.01" id="specPrice" value="1.72" />
+        </div>
+      </div>
+
+      <div class="route-grid">
+        <input type="text" id="startInput" class="search-bar" style="margin:0" placeholder="Départ (ex: Le Mans)" />
+        <input type="text" id="destInput" class="search-bar" style="margin:0" placeholder="Arrivée (ex: Meaux)" />
         <button onclick="calculateAndDrawRoute()" style="background:var(--accent-color); border:none; color:white; border-radius:8px; padding:10px 16px; font-weight:bold; cursor:pointer;">Calculer & Tracer</button>
       </div>
 
@@ -564,7 +572,8 @@
       </div>
     </div>
   </div> <!-- Fin de #panel-itineraire -->
-
+</div>
+Copie-colle ce bloc entier dans ton fichier HTML à la place de l'ancien, et tout rentrera dans l'ordre avec l'onglet, les champs de départ/arrivée et la carte !
 
   <!-- 2. ONGLET JAUGES & VAN -->
   <div id="view-jauges" style="display: none;">
