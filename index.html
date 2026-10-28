@@ -178,6 +178,7 @@
     .button-group, .btn-container { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
   </style>
 </head>
+
 <body>
 <div class="app-card" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 8px 12px; background: #d35400; border-radius: 0 0 16px 16px;">
   <!-- Bandeau Déroulant Compact -->
@@ -1149,6 +1150,8 @@ function switchTab(tab) {
     loadSavedData();
 };
 </script>
+</html>
+
 <script>
 const translations = {
     fr: {
@@ -1201,6 +1204,39 @@ function changeLanguage(lang) {
     localStorage.setItem('nomadsync_lang', lang);
 }
 
+// Fonction pour récupérer la météo selon la position du véhicule
+function chargerMeteo(lat, lng) {
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
+    .then(response => response.json())
+    .then(data => {
+      const temp = Math.round(data.current_weather.temperature);
+      const code = data.current_weather.weathercode;
+      
+      let condition = "Ensoleillé";
+      if (code > 2) condition = "Nuageux";
+      if (code > 50) condition = "Pluie";
+      if (code > 80) condition = "Averses";
+
+      const weatherWidget = document.querySelector('.ticker-wrap');
+      if(weatherWidget) {
+        weatherWidget.innerHTML = `🌤️ Météo locale : ${temp}°C - ${condition}`;
+      }
+    })
+    .catch(err => console.log("Erreur météo :", err));
+}
+
+// Utilisation de la géolocalisation du téléphone
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      chargerMeteo(position.coords.latitude, position.coords.longitude);
+    },
+    error => {
+      console.log("Géolocalisation non autorisée pour la météo");
+    }
+  );
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     const savedLang = localStorage.getItem('nomadsync_lang');
     if (savedLang) {
@@ -1211,4 +1247,3 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 </body>
-</html>
