@@ -379,214 +379,213 @@
       </div>
     </div>
 
-    <!-- PANEL ITINÉRAIRE -->
-    <div id="panel-itineraire" style="display: none;">
-      <div class="route-card">
-        <h3 style="margin-top: 0; color: var(--accent-color);">Calculateur de Trajet Temps Réel & Gabarit</h3>
-        
-        <div class="vehicle-specs-grid">
-          <div>
-            <label>📏 Hauteur (m)</label>
-            <input type="number" step="0.05" id="specH" value="2.90" />
-          </div>
-          <div>
-            <label>📐 Longueur (m)</label>
-            <input type="number" step="0.1" id="specL" value="6.50" />
-          </div>
-          <div>
-            <label>↔️ Largeur (m)</label>
-            <input type="number" step="0.05" id="specW" value="2.20" />
-          </div>
-          <div>
-            <label>⚖️ Poids (tonnes)</label>
-            <input type="number" step="0.1" id="specP" value="3.5" />
-          </div>
-          <div>
-            <label>⛽ Carburant</label>
-            <select id="specFuelType" onchange="updateFuelPrice()">
-              <option value="gazole">Gazole (Diesel)</option>
-              <option value="sp95">Sans Plomb 95 (E10)</option>
-            </select>
-          </div>
-          <div>
-            <label>⛽ Conso (L/100km)</label>
-            <input type="number" step="0.5" id="specConso" value="10.5" />
-          </div>
-          <div>
-            <label>💶 Prix (€/L)</label>
-            <input type="number" step="0.01" id="specPrice" value="1.72" />
-          </div>
-        </div>
+  <!-- ZONE UNIQUE DE CONTENU D'ONGLETS -->
+<div class="content-area">
 
-        <div class="route-grid">
-          <input type="text" id="startInput" class="search-bar" style="margin:0" placeholder="Départ (ex: Le Mans)" />
-          <input type="text" id="destInput" class="search-bar" style="margin:0" placeholder="Arrivée (ex: Meaux)" />
-          <button onclick="calculateAndDrawRoute()" style="background:var(--accent-color); border:none; color:white; border-radius:8px; padding:10px 16px; font-weight:bold; cursor:pointer;">Calculer & Tracer</button>
-        </div>
-
-        <div id="route-result" class="status-banner" style="display: none;"></div>
-      </div>
-    </div>
-
-
-<!-- LA CARTE COMMUNE ET SES BOUTONS ITINÉRAIRE -->
-<div id="map-container" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; position: relative;">
-  <div id="map" style="width: 100%; height: 450px; border-radius: 12px;"></div>
-
-  <!-- Boutons d'itinéraire superposés en bas de la carte -->
-  <div class="itinerary-buttons" style="position: absolute; bottom: 12px; left: 10px; right: 10px; z-index: 1000; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; box-sizing: border-box;">
-    <a href="https://www.google.com/maps/dir/?api=1&destination=" target="_blank" id="btn-gmaps" style="background: rgba(66, 133, 244, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🧭 Google Maps</a>
-    <a href="https://www.waze.com/ul?q=" target="_blank" id="btn-waze" style="background: rgba(51, 204, 255, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🚗 Waze</a>
-    <a href="maps://?" target="_blank" id="btn-offline" style="background: rgba(46, 125, 50, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🗺️ Maps.me</a>
-  </div>
-</div>
-
-    <!-- JAUGES & VAN -->
-    <div id="view-jauges" style="display: none;">
+  <!-- 1. ONGLET ITINÉRAIRE (Contient le calculateur ET la carte) -->
+  <div id="panel-itineraire" style="display: block;">
+    <div class="route-card">
+      <h3 style="margin-top: 0; color: var(--accent-color);">Calculateur de Trajet Temps Réel & Gabarit</h3>
       
-      <!-- MODULE BLUETOOTH -->
-      <div class="bluetooth-card">
-        <h3 style="margin-top: 0; color: var(--accent-color); display: flex; align-items: center; gap: 8px;">
-          <span>📡 Synchronisation Bluetooth (Véhicules Récents)</span>
-        </h3>
-        <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
-          Possédez-vous un camping-car ou van récent équipé de systèmes connectés (centrales Schaudt, CBE, Truma iNet, batteries au lithium intelligentes) ? 
-          <strong>NomadSync</strong> centralise toutes ces données en temps réel. Fini de multiplier les applications constructeurs : connectez votre véhicule en Bluetooth pour suivre d'un seul coup d'œil vos niveaux de vie, la charge solaire et l'état de votre chauffage.
-        </p>
-        <button onclick="alert('Recherche de périphériques Bluetooth à proximité... (Assurez-vous que le Bluetooth de votre appareil et de la centrale du van sont activés)')" style="background: var(--accent-color); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
-          🔗 Connecter mon van en Bluetooth
-        </button>
-      </div>
-
-      <!-- PENSE-BÊTE / CHECKLIST DÉPART -->
-      <div class="bluetooth-card" style="border-color: #10b981;">
-        <h3 style="margin-top: 0; color: #10b981; display: flex; align-items: center; gap: 8px;">
-          <span>📋 Pense-bête / Checklist avant le départ</span>
-        </h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 0.9rem; margin-top: 10px;">
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-step" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🦶 Rentrer le marchepied</label>
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-roof" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🌤️ Fermer les lanterneaux</label>
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-blocks" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🧱 Ranger les cales de roues</label>
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-fridge" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> ❄️ Verrouiller le frigo</label>
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-shore" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🔌 Débrancher la prise 220V</label>
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-door" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🚪 Verrouiller porte cellule & soutes</label>
+      <div class="vehicle-specs-grid">
+        <div>
+          <label>📏 Hauteur (m)</label>
+          <input type="number" step="0.05" id="specH" value="2.90" />
+        </div>
+        <div>
+          <label>📐 Longueur (m)</label>
+          <input type="number" step="0.1" id="specL" value="6.50" />
+        </div>
+        <div>
+          <label>↔️ Largeur (m)</label>
+          <input type="number" step="0.05" id="specW" value="2.20" />
+        </div>
+        <div>
+          <label>⚖️ Poids (tonnes)</label>
+          <input type="number" step="0.1" id="specP" value="3.5" />
+        </div>
+        <div>
+          <label>⛽ Carburant</label>
+          <select id="specFuelType" onchange="updateFuelPrice()">
+            <option value="gazole">Gazole (Diesel)</option>
+            <option value="sp95">Sans Plomb 95 (E10)</option>
+          </select>
+        </div>
+        <div>
+          <label>⛽ Conso (L/100km)</label>
+          <input type="number" step="0.5" id="specConso" value="10.5" />
+        </div>
+        <div>
+          <label>💶 Prix (€/L)</label>
+          <input type="number" step="0.01" id="specPrice" value="1.72" />
         </div>
       </div>
 
-      <div class="gauges-grid">
-        <div class="gauge-card">
-          <div class="gauge-header"><span>🔋 Batterie Cellule</span><span id="val-bat">85% (12.8V)</span></div>
-          <div class="progress-bar"><div class="progress-fill" id="fill-bat" style="width: 85%; background: #10b981;"></div></div>
-          <input type="range" id="range-bat" min="0" max="100" value="85" oninput="updateGauge('bat', this.value, '% (12.8V)')">
-        </div>
+      <div class="route-grid">
+        <input type="text" id="startInput" class="search-bar" style="margin:0" placeholder="Départ (ex: Le Mans)" />
+        <input type="text" id="destInput" class="search-bar" style="margin:0" placeholder="Arrivée (ex: Meaux)" />
+        <button onclick="calculateAndDrawRoute()" style="background:var(--accent-color); border:none; color:white; border-radius:8px; padding:10px 16px; font-weight:bold; cursor:pointer;">Calculer & Tracer</button>
+      </div>
 
-        <div class="gauge-card">
-          <div class="gauge-header"><span>💧 Eau Propre</span><span id="val-eau">60%</span></div>
-          <div class="progress-bar"><div class="progress-fill" id="fill-eau" style="width: 60%; background: #0284c7;"></div></div>
-          <input type="range" id="range-eau" min="0" max="100" value="60" oninput="updateGauge('eau', this.value, '%')">
-        </div>
+      <div id="route-result" class="status-banner" style="display: none;"></div>
+    </div>
 
-        <div class="gauge-card">
-          <div class="gauge-header"><span>🛢 Eaux Usées</span><span id="val-usee">30%</span></div>
-          <div class="progress-bar"><div class="progress-fill" id="fill-usee" style="width: 30%; background: #f59e0b;"></div></div>
-          <input type="range" id="range-usee" min="0" max="100" value="30" oninput="updateGauge('usee', this.value, '%')">
-        </div>
+    <!-- LA CARTE COMMUNE ET SES BOUTONS (Bien intégrée dans l'itinéraire) -->
+    <div id="map-container" style="max-width: 800px; margin: 15px auto 0 auto; width: 100%; box-sizing: border-box; position: relative;">
+      <div id="map" style="width: 100%; height: 450px; border-radius: 12px;"></div>
 
-        <div class="gauge-card">
-          <div class="gauge-header"><span>🔥 Gaz Propane</span><span id="val-gaz">50%</span></div>
-          <div class="progress-bar"><div class="progress-fill" id="fill-gaz" style="width: 50%; background: #a855f7;"></div></div>
-          <input type="range" id="range-gaz" min="0" max="100" value="50" oninput="updateGauge('gaz', this.value, '%')">
-        </div>
+      <!-- Boutons d'itinéraire superposés -->
+      <div class="itinerary-buttons" style="position: absolute; bottom: 12px; left: 10px; right: 10px; z-index: 1000; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; box-sizing: border-box;">
+        <a href="https://www.google.com/maps/dir/?api=1&destination=" target="_blank" id="btn-gmaps" style="background: rgba(66, 133, 244, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🧭 Google Maps</a>
+        <a href="https://www.waze.com/ul?q=" target="_blank" id="btn-waze" style="background: rgba(51, 204, 255, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🚗 Waze</a>
+        <a href="maps://?" target="_blank" id="btn-offline" style="background: rgba(46, 125, 50, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🗺️ Maps.me</a>
+      </div>
+    </div>
+  </div> <!-- Fin de #panel-itineraire -->
 
-        <div class="bubble-card">
-          <h4 style="margin:0 0 6px 0; color:var(--accent-color)">⚖️ Niveau à Bulle (Calage)</h4>
-          <div class="bubble-outer"><div class="bubble-inner" id="bubblePos"></div></div>
-          <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
-            <button onclick="moveBubble(-10, 0)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">←</button>
-            <button onclick="moveBubble(10, 0)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">→</button>
-            <button onclick="moveBubble(0, -10)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">↑</button>
-            <button onclick="moveBubble(0, 10)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">↓</button>
-            <button onclick="resetBubble()" style="padding: 6px 12px; border-radius: 6px; cursor: pointer; background: var(--accent-color); color: white; border: none; font-weight: bold;">Centrer</button>
-          </div>
-          <span id="bubbleText" style="font-size:0.8rem; opacity:0.8; display: block; margin-top: 6px;">Véhicule parfaitement horizontal</span>
-        </div>
+
+  <!-- 2. ONGLET JAUGES & VAN -->
+  <div id="view-jauges" style="display: none;">
+    <!-- MODULE BLUETOOTH -->
+    <div class="bluetooth-card">
+      <h3 style="margin-top: 0; color: var(--accent-color); display: flex; align-items: center; gap: 8px;">
+        <span>📡 Synchronisation Bluetooth (Véhicules Récents)</span>
+      </h3>
+      <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
+        Possédez-vous un camping-car ou van récent équipé de systèmes connectés (centrales Schaudt, CBE, Truma iNet, batteries au lithium intelligentes) ? 
+        <strong>NomadSync</strong> centralise toutes ces données en temps réel. Fini de multiplier les applications constructeurs : connectez votre véhicule en Bluetooth pour suivre d'un seul coup d'œil vos niveaux de vie, la charge solaire et l'état de votre chauffage.
+      </p>
+      <button onclick="alert('Recherche de périphériques Bluetooth à proximité... (Assurez-vous que le Bluetooth de votre appareil et de la centrale du van sont activés)')" style="background: var(--accent-color); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
+        🔗 Connecter mon van en Bluetooth
+      </button>
+    </div>
+
+    <!-- PENSE-BÊTE / CHECKLIST DÉPART -->
+    <div class="bluetooth-card" style="border-color: #10b981;">
+      <h3 style="margin-top: 0; color: #10b981; display: flex; align-items: center; gap: 8px;">
+        <span>📋 Pense-bête / Checklist avant le départ</span>
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 0.9rem; margin-top: 10px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-step" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🦶 Rentrer le marchepied</label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-roof" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🌤️ Fermer les lanterneaux</label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-blocks" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🧱 Ranger les cales de roues</label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-fridge" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> ❄️ Verrouiller le frigo</label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-shore" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🔌 Débrancher la prise 220V</label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-door" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🚪 Verrouiller porte cellule & soutes</label>
       </div>
     </div>
 
-    <!-- NOUVEL ONGLET : INFOS & SÉCURITÉ -->
-    <div id="view-securite" style="display: none;">
+    <div class="gauges-grid">
+      <div class="gauge-card">
+        <div class="gauge-header"><span>🔋 Batterie Cellule</span><span id="val-bat">85% (12.8V)</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="fill-bat" style="width: 85%; background: #10b981;"></div></div>
+        <input type="range" id="range-bat" min="0" max="100" value="85" oninput="updateGauge('bat', this.value, '% (12.8V)')">
+      </div>
+
+      <div class="gauge-card">
+        <div class="gauge-header"><span>💧 Eau Propre</span><span id="val-eau">60%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="fill-eau" style="width: 60%; background: #0284c7;"></div></div>
+        <input type="range" id="range-eau" min="0" max="100" value="60" oninput="updateGauge('eau', this.value, '%')">
+      </div>
+
+      <div class="gauge-card">
+        <div class="gauge-header"><span>🛢 Eaux Usées</span><span id="val-usee">30%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="fill-usee" style="width: 30%; background: #f59e0b;"></div></div>
+        <input type="range" id="range-usee" min="0" max="100" value="30" oninput="updateGauge('usee', this.value, '%')">
+      </div>
+
+      <div class="gauge-card">
+        <div class="gauge-header"><span>🔥 Gaz Propane</span><span id="val-gaz">50%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="fill-gaz" style="width: 50%; background: #a855f7;"></div></div>
+        <input type="range" id="range-gaz" min="0" max="100" value="50" oninput="updateGauge('gaz', this.value, '%')">
+      </div>
+
+      <div class="bubble-card">
+        <h4 style="margin:0 0 6px 0; color:var(--accent-color)">⚖️ Niveau à Bulle (Calage)</h4>
+        <div class="bubble-outer"><div class="bubble-inner" id="bubblePos"></div></div>
+        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+          <button onclick="moveBubble(-10, 0)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">←</button>
+          <button onclick="moveBubble(10, 0)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">→</button>
+          <button onclick="moveBubble(0, -10)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">↑</button>
+          <button onclick="moveBubble(0, 10)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">↓</button>
+          <button onclick="resetBubble()" style="padding: 6px 12px; border-radius: 6px; cursor: pointer; background: var(--accent-color); color: white; border: none; font-weight: bold;">Centrer</button>
+        </div>
+        <span id="bubbleText" style="font-size:0.8rem; opacity:0.8; display: block; margin-top: 6px;">Véhicule parfaitement horizontal</span>
+      </div>
+    </div>
+  </div> <!-- Fin de #view-jauges -->
+
+
+  <!-- 3. ONGLET INFOS & SÉCURITÉ -->
+  <div id="view-securite" style="display: none;">
+    <!-- MÉTÉO & VENT FORT -->
+    <div class="security-card">
+      <h3 style="margin-top: 0; color: var(--accent-color);">🌬️ Vigilance Météo & Vent Fort (Lanterneaux)</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 10px;">Surveillez les rafales pour éviter d'endommager les lanterneaux et les stores extérieurs de votre camping-car.</p>
+      <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <span style="font-weight: bold; font-size: 0.95rem;">Conditions Actuelles : </span>
+          <span id="meteo-status" style="color: #10b981; font-weight: bold;">🟢 Vent faible (15 km/h) - Lanterneaux autorisés</span>
+        </div>
+        <button onclick="checkMeteoAlert()" style="background: var(--accent-color); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Rafraîchir Météo</button>
+      </div>
+    </div>
+
+    <!-- SUIVI DU BUDGET CARBURANT -->
+    <div class="security-card">
+      <h3 style="margin-top: 0; color: var(--accent-color);">⛽ Suivi du Budget Carburant</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 10px;">Enregistrez vos pleins pour garder le contrôle sur le budget kilométrique du voyage.</p>
       
-      <!-- MÉTÉO & VENT FORT -->
-      <div class="security-card">
-        <h3 style="margin-top: 0; color: var(--accent-color);">🌬️ Vigilance Météo & Vent Fort (Lanterneaux)</h3>
-        <p style="font-size: 0.9rem; margin-bottom: 10px;">Surveillez les rafales pour éviter d'endommager les lanterneaux et les stores extérieurs de votre camping-car.</p>
-        <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-          <div>
-            <span style="font-weight: bold; font-size: 0.95rem;">Conditions Actuelles : </span>
-            <span id="meteo-status" style="color: #10b981; font-weight: bold;">🟢 Vent faible (15 km/h) - Lanterneaux autorisés</span>
-          </div>
-          <button onclick="checkMeteoAlert()" style="background: var(--accent-color); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Rafraîchir Météo</button>
+      <form onsubmit="addFuelExpense(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 12px;">
+        <input type="date" id="fuelDate" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
+        <input type="number" step="0.1" id="fuelLitres" placeholder="Litres (ex: 55)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
+        <input type="number" step="0.01" id="fuelCost" placeholder="Coût total (€) (ex: 95.50)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
+        <button type="submit" style="background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Ajouter un Plein</button>
+      </form>
+
+      <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;">
+          <span>Total Dépensé : <span id="totalFuelCost" style="color: var(--accent-color);">0.00 €</span></span>
+          <span>Total Litres : <span id="totalFuelLitres">0</span> L</span>
         </div>
+        <div id="fuelHistoryList" style="font-size: 0.85rem; opacity: 0.85; max-height: 120px; overflow-y: auto;">Aucun plein enregistré pour l'instant.</div>
       </div>
-
-      <!-- SUIVI DU BUDGET CARBURANT -->
-      <div class="security-card">
-        <h3 style="margin-top: 0; color: var(--accent-color);">⛽ Suivi du Budget Carburant</h3>
-        <p style="font-size: 0.9rem; margin-bottom: 10px;">Enregistrez vos pleins pour garder le contrôle sur le budget kilométrique du voyage.</p>
-        
-        <form onsubmit="addFuelExpense(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 12px;">
-          <input type="date" id="fuelDate" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
-          <input type="number" step="0.1" id="fuelLitres" placeholder="Litres (ex: 55)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
-          <input type="number" step="0.01" id="fuelCost" placeholder="Coût total (€) (ex: 95.50)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
-          <button type="submit" style="background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Ajouter un Plein</button>
-        </form>
-
-        <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
-          <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;">
-            <span>Total Dépensé : <span id="totalFuelCost" style="color: var(--accent-color);">0.00 €</span></span>
-            <span>Total Litres : <span id="totalFuelLitres">0</span> L</span>
-          </div>
-          <div id="fuelHistoryList" style="font-size: 0.85rem; opacity: 0.85; max-height: 120px; overflow-y: auto;">Aucun plein enregistré pour l'instant.</div>
-        </div>
-      </div>
-
-      <!-- ANNUAIRE D'URGENCE NOMADE -->
-      <div class="security-card">
-        <h3 style="margin-top: 0; color: var(--accent-color);">📞 Annuaire d'Urgence Nomade (Europe & Maroc)</h3>
-        <p style="font-size: 0.9rem; margin-bottom: 10px;">Les numéros essentiels à portée de main selon votre pays de voyage :</p>
-        
-        <div class="emergency-grid">
-          <div class="emergency-box">
-            <h4>🇫🇷 France & Europe</h4>
-            <p>🚨 Urgence Générale : <b>112</b></p>
-            <p>👮 Police / Gendarmerie : <b>17</b></p>
-            <p>🚒 Pompiers : <b>18</b></p>
-          </div>
-          <div class="emergency-box">
-            <h4>🇪🇸 Espagne</h4>
-            <p>🚨 Urgence Générale : <b>112</b></p>
-            <p>👮 Guardia Civil : <b>062</b></p>
-            <p>🚑 Urgences Médicales : <b>061</b></p>
-          </div>
-          <div class="emergency-box">
-            <h4>🇵🇹 Portugal</h4>
-            <p>🚨 Urgence Générale : <b>112</b></p>
-            <p>👮 GNR (Gendarmerie) : <b>213 587 232</b></p>
-          </div>
-          <div class="emergency-box" style="border-color: var(--accent-color);">
-            <h4>🇲🇦 Maroc</h4>
-            <p>👮 Police Secours : <b>19</b></p>
-            <p>🛡️ Gendarmerie Royale : <b>177</b></p>
-            <p>🚒 Protection Civile : <b>15</b></p>
-          </div>
-        </div>
-      </div>
-
     </div>
 
-  </div>
-</div>
+    <!-- ANNUAIRE D'URGENCE NOMADE -->
+    <div class="security-card">
+      <h3 style="margin-top: 0; color: var(--accent-color);">📞 Annuaire d'Urgence Nomade (Europe & Maroc)</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 10px;">Les numéros essentiels à portée de main selon votre pays de voyage :</p>
+      
+      <div class="emergency-grid">
+        <div class="emergency-box">
+          <h4>🇫🇷 France & Europe</h4>
+          <p>🚨 Urgence Générale : <b>112</b></p>
+          <p>👮 Police / Gendarmerie : <b>17</b></p>
+          <p>🚒 Pompiers : <b>18</b></p>
+        </div>
+        <div class="emergency-box">
+          <h4>🇪🇸 Espagne</h4>
+          <p>🚨 Urgence Générale : <b>112</b></p>
+          <p>👮 Guardia Civil : <b>062</b></p>
+          <p>🚑 Urgences Médicales : <b>061</b></p>
+        </div>
+        <div class="emergency-box">
+          <h4>🇵🇹 Portugal</h4>
+          <p>🚨 Urgence Générale : <b>112</b></p>
+          <p>👮 GNR (Gendarmerie) : <b>213 587 232</b></p>
+        </div>
+        <div class="emergency-box" style="border-color: var(--accent-color);">
+          <h4>🇲🇦 Maroc</h4>
+          <p>👮 Police Secours : <b>19</b></p>
+          <p>🛡️ Gendarmerie Royale : <b>177</b></p>
+          <p>🚒 Protection Civile : <b>15</b></p>
+        </div>
+      </div>
+    </div>
+  </div> <!-- Fin de #view-securite -->
 
+</div>
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
