@@ -170,62 +170,189 @@
     .marker-drain { background-color: #a855f7; }
     .spot-popup-img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 6px; }
 
-    /* Modules Itinéraire & Jauges */
-    .route-card, .gauge-card, .bubble-card, .bluetooth-card, .security-card { background: var(--bg-color); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px; }
+<style>
+  /* Modules Itinéraire & Jauges */
+  .route-card, .gauge-card, .bubble-card, .bluetooth-card, .security-card { 
+    background: var(--bg-color); 
+    padding: 16px; 
+    border-radius: 12px; 
+    border: 1px solid var(--border-color); 
+    margin-bottom: 12px; 
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+  }
 
-  .route-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .route-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+    gap: 10px; 
+    margin-bottom: 12px; 
+    box-sizing: border-box;
+    width: 100%;
+  }
 
-    .vehicle-specs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px; }
-    .vehicle-specs-grid label { font-size: 0.75rem; font-weight: bold; color: var(--accent-color); display: block; margin-bottom: 2px; }
-    .vehicle-specs-grid input, .vehicle-specs-grid select { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem; }
+  .vehicle-specs-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+    gap: 8px; 
+    background: var(--card-bg); 
+    padding: 12px; 
+    border-radius: 8px; 
+    border: 1px solid var(--border-color); 
+    margin-bottom: 12px; 
+    box-sizing: border-box;
+    width: 100%;
+  }
+  
+  .vehicle-specs-grid label { 
+    font-size: 0.75rem; 
+    font-weight: bold; 
+    color: var(--accent-color); 
+    display: block; 
+    margin-bottom: 2px; 
+  }
+  
+  .vehicle-specs-grid input, .vehicle-specs-grid select { 
+    width: 100%; 
+    padding: 6px; 
+    border-radius: 6px; 
+    border: 1px solid var(--border-color); 
+    background: var(--input-bg); 
+    color: var(--text-color); 
+    font-size: 0.85rem; 
+    box-sizing: border-box;
+  }
 
-    .gauges-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-    .gauge-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; font-size: 0.9rem; }
-    .progress-bar { background: var(--border-color); height: 14px; border-radius: 10px; overflow: hidden; }
-    .progress-fill { height: 100%; border-radius: 10px; transition: width 0.2s ease; }
-    .gauge-card input[type="range"] { width: 100%; margin-top: 10px; cursor: pointer; accent-color: var(--accent-color); }
+  .gauges-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+    gap: 16px; 
+  }
+  
+  .gauge-header { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 8px; 
+    font-weight: bold; 
+    font-size: 0.9rem; 
+  }
+  
+  .progress-bar { 
+    background: var(--border-color); 
+    height: 14px; 
+    border-radius: 10px; 
+    overflow: hidden; 
+  }
+  
+  .progress-fill { 
+    height: 100%; 
+    border-radius: 10px; 
+    transition: width 0.2s ease; 
+  }
+  
+  .gauge-card input[type="range"] { 
+    width: 100%; 
+    margin-top: 10px; 
+    cursor: pointer; 
+    accent-color: var(--accent-color); 
+  }
 
-    .bubble-card { text-align: center; grid-column: 1 / -1; }
-    .bubble-outer { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-color); margin: 12px auto; display: flex; align-items: center; justify-content: center; position: relative; background: var(--card-bg); }
-    .bubble-inner { width: 20px; height: 20px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 10px #ef4444; position: absolute; top: 40px; left: 40px; transition: transform 0.1s ease; }
+  .bubble-card { 
+    text-align: center; 
+    grid-column: 1 / -1; 
+  }
+  
+  .bubble-outer { 
+    width: 100px; 
+    height: 100px; 
+    border-radius: 50%; 
+    border: 3px solid var(--accent-color); 
+    margin: 12px auto; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    position: relative; 
+    background: var(--card-bg); 
+  }
+  
+  .bubble-inner { 
+    width: 20px; 
+    height: 20px; 
+    border-radius: 50%; 
+    background: #ef4444; 
+    box-shadow: 0 0 10px #ef4444; 
+    position: absolute; 
+    top: 40px; 
+    left: 40px; 
+    transition: transform 0.1s ease; 
+  }
 
-    .status-banner { background: #2A1A0E; color: #f7f2ea; padding: 14px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border-color); }
-    
-    /* Styles pour l'annuaire d'urgence et budget */
-    .emergency-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
-    .emergency-box { background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
-    .emergency-box h4 { margin: 0 0 6px 0; color: var(--accent-color); font-size: 0.9rem; }
-    .emergency-box p { margin: 3px 0; font-size: 0.85rem; }
+  .status-banner { 
+    background: #2A1A0E; 
+    color: #f7f2ea; 
+    padding: 14px; 
+    border-radius: 10px; 
+    font-size: 0.85rem; 
+    margin-top: 10px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+    border: 1px solid var(--border-color); 
+  }
+  
+  /* Styles pour l'annuaire d'urgence et budget */
+  .emergency-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 10px; 
+    margin-top: 10px; 
+  }
+  
+  .emergency-box { 
+    background: var(--card-bg); 
+    padding: 12px; 
+    border-radius: 8px; 
+    border: 1px solid var(--border-color); 
+  }
+  
+  .emergency-box h4 { 
+    margin: 0 0 6px 0; 
+    color: var(--accent-color); 
+    font-size: 0.9rem; 
+  }
+  
+  .emergency-box p { 
+    margin: 3px 0; 
+    font-size: 0.85rem; 
+  }
 
-.route-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 10px;
-        margin-bottom: 12px;
-    }
-    input, select {
-        width: 100% !important;
-        box-sizing: border-box;
-    }
-    .route-container, form, .card {
-        padding-bottom: 100px !important;
-    }
-    #map {
-        height: 450px !important;
-        width: 100% !important;
-        display: block !important;
-        position: relative !important;
-        z-index: 1;
-    }
-    .button-group, .btn-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-        margin-top: 10px;
-    }
+  input, select {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  .route-container, form, .card {
+    padding-bottom: 100px !important;
+  }
+  
+  #map {
+    height: 450px !important;
+    width: 100% !important;
+    display: block !important;
+    position: relative !important;
+    z-index: 1;
+  }
+  
+  .button-group, .btn-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+  }
 </style>
-   </head>
+     </head>
 
 <body>
 <div class="app-card" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 8px 12px; background: #d35400; border-radius: 0 0 16px 16px;">
