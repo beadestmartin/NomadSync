@@ -171,6 +171,14 @@
     .spot-popup-img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 6px; }
 
 <style>
+  /* Conteneur global pour que rien ne dépasse sur grand écran */
+  .content-area {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   /* Modules Itinéraire & Jauges */
   .route-card, .gauge-card, .bubble-card, .bluetooth-card, .security-card { 
     background: var(--bg-color); 
@@ -180,7 +188,6 @@
     margin-bottom: 12px; 
     box-sizing: border-box;
     width: 100%;
-    max-width: 100%;
   }
 
   .route-grid { 
@@ -194,7 +201,7 @@
 
   .vehicle-specs-grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+    grid-template-columns: repeat(4, 1fr); 
     gap: 8px; 
     background: var(--card-bg); 
     padding: 12px; 
@@ -330,10 +337,6 @@
   input, select {
     width: 100% !important;
     box-sizing: border-box !important;
-  }
-  
-  .route-container, form, .card {
-    padding-bottom: 100px !important;
   }
   
   #map {
