@@ -1272,6 +1272,489 @@ let rawSpots = [
   }
 ];
 
+const rawWaterPoints = [
+  {
+    name: "Borne de vidange et eau Connerré",
+    address: "Rue de la Gare, 72160 Connerré",
+    lat: 48.0621,
+    lng: 0.4932,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange gratuites"
+  },
+  {
+    name: "Aire de services Arnage",
+    address: "Bord de la Sarthe, 72230 Arnage",
+    lat: 47.9392,
+    lng: 0.2183,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau et vidange gratuites"
+  },
+  {
+    name: "Borne eau et vidange Ballon-Saint Mars",
+    address: "39 Rue de Moulins, 72290 Ballon-Saint Mars",
+    lat: 48.2104,
+    lng: 0.2312,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  },
+  {
+    name: "Aire Camping-Car Park Bonnétable",
+    address: "2 Rue de la Prairie, 72110 Bonnétable",
+    lat: 48.1795,
+    lng: 0.4286,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Ravitaillement eau"
+  },
+  {
+    name: "Aire de services Les Sables-d'Olonne",
+    address: "Avenue de Retz, 85100 Les Sables-d'Olonne",
+    lat: 46.4983,
+    lng: -1.7831,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  },
+  {
+    name: "Aire municipale de Guérande",
+    address: "Route de Villeès-Blais, 44350 Guérande",
+    lat: 47.3278,
+    lng: -2.4215,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  },
+  {
+    name: "Borne de services Prinquiau",
+    address: "44260 Prinquiau",
+    lat: 47.3321,
+    lng: -1.9421,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau et vidange"
+  },
+  {
+    name: "Aire de camping-car Saint-Jean-de-Monts",
+    address: "85160 Saint-Jean-de-Monts",
+    lat: 46.7865,
+    lng: -2.0573,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  },
+  {
+    name: "Aire municipale Pornichet",
+    address: "44380 Pornichet",
+    lat: 47.2628,
+    lng: -2.3415,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau et vidange"
+  },
+  {
+    name: "Borne de services Savenay",
+    address: "44260 Savenay",
+    lat: 47.3621,
+    lng: -1.9442,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  },
+  {
+    name: "Aire de services Malicorne-sur-Sarthe",
+    address: "72270 Malicorne-sur-Sarthe",
+    lat: 47.8123,
+    lng: -0.0814,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau et vidange"
+  },
+  {
+    name: "Aire de services La Flèche",
+    address: "72200 La Flèche",
+    lat: 47.7012,
+    lng: -0.0734,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  },
+  {
+    name: "Aire municipale Sablé-sur-Sarthe",
+    address: "72300 Sablé-sur-Sarthe",
+    lat: 47.8391,
+    lng: -0.3325,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau et vidange"
+  },
+  {
+    name: "Borne de services Château-Gontier",
+    address: "53200 Château-Gontier",
+    lat: 47.8315,
+    lng: -0.7021,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  },
+  {
+    name: "Aire de services Craon",
+    address: "53400 Craon",
+    lat: 47.8482,
+    lng: -0.9485,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  },
+  {
+    name: "Aire de camping-car Segré",
+    address: "49500 Segré-en-Anjou Bleu",
+    lat: 47.6892,
+    lng: -0.8791,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  },
+  {
+    name: "Area de autocaravanas Vinaròs",
+    address: "12500 Vinaròs, Castellón, Espagne",
+    lat: 40.4721,
+    lng: 0.4735,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Agua potable y vaciado"
+  },
+  {
+    name: "Área de autocaravanas Amposta",
+    address: "43870 Amposta, Tarragona, Espagne",
+    lat: 40.7082,
+    lng: 0.5794,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Agua y vaciado de grises y negras"
+  },
+  {
+    name: "Área municipal Tortosa",
+    address: "43500 Tortosa, Tarragona, Espagne",
+    lat: 40.8125,
+    lng: 0.5182,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Agua potable y servicios"
+  },
+  {
+    name: "Área de autocaravanas Alcossebre",
+    address: "12579 Alcossebre, Castellón, Espagne",
+    lat: 40.2451,
+    lng: 0.2783,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Agua potable gratuita y vaciado"
+  },
+  {
+    name: "Área de autocaravanas Peñíscola",
+    address: "12598 Peñíscola, Castellón, Espagne",
+    lat: 40.3582,
+    lng: 0.4031,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Agua potable y servicios"
+  },
+  {
+    name: "Aire de services Malestroit",
+    address: "56140 Malestroit, France",
+    lat: 47.8132,
+    lng: -2.3794,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  },
+  {
+    name: "Área de autocaravanas Villena",
+    address: "03400 Villena, Alicante, Espagne",
+    lat: 38.6351,
+    lng: -0.8683,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Agua potable y vaciado gratuitos"
+  },
+  {
+    name: "Aire municipale Rochefort-en-Terre",
+    address: "56220 Rochefort-en-Terre, France",
+    lat: 47.6983,
+    lng: -2.3391,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau et services"
+  },
+  {
+    name: "Área de autocaravanas Almansa",
+    address: "02640 Almansa, Albacete, Espagne",
+    lat: 38.8682,
+    lng: -1.0974,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Agua y vaciado"
+  },
+  {
+    name: "Aire de camping-car Pont-Château",
+    address: "44160 Pont-Château, France",
+    lat: 47.4372,
+    lng: -2.0851,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  },
+  {
+    name: "Parking et eau Tafraoute",
+    address: "Tafraoute, Maroc",
+    lat: 29.7214,
+    lng: -8.9732,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Ravitaillement eau et stationnement"
+  },
+  {
+    name: "Aire de services Mirleft",
+    address: "Mirleft, Maroc",
+    lat: 29.5831,
+    lng: -10.0345,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau et stationnement"
+  },
+  {
+    name: "Station services Afriquia Agadir",
+    address: "Agadir, Maroc",
+    lat: 30.4278,
+    lng: -9.5981,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Point d'eau (demande usuelle sur station)"
+  },
+  {
+    name: "Parking aménagé Essaouira",
+    address: "Essaouira, Maroc",
+    lat: 31.5085,
+    lng: -9.7595,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et stationnement"
+  },
+  {
+    name: "Area di sosta camper Bolsena",
+    address: "01023 Bolsena, Viterbo, Italie",
+    lat: 42.6451,
+    lng: 11.9862,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Acqua potabile e camper service"
+  },
+  {
+    name: "Area sosta camper Riva del Garda",
+    address: "38066 Riva del Garda, Trento, Italie",
+    lat: 45.8893,
+    lng: 10.8415,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Acqua e scarico"
+  },
+  {
+    name: "Wohnmobilstellplatz Dinkelsbühl",
+    address: "91550 Dinkelsbühl, Allemagne",
+    lat: 49.0682,
+    lng: 10.3194,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Frischwasser und Entsorgung"
+  },
+  {
+    name: "Wohnmobilstellplatz Xanten",
+    address: "46509 Xanten, Allemagne",
+    lat: 51.6614,
+    lng: 6.4521,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Wasserversorgung und Entsorgung"
+  },
+  {
+    name: "Ställplats Vadstena",
+    address: "592 30 Vadstena, Suède",
+    lat: 58.4452,
+    lng: 14.8891,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Färskvatten och tömning"
+  },
+  {
+    name: "Ställplats Höganäs",
+    address: "263 38 Höganäs, Suède",
+    lat: 56.2014,
+    lng: 12.5572,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Dricksvatten och service"
+  },
+  {
+    name: "Área de autocaravanas Tavira",
+    address: "8800 Tavira, Portugal",
+    lat: 37.1284,
+    lng: -7.6512,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Água potável e despejos"
+  },
+  {
+    name: "Área de serviço de Peniche",
+    address: "2520 Peniche, Portugal",
+    lat: 39.3558,
+    lng: -9.3811,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Água e saneamento"
+  },
+  {
+    name: "Bobilparkering Åndalsnes",
+    address: "6300 Åndalsnes, Norvège",
+    lat: 62.5694,
+    lng: 7.6881,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Ferskvann og tømming"
+  },
+  {
+    name: "Wohnmobilstellplatz Interlaken",
+    address: "3800 Interlaken, Suisse",
+    lat: 46.6863,
+    lng: 7.8632,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Frischwasser und Entsorgung"
+  },
+  {
+    name: "Ställplats Kalmar",
+    address: "392 33 Kalmar, Suède",
+    lat: 56.6634,
+    lng: 16.3567,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Dricksvatten och tömning"
+  },
+  {
+    name: "Area di sosta camper Orbetello",
+    address: "58015 Orbetello, Grosseto, Italie",
+    lat: 42.4431,
+    lng: 11.2145,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Acqua potabile e camper service"
+  },
+  {
+    name: "Área de autocaravanas Santiago de Compostela",
+    address: "15705 Santiago de Compostela, A Coruña, Espagne",
+    lat: 42.8782,
+    lng: -8.5441,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Agua potable y vaciado"
+  },
+  {
+    name: "Wohnmobilstellplatz Füssen",
+    address: "87629 Füssen, Allemagne",
+    lat: 47.5684,
+    lng: 10.7001,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Frischwasser und Entsorgung"
+  },
+  {
+    name: "Area di sosta camper Lucca",
+    address: "55100 Lucca, Toscane, Italie",
+    lat: 43.8429,
+    lng: 10.5027,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Acqua potabile e camper service"
+  },
+  {
+    name: "Área de serviço de Évora",
+    address: "7000 Évora, Portugal",
+    lat: 38.5714,
+    lng: -7.9092,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Água potável e despejos"
+  },
+  {
+    name: "Ställplats Vadstena Marina",
+    address: "592 31 Vadstena, Suède",
+    lat: 58.4512,
+    lng: 14.8934,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Färskvatten och tömning"
+  },
+  {
+    name: "Aire de camping-car Honfleur",
+    address: "14600 Honfleur, France",
+    lat: 49.4182,
+    lng: 0.2314,
+    category: "Eau",
+    price: "Gratuit",
+    stay: "Service",
+    services: "Eau potable et vidange"
+  }
+];
+
 // --- FILTRE AUTOMATIQUE AVANCÉ ---
 const forbiddenKeywords = [
   "jour seulement", 
