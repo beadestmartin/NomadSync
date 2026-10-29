@@ -1218,28 +1218,45 @@ let rawSpots = [
 ];
 
 // --- FILTRE AUTOMATIQUE AVANCÉ ---
-const forbiddenKeywords = ["jour seulement", "interdit la nuit", "mèze", "payant", "journée"];
+const forbiddenKeywords = [
+  "jour seulement", 
+  "interdit la nuit", 
+  "pas de nuit", 
+  "nuit interdite", 
+  "interdiction de stationner la nuit",
+  "barrière", 
+  "hauteur", 
+  "gabarit", 
+  "payant", 
+  "journée"
+];
+
 let seenCoords = new Set();
 
 let spots = rawSpots.filter(spot => {
   const isFree = spot.type === 'free' || spot.price.toLowerCase().includes('gratuit');
   const stayText = (spot.stay || "").toLowerCase();
   const nameText = spot.name.toLowerCase();
+  const addressText = (spot.address || "").toLowerCase();
 
+  // Vérifie si un mot-clé interdit est présent dans le nom, le séjour ou l'adresse
   const isForbidden = forbiddenKeywords.some(keyword => 
-    stayText.includes(keyword) || nameText.includes(keyword)
+    stayText.includes(keyword) || nameText.includes(keyword) || addressText.includes(keyword)
   );
 
+  // Anti-doublons basé sur les coordonnées GPS (arrondies à ~11 mètres)
   const coordKey = `${spot.lat.toFixed(4)},${spot.lng.toFixed(4)}`;
   const isDuplicate = seenCoords.has(coordKey);
   if (!isDuplicate) seenCoords.add(coordKey);
 
+  // On garde le spot s'il est gratuit, sans interdiction/barrière, et unique
   return isFree && !isForbidden && !isDuplicate;
 });
 
 const typeIcons = { free: '🏕️', wild: '🌙', farm: '🚜', fuel: '⛽', water: '💧', elec: '⚡', drain: '🛠️' };
 
 function initMap() {
+
   if (map) return;
   map = L.map('map').setView([46.603354, 1.888334], 5);
   
