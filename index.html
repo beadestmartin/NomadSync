@@ -1963,21 +1963,50 @@ function renderSpots() {
     if (!map || !markersGroup) return;
     markersGroup.clearLayers();
 
-    const allSpots = typeof filteredSpots !== 'undefined' ? filteredSpots : rawSpots;
+    let allSpots = [];
+    if (typeof filteredSpots !== 'undefined') allSpots = allSpots.concat(filteredSpots);
+    else if (typeof rawSpots !== 'undefined') allSpots = allSpots.concat(rawSpots);
+
+    // Récupération de toutes les listes possibles (avec les vidanges en plus)
+    ['waterSpots', 'rawWater', 'eau', 'pointsEau', 'electricite', 'rawElectricite', 'ferme', 'rawFerme', 'carburant', 'rawCarburant', 'sauvage', 'rawSauvage', 'dodosSauvages', 'vidange', 'rawVidange', 'vidanges'].forEach(varName => {
+        if (typeof window[varName] !== 'undefined' && Array.isArray(window[varName])) {
+            allSpots = allSpots.concat(window[varName]);
+        }
+    });
 
     allSpots.forEach(spot => {
-        // On force la catégorie pour qu'elle corresponde aux boutons de filtre
-        if (!spot.category) spot.category = 'aire';
+        if (!spot.category) {
+            const nameLower = (spot.name || '').toLowerCase();
+            if (spot.icon === '💧' || nameLower.includes('eau')) spot.category = 'eau';
+            else if (nameLower.includes('vidange') || nameLower.includes('usée')) spot.category = 'vidange';
+            else if (nameLower.includes('elect') || nameLower.includes('edf')) spot.category = 'electricite';
+            else if (nameLower.includes('ferme') || nameLower.includes('producteur')) spot.category = 'ferme';
+            else if (nameLower.includes('carburant') || nameLower.includes('gasoil') || nameLower.includes('station')) spot.category = 'carburant';
+            else if (nameLower.includes('sauvage') || nameLower.includes('nature') || nameLower.includes('gratuit')) spot.category = 'sauvage';
+            else spot.category = 'aire';
+        }
 
-        // Normalisation pour que 'aire', 'Aire', 'aire de camping-car' soient bien gérés
+        if (currentCategory) {
+            const cat = (spot.category || '').toLowerCase();
+            const cur = currentCategory.toLowerCase();
+            if (!cat.includes(cur) && !cur.includes(cat)) return;
+        }
+
+        // Attribution des couleurs et icônes par catégorie
         const catLower = spot.category.toLowerCase();
-        const currentLower = (currentCategory || '').toLowerCase();
+        let bgColor = '#e74c3c'; // Rouge (aires)
+        let defaultIcon = '🚐';
 
-        if (currentCategory && !catLower.includes(currentLower) && currentLower !== catLower) return;
+        if (catLower.includes('eau')) { bgColor = '#3498db'; defaultIcon = '💧'; }
+        else if (catLower.includes('vidange')) { bgColor = '#16a085'; defaultIcon = '🚰'; }
+        else if (catLower.includes('elect')) { bgColor = '#f1c40f'; defaultIcon = '⚡'; }
+        else if (catLower.includes('ferme')) { bgColor = '#27ae60'; defaultIcon = '🚜'; }
+        else if (catLower.includes('carburant')) { bgColor = '#e67e22'; defaultIcon = '⛽'; }
+        else if (catLower.includes('sauvage') || catLower.includes('dodo')) { bgColor = '#8e44ad'; defaultIcon = '🌲'; }
 
         const customIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: `<div style="background-color: #e74c3c; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">${spot.icon || '🚐'}</div>`,
+            html: `<div style="background-color: ${bgColor}; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">${spot.icon || defaultIcon}</div>`,
             iconSize: [32, 32],
             iconAnchor: [16, 16]
         });
@@ -1991,8 +2020,8 @@ function renderSpots() {
         marker.bindPopup(`
             <b>${spot.name}</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">${spot.category}</span><br>
             <small style="color:#666">📍 ${spot.address}</small><br>
-            💰 Tarif : <b>${spot.price}</b><br>
-            ⏱️ Durée : ${spot.stay}${photoHtml}<br><br>
+            💰 Tarif : <b>${spot.price || 'Gratuit'}</b><br>
+            ⏱️ Durée : ${spot.stay || 'N/A'}${photoHtml}<br><br>
             
             <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
                 <a href="${gmapsUrl}" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>
@@ -2003,6 +2032,7 @@ function renderSpots() {
         markersGroup.addLayer(marker);
     });
 }
+
 let currentCategory = '';
 
 function toggleFilter(type) {
