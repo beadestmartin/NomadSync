@@ -1862,9 +1862,9 @@ const rawDrainPoints = [
   { name: "Aire de vidange", category: "drain", icon: "🚰", lat: 48.0800, lng: -0.1100, address: "Aire municipale", price: "Gratuit", stay: "1h", photo: "" }
 ];
 
-// 2. On regroupe tout dans le tableau principal 'spots'
+// 2. On regroupe tout dans le tableau principal 'spots' (sans doublon ni confusion)
 const spots = [
-  ...(typeof rawWaterPoints !== 'undefined' ? rawWaterPoints : []),
+  ...rawWaterPoints,
   ...rawWildPoints,
   ...rawFarmPoints,
   ...rawFuelPoints,
@@ -1912,6 +1912,7 @@ function renderSpots() {
 let currentCategory = '';
 
 function toggleFilter(type) {
+
     currentCategory = type;
     renderSpots();
 }
