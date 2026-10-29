@@ -1958,21 +1958,26 @@ function locateUser() {
     alert("Impossible de récupérer votre position GPS.");
   });
 }
+
 function renderSpots() {
     if (!map || !markersGroup) return;
     markersGroup.clearLayers();
 
-    // On combine tes aires filtrées avec ton tableau de base s'il y en a d'autres
     const allSpots = typeof filteredSpots !== 'undefined' ? filteredSpots : rawSpots;
 
     allSpots.forEach(spot => {
+        // On force la catégorie pour qu'elle corresponde aux boutons de filtre
         if (!spot.category) spot.category = 'aire';
 
-        if (currentCategory && spot.category !== currentCategory) return;
+        // Normalisation pour que 'aire', 'Aire', 'aire de camping-car' soient bien gérés
+        const catLower = spot.category.toLowerCase();
+        const currentLower = (currentCategory || '').toLowerCase();
+
+        if (currentCategory && !catLower.includes(currentLower) && currentLower !== catLower) return;
 
         const customIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: `<div class="custom-marker marker-${spot.category.toLowerCase()}" style="background-color: #e74c3c; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${spot.icon || '🚐'}</div>`,
+            html: `<div style="background-color: #e74c3c; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">${spot.icon || '🚐'}</div>`,
             iconSize: [32, 32],
             iconAnchor: [16, 16]
         });
@@ -1998,7 +2003,6 @@ function renderSpots() {
         markersGroup.addLayer(marker);
     });
 }
-
 let currentCategory = '';
 
 function toggleFilter(type) {
