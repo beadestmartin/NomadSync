@@ -1794,7 +1794,6 @@ let spots = rawSpots.filter(spot => {
 const typeIcons = { free: '🏕️', wild: '🌙', farm: '🚜', fuel: '⛽', water: '💧', elec: '⚡', drain: '🛠️' };
 
 function initMap() {
-
   if (map) return;
   map = L.map('map').setView([46.603354, 1.888334], 5);
   
@@ -1806,74 +1805,112 @@ function initMap() {
   markersGroup = L.layerGroup().addTo(map);
   routeLayer = L.layerGroup().addTo(map);
   
-  // Utilise ta fonction d'affichage des spots nettoyés
   if (typeof renderSpots === 'function') {
     renderSpots();
   }
   
   setTimeout(() => { map.invalidateSize(); }, 300);
 }
-  function locateUser() {
-    if (!navigator.geolocation) {
-      alert("La géolocalisation n'est pas supportée par votre navigateur.");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(position => {
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-      map.setView([lat, lng], 13);
-      if (userMarker) {
-        map.removeLayer(userMarker);
-      }
-      userMarker = L.marker([lat, lng], {
-        icon: L.divIcon({
-          className: 'custom-div-icon',
-          html: `<div style="background:#0284c7; width:24px; height:24px; border-radius:50%; border:3px solid white; box-shadow:0 0 10px rgba(0,0,0,0.5);"></div>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 12]
-        })
-      }).addTo(map).bindPopup("<b>📍 Vous êtes ici (Frankie)</b>").openPopup();
-    }, () => {
-      alert("Impossible de récupérer votre position GPS.");
-    });
+
+function locateUser() {
+  if (!navigator.geolocation) {
+    alert("La géolocalisation n'est pas supportée par votre navigateur.");
+    return;
   }
-
- function renderSpots() {
-  if (!map || !markersGroup) return;
-  markersGroup.clearLayers();
-
-  spots.forEach(spot => {
-    if (currentCategory && spot.type !== currentCategory) return;
-
-    const customIcon = L.divIcon({
-      className: 'custom-div-icon',
-      html: `<div class="custom-marker marker-${spot.type}">${spot.icon}</div>`,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16]
-    });
-const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
-    let photoHtml = spot.photo ? `<img src="${spot.photo}" class="spot-popup-img" />` : '';
-    
-    // Liens de navigation GPS externes
-    let gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`;
-    let wazeUrl = `https://www.waze.com/ul?ll=${spot.lat},${spot.lng}&navigate=yes`;
-
-    marker.bindPopup(`
-      <b>${spot.name}</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">${spot.category}</span><br>
-      <small style="color:#666">📍 ${spot.address}</small><br>
-      💰 Tarif : <b>${spot.price}</b><br>
-      ⏱️ Durée : ${spot.stay}${photoHtml}<br><br>
-      
-      <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
-        <a href="${gmapsUrl}" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>
-        <a href="${wazeUrl}" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>
-      </div>
-    `);
-    
-    markersGroup.addLayer(marker);
+  navigator.geolocation.getCurrentPosition(position => {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    map.setView([lat, lng], 13);
+    if (userMarker) {
+      map.removeLayer(userMarker);
+    }
+    userMarker = L.marker([lat, lng], {
+      icon: L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background:#0284c7; width:24px; height:24px; border-radius:50%; border:3px solid white; box-shadow:0 0 10px rgba(0,0,0,0.5);"></div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      })
+    }).addTo(map).bindPopup("<b>📍 Vous êtes ici (Frankie)</b>").openPopup();
+  }, () => {
+    alert("Impossible de récupérer votre position GPS.");
   });
 }
+
+// 1. Tes tableaux de points par catégorie
+const rawWaterPoints = [
+  // tes points d'eau ici...
+];
+
+const rawWildPoints = [
+  { name: "Spot nature en forêt", category: "wild", icon: "🌲", lat: 48.1234, lng: -0.2345, address: "Lisière de forêt", price: "Gratuit", stay: "48h max", photo: "" }
+];
+
+const rawFarmPoints = [
+  { name: "Ferme du Bio-Logis", category: "farm", icon: "🚜", lat: 47.9876, lng: -0.1234, address: "Campagne", price: "Gratuit (achat conseillé)", stay: "24h", photo: "" }
+];
+
+const rawFuelPoints = [
+  { name: "Station GPL & Carburant", category: "fuel", icon: "⛽", lat: 48.0500, lng: -0.1500, address: "Zone artisanale", price: "Tarif station", stay: "Passage", photo: "" }
+];
+
+const rawElecPoints = [
+  { name: "Borne électrique communale", category: "elec", icon: "⚡", lat: 48.0200, lng: -0.1800, address: "Près de la mairie", price: "2€ / 4h", stay: "Illimité", photo: "" }
+];
+
+const rawDrainPoints = [
+  { name: "Aire de vidange", category: "drain", icon: "🚰", lat: 48.0800, lng: -0.1100, address: "Aire municipale", price: "Gratuit", stay: "1h", photo: "" }
+];
+
+// 2. On regroupe tout dans le tableau principal 'spots'
+const spots = [
+  ...(typeof rawWaterPoints !== 'undefined' ? rawWaterPoints : []),
+  ...rawWildPoints,
+  ...rawFarmPoints,
+  ...rawFuelPoints,
+  ...rawElecPoints,
+  ...rawDrainPoints
+];
+
+// 3. Fonction unique renderSpots() validée
+function renderSpots() {
+    if (!map || !markersGroup) return;
+    markersGroup.clearLayers();
+
+    spots.forEach(spot => {
+      if (currentCategory && spot.category !== currentCategory) return;
+
+      const customIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div class="custom-marker marker-${(spot.category || '').toLowerCase()}">${spot.icon || '💧'}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+      
+      const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
+      let photoHtml = spot.photo ? `<img src="${spot.photo}" class="spot-popup-img" />` : '';
+      
+      let gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`;
+      let wazeUrl = `https://www.waze.com/ul?ll=${spot.lat},${spot.lng}&navigate=yes`;
+
+      marker.bindPopup(`
+        <b>${spot.name}</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">${spot.category}</span><br>
+        <small style="color:#666">📍 ${spot.address}</small><br>
+        💰 Tarif : <b>${spot.price}</b><br>
+        ⏱️ Durée : ${spot.stay}${photoHtml}<br><br>
+        
+        <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+          <a href="${gmapsUrl}" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>
+          <a href="${wazeUrl}" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>
+        </div>
+      `);
+      
+      markersGroup.addLayer(marker);
+    });
+}
+
 let currentCategory = '';
+
 
 function toggleFilter(type) {
     currentCategory = type;
