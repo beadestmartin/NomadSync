@@ -1279,7 +1279,7 @@ const forbiddenKeywords = [
 
 let seenCoords = new Set();
 
-let filteredSpots = spots.filter(spot => {
+let filteredSpots = rawSpots.filter(spot => {
   const isFree = spot.type === 'free' || spot.price.toLowerCase().includes('gratuit');
   const stayText = (spot.stay || "").toLowerCase();
   const nameText = spot.name.toLowerCase();
@@ -1295,7 +1295,6 @@ let filteredSpots = spots.filter(spot => {
 
   return isFree && !isForbidden && !isDuplicate;
 });
-
 
 // --- LISTE COMPLÈTE DES POINTS D'EAU & SERVICES ---
 const rawWaterPoints = [
