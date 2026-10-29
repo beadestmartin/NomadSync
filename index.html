@@ -554,8 +554,8 @@
   let isOffline = false;
   let filters = { free: false, wild: false, farm: false, fuel: false, water: false, elec: false, drain: false };
 
-let spots = [
-  { 
+let rawSpots = [
+  {
     name: 'Pen Bé (Assérac)', 
     address: 'Presqu\'île de Pen Bé, 44410 Assérac, France', 
     lat: 47.4333, lng: -2.4333,
@@ -1217,7 +1217,33 @@ let spots = [
   },
 
 ];
- const typeIcons = { free: '🏕️', wild: '🌙', farm: '🚜', fuel: '⛽', water: '💧', elec: '⚡', drain: '🛠️' };
+ 
+// --- FILTRE AUTOMATIQUE DES SPOTS ---
+const forbiddenKeywords = ["jour seulement", "interdit la nuit", "mèze", "payant", "journée"];
+
+let spots = rawSpots.filter(spot => {
+  const isFree = spot.type === 'free' || spot.price.toLowerCase().includes('gratuit');
+  const stayText = (spot.stay || "").toLowerCase();
+  const nameText = spot.name.toLowerCase();
+
+  const isForbidden = forbiddenKeywords.some(keyword => 
+    stayText.includes(keyword) || nameText.includes(keyword)
+  );
+
+  return isFree && !isForbidden;
+});
+
+const typeIcons = { free: '🏕️', wild: '🌙', farm: '🚜', fuel: '⛽', water: '💧', elec: '⚡', drain: '🛠️' };
+
+function initMap() {
+  if (map) return;
+  map = L.map('map').setView([46.603354, 1.888334], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+const typeIcons = { free: '🏕️', wild: '🌙', farm: '🚜', fuel: '⛽', water: '💧', elec: '⚡', drain: '🛠️' };
 
   function initMap() {
     if (map) return;
