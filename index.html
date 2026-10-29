@@ -1967,7 +1967,7 @@ function renderSpots() {
     if (typeof filteredSpots !== 'undefined') allSpots = allSpots.concat(filteredSpots);
     else if (typeof rawSpots !== 'undefined') allSpots = allSpots.concat(rawSpots);
 
-    // Récupération de toutes les listes possibles (avec les vidanges en plus)
+    // Récupération de toutes les listes possibles
     ['waterSpots', 'rawWater', 'eau', 'pointsEau', 'electricite', 'rawElectricite', 'ferme', 'rawFerme', 'carburant', 'rawCarburant', 'sauvage', 'rawSauvage', 'dodosSauvages', 'vidange', 'rawVidange', 'vidanges'].forEach(varName => {
         if (typeof window[varName] !== 'undefined' && Array.isArray(window[varName])) {
             allSpots = allSpots.concat(window[varName]);
@@ -1986,18 +1986,23 @@ function renderSpots() {
             else spot.category = 'aire';
         }
 
-        if (currentCategory) {
+        // Filtrage assoupli
+        if (currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             const cat = (spot.category || '').toLowerCase();
             const cur = currentCategory.toLowerCase();
-            if (!cat.includes(cur) && !cur.includes(cat)) return;
+            
+            const matchCat = cat.includes(cur) || cur.includes(cat);
+            const matchName = (spot.name || '').toLowerCase().includes(cur);
+            
+            if (!matchCat && !matchName) return;
         }
 
         // Attribution des couleurs et icônes par catégorie
-        const catLower = spot.category.toLowerCase();
+        const catLower = (spot.category || '').toLowerCase();
         let bgColor = '#e74c3c'; // Rouge (aires)
         let defaultIcon = '🚐';
 
-        if (catLower.includes('eau')) { bgColor = '#3498db'; defaultIcon = '💧'; }
+        if (catLower.includes('eau') || catLower.includes('water')) { bgColor = '#3498db'; defaultIcon = '💧'; }
         else if (catLower.includes('vidange')) { bgColor = '#16a085'; defaultIcon = '🚰'; }
         else if (catLower.includes('elect')) { bgColor = '#f1c40f'; defaultIcon = '⚡'; }
         else if (catLower.includes('ferme')) { bgColor = '#27ae60'; defaultIcon = '🚜'; }
