@@ -1271,6 +1271,43 @@ let rawSpots = [
   }
 ];
 
+// --- FILTRAGE DE VOS AIRES ---
+const forbiddenKeywords = [
+  "jour seulement", "interdit la nuit", "pas de nuit", "nuit interdite", 
+  "interdiction de stationner la nuit", "barrière", "hauteur", "gabarit", "payant", "journée"
+];
+
+let seenCoords = new Set();
+
+let filteredSpots = rawSpots.filter(spot => {
+  const isFree = spot.type === 'free' || spot.price.toLowerCase().includes('gratuit');
+  const stayText = (spot.stay || "").toLowerCase();
+  const nameText = spot.name.toLowerCase();
+  const addressText = (spot.address || "").toLowerCase();
+
+  const isForbidden = forbiddenKeywords.some(keyword => 
+    stayText.includes(keyword) || nameText.includes(keyword) || addressText.includes(keyword)
+  );
+
+  const coordKey = `${spot.lat.toFixed(4)},${spot.lng.toFixed(4)}`;
+  const isDuplicate = seenCoords.has(coordKey);
+  if (!isDuplicate) seenCoords.add(coordKey);
+
+  return isFree && !isForbidden && !isDuplicate;
+});
+
+// Tableau global regroupant tout
+const spots = [
+  ...filteredSpots,
+  ...filteredWaterPoints,
+  ...rawWildPoints,
+  ...rawFarmPoints,
+  ...rawFuelPoints,
+  ...rawElecPoints,
+  ...rawDrainPoints
+];
+
+
 // --- LISTE COMPLÈTE DES POINTS D'EAU & SERVICES ---
 const rawWaterPoints = [
   {
