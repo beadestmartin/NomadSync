@@ -1296,17 +1296,6 @@ let filteredSpots = rawSpots.filter(spot => {
   return isFree && !isForbidden && !isDuplicate;
 });
 
-// Tableau global regroupant tout
-const spots = [
-  ...filteredSpots,
-  ...filteredWaterPoints,
-  ...rawWildPoints,
-  ...rawFarmPoints,
-  ...rawFuelPoints,
-  ...rawElecPoints,
-  ...rawDrainPoints
-];
-
 
 // --- LISTE COMPLÈTE DES POINTS D'EAU & SERVICES ---
 const rawWaterPoints = [
@@ -2451,15 +2440,12 @@ async function checkMeteoAlert() {
     });
   }
 
-  function loadSavedData() {
+function loadSavedData() {
     const savedTheme = localStorage.getItem('nomadsync_theme');
     if (savedTheme === 'nuit') {
-      document.documentElement.setAttribute('data-theme', 'nuit');
-      document.getElementById('themeBtn').innerText = '☀️ Mode Jour';
+        document.documentElement.setAttribute('data-theme', 'nuit');
+        document.getElementById('themeBtn').innerText = '☀️ Mode Jour';
     }
-
-    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
-    spots.push(...customSpots);
 
     ['bat', 'eau', 'usee', 'gaz'].forEach(type => {
       const savedVal = localStorage.getItem(`nomadsync_gauge_${type}`);
@@ -2488,14 +2474,31 @@ async function checkMeteoAlert() {
     });
 
     renderFuelExpenses();
-  }
+} 
+// <-- Ici la fonction loadSavedData() se ferme proprement
 
-  if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js')
         .catch(err => console.log('Service Worker non enregistré', err));
     });
-  }
+}
+
+// ==========================================
+// TABLEAU GLOBAL DES SPOTS (TOUT À LA FIN)
+// ==========================================
+const spots = [
+  ...filteredSpots,
+  ...filteredWaterPoints,
+  ...rawWildPoints,
+  ...rawFarmPoints,
+  ...rawFuelPoints,
+  ...rawElecPoints,
+  ...rawDrainPoints
+];
+
+const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+spots.push(...customSpots);
 
  window.onload = function() {
     initMap();
