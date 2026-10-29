@@ -2580,21 +2580,6 @@ const translations = {
     }
 };
 
-function changeLanguage(lang) {
-    const t = translations[lang];
-    if (!t) return;
-    
-    document.title = t.title;
-
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (t[key]) {
-            el.innerHTML = t[key];
-        }
-    });
-    
-    localStorage.setItem('nomadsync_lang', lang);
-}
 <script>
     // Fonction pour récupérer la météo selon la position du véhicule
     function chargerMeteo(lat, lng) {
@@ -2655,6 +2640,16 @@ function changeLanguage(lang) {
 
   <script>
     function changeLanguage(lang) {
+        const t = window.translations ? window.translations[lang] : null;
+        if (t) {
+            document.title = t.title;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.innerHTML = t[key];
+                }
+            });
+        }
         localStorage.setItem('nomadsync_lang', lang);
         console.log("Langue active :", lang);
     }
