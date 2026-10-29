@@ -1963,12 +1963,16 @@ function renderSpots() {
     if (!map || !markersGroup) return;
     markersGroup.clearLayers();
 
-    spots.forEach(spot => {
+    // On utilise filteredSpots à la place de spots
+    filteredSpots.forEach(spot => {
+      // On s'assure que chaque spot a une catégorie 'aire' si elle est vide
+      if (!spot.category) spot.category = 'aire';
+
       if (currentCategory && spot.category !== currentCategory) return;
 
       const customIcon = L.divIcon({
         className: 'custom-div-icon',
-        html: `<div class="custom-marker marker-${(spot.category || '').toLowerCase()}">${spot.icon || '💧'}</div>`,
+        html: `<div class="custom-marker marker-${spot.category.toLowerCase()}">${spot.icon || '🚐'}</div>`,
         iconSize: [32, 32],
         iconAnchor: [16, 16]
       });
