@@ -1279,7 +1279,7 @@ const forbiddenKeywords = [
 
 let seenCoords = new Set();
 
-let filteredSpots = rawSpots.filter(spot => {
+let filteredSpots = spots.filter(spot => {
   const isFree = spot.type === 'free' || spot.price.toLowerCase().includes('gratuit');
   const stayText = (spot.stay || "").toLowerCase();
   const nameText = spot.name.toLowerCase();
