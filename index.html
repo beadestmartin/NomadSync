@@ -1837,9 +1837,9 @@ function locateUser() {
   });
 }
 
-// 1. Tes tableaux de points par catégorie
+// 1. Tes tableaux de points par catégorie (déclarés une seule fois)
 const rawWaterPoints = [
-  // tes points d'eau ici...
+  { name: "Borne eau potable - Place du Village", category: "water", icon: "💧", lat: 48.0600, lng: -0.1300, address: "Centre bourg", price: "Gratuit", stay: "Passage", photo: "" }
 ];
 
 const rawWildPoints = [
@@ -1872,7 +1872,7 @@ const spots = [
   ...rawDrainPoints
 ];
 
-// 3. Fonction unique renderSpots() validée
+// 3. Fonction unique renderSpots()
 function renderSpots() {
     if (!map || !markersGroup) return;
     markersGroup.clearLayers();
@@ -1910,7 +1910,6 @@ function renderSpots() {
 }
 
 let currentCategory = '';
-
 
 function toggleFilter(type) {
     currentCategory = type;
