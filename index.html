@@ -1909,7 +1909,6 @@ const rawDrainPoints = [
   { name: "Aire de vidange", category: "drain", icon: "🛠️", lat: 48.0800, lng: -0.1100, address: "Aire municipale", price: "Gratuit", stay: "1h", photo: "" }
 ];
 
-
 let filteredWaterPoints = rawWaterPoints.filter(spot => {
   const isFree = spot.price.toLowerCase().includes('gratuit');
   const stayText = (spot.stay || "").toLowerCase();
@@ -1926,17 +1925,6 @@ let filteredWaterPoints = rawWaterPoints.filter(spot => {
 
   return isFree && !isForbidden && !isDuplicate;
 });
-
-// --- REGROUPEMENT GLOBAL DANS LE TABLEAU SPOTS ---
-const spots = [
-  ...filteredWaterPoints,
-  ...rawWildPoints,
-  ...rawFarmPoints,
-  ...rawFuelPoints,
-  ...rawElecPoints,
-  ...rawDrainPoints
-];
-
 const typeIcons = { free: '🏕️', wild: '🌙', farm: '🚜', fuel: '⛽', water: '💧', elec: '⚡', drain: '🛠️' };
 
 function initMap() {
