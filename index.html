@@ -1215,11 +1215,11 @@ let rawSpots = [
     services: { water: false, waste: false, elec: false },
     photo: ''
   },
-
 ];
- 
-// --- FILTRE AUTOMATIQUE DES SPOTS ---
+
+// --- FILTRE AUTOMATIQUE AVANCÉ ---
 const forbiddenKeywords = ["jour seulement", "interdit la nuit", "mèze", "payant", "journée"];
+let seenCoords = new Set();
 
 let spots = rawSpots.filter(spot => {
   const isFree = spot.type === 'free' || spot.price.toLowerCase().includes('gratuit');
@@ -1230,35 +1230,35 @@ let spots = rawSpots.filter(spot => {
     stayText.includes(keyword) || nameText.includes(keyword)
   );
 
-  return isFree && !isForbidden;
+  const coordKey = `${spot.lat.toFixed(4)},${spot.lng.toFixed(4)}`;
+  const isDuplicate = seenCoords.has(coordKey);
+  if (!isDuplicate) seenCoords.add(coordKey);
+
+  return isFree && !isForbidden && !isDuplicate;
 });
+const typeIcons = { free: '🏕️', wild: '🌙', farm: '🚜', fuel: '⛽', water: '💧', elec: '⚡', drain: '🛠️' };
 
 const typeIcons = { free: '🏕️', wild: '🌙', farm: '🚜', fuel: '⛽', water: '💧', elec: '⚡', drain: '🛠️' };
 
 function initMap() {
   if (map) return;
   map = L.map('map').setView([46.603354, 1.888334], 5);
+  
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
-
-const typeIcons = { free: '🏕️', wild: '🌙', farm: '🚜', fuel: '⛽', water: '💧', elec: '⚡', drain: '🛠️' };
-
-  function initMap() {
-    if (map) return;
-    map = L.map('map').setView([46.603354, 1.888334], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-    
-    markersGroup = L.layerGroup().addTo(map);
-    routeLayer = L.layerGroup().addTo(map);
+  
+  markersGroup = L.layerGroup().addTo(map);
+  routeLayer = L.layerGroup().addTo(map);
+  
+  // Utilise ta fonction d'affichage des spots nettoyés
+  if (typeof renderSpots === 'function') {
     renderSpots();
-    setTimeout(() => { map.invalidateSize(); }, 300);
   }
-
+  
+  setTimeout(() => { map.invalidateSize(); }, 300);
+}
   function locateUser() {
     if (!navigator.geolocation) {
       alert("La géolocalisation n'est pas supportée par votre navigateur.");
@@ -1902,13 +1902,20 @@ if (navigator.geolocation) {
   console.log("❌ La géolocalisation n'est pas supportée par ce navigateur.");
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    const savedLang = localStorage.getItem('nomadsync_lang');
-    if (savedLang) {
-        const select = document.getElementById('langSelect');
-        if (select) select.value = savedLang;
-        changeLanguage(savedLang);
-    }
-});
-</script>
+<!-- Mention légale -->
+  <footer style="text-align: center; padding: 15px; font-size: 12px; color: #666; background: #f8f9fa; border-top: 1px solid #dee2e6; margin-top: 20px;">
+    <p><strong>Mention légale :</strong> Les informations de stationnement sont indicatives. L'utilisatrice demeure seule responsable du respect de la réglementation locale en vigueur sur chaque emplacement.</p>
+  </footer>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('nomadsync_lang');
+        if (savedLang) {
+            const select = document.getElementById('langSelect');
+            if (select) select.value = savedLang;
+            changeLanguage(savedLang);
+        }
+    });
+  </script>
 </body>
+</html>
