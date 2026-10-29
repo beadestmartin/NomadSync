@@ -1909,21 +1909,6 @@ const rawDrainPoints = [
   { name: "Aire de vidange", category: "drain", icon: "🛠️", lat: 48.0800, lng: -0.1100, address: "Aire municipale", price: "Gratuit", stay: "1h", photo: "" }
 ];
 
-// --- FILTRE AUTOMATIQUE & FILTRAGE DES DOUBLONS SUR LES POINTS D'EAU ---
-const forbiddenKeywords = [
-  "jour seulement", 
-  "interdit la nuit", 
-  "pas de nuit", 
-  "nuit interdite", 
-  "interdiction de stationner la nuit",
-  "barrière", 
-  "hauteur", 
-  "gabarit", 
-  "payant", 
-  "journée"
-];
-
-let seenCoords = new Set();
 
 let filteredWaterPoints = rawWaterPoints.filter(spot => {
   const isFree = spot.price.toLowerCase().includes('gratuit');
