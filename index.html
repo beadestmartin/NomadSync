@@ -2595,11 +2595,13 @@ function changeLanguage(lang) {
     
     localStorage.setItem('nomadsync_lang', lang);
 }
-
 <script>
     // Fonction pour récupérer la météo selon la position du véhicule
     function chargerMeteo(lat, lng) {
       console.log("📍 Coordonnées reçues :", lat, lng);
+      
+      const currentMonthYear = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date());
+
       fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
         .then(response => {
           console.log("🌐 Réponse de l'API Open-Meteo reçue");
@@ -2612,11 +2614,11 @@ function changeLanguage(lang) {
           
           let alertHtml = "";
           if (windSpeed > 50) {
-            alertHtml = `<strong>Conditions Actuelles :</strong> 🔴 <strong>ATTENTION</strong> Rafales à ${windSpeed} km/h (${temp}°C) - Fermez impérativement les lanterneaux !`;
+            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🔴 <strong>ATTENTION</strong> Rafales à ${windSpeed} km/h (${temp}°C) - Fermez impérativement les lanterneaux !`;
           } else if (windSpeed > 25) {
-            alertHtml = `<strong>Conditions Actuelles :</strong> 🟡 Vent modéré (${windSpeed} km/h, ${temp}°C) - Prudence sur les stores.`;
+            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟡 Vent modéré (${windSpeed} km/h, ${temp}°C) - Prudence sur les stores.`;
           } else {
-            alertHtml = `<strong>Conditions Actuelles :</strong> 🟢 Calme (${windSpeed} km/h, ${temp}°C) - Conditions favorables.`;
+            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟢 Calme (${windSpeed} km/h, ${temp}°C) - Conditions favorables.`;
           }
 
           const weatherWidget = document.querySelector('.weather-current-text');
@@ -2652,6 +2654,11 @@ function changeLanguage(lang) {
   </footer>
 
   <script>
+    function changeLanguage(lang) {
+        localStorage.setItem('nomadsync_lang', lang);
+        console.log("Langue active :", lang);
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
         const savedLang = localStorage.getItem('nomadsync_lang');
         if (savedLang) {
