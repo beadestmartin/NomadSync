@@ -2829,8 +2829,7 @@ function renderSpots() {
                 cat = 'aire'; 
             }
         }
-
-       // Filtrage dynamique selon le bouton de filtre sélectionné
+// Filtrage dynamique selon le bouton de filtre sélectionné
         if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             let cur = currentCategory.toLowerCase();
             let match = false;
@@ -2845,7 +2844,7 @@ function renderSpots() {
                 match = (cat === 'ferme');
             } else if (cur.includes('carburant')) {
                 match = (cat === 'carburant');
-            } else if (cur.includes('sauvage') || cur.includes('dodo')) {
+            } else if (cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
                 match = (cat === 'sauvage');
             } else if (cur.includes('gratuit') || cur.includes('free')) {
                 match = (spot.type === 'free' || (spot.price && spot.price.toLowerCase().includes('0'))) && cat !== 'sauvage';
