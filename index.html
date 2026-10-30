@@ -1958,6 +1958,7 @@ function locateUser() {
     alert("Impossible de récupérer votre position GPS.");
   });
 }
+
 function renderSpots() {
     if (!map || !markersGroup) return;
     markersGroup.clearLayers();
@@ -1973,9 +1974,12 @@ function renderSpots() {
     });
 
     allSpots.forEach(spot => {
-        if (!spot.category) {
-            const nameLower = (spot.name || '').toLowerCase();
-            const descLower = (spot.description || '').toLowerCase();
+        const nameLower = (spot.name || '').toLowerCase();
+        const descLower = (spot.description || '').toLowerCase();
+        const catOriginal = (spot.category || '').toLowerCase();
+
+        // Attribution automatique propre de la catégorie si elle est vide ou générique
+        if (!catOriginal || catOriginal === 'aire' || catOriginal === 'spot') {
             if (spot.icon === '💧' || nameLower.includes('eau') || descLower.includes('eau')) spot.category = 'eau';
             else if (nameLower.includes('vidange') || nameLower.includes('usée')) spot.category = 'vidange';
             else if (nameLower.includes('elect') || nameLower.includes('edf')) spot.category = 'electricite';
@@ -1985,37 +1989,38 @@ function renderSpots() {
             else spot.category = 'aire';
         }
 
+        // Filtrage strict selon le bouton cliqué
         if (currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             const cat = (spot.category || '').toLowerCase();
             const cur = currentCategory.toLowerCase();
 
             let match = false;
-            if (cur.includes('aire') || cur.includes('camping')) {
-                match = cat === 'aire' || cat.includes('aire') || (!cat.includes('eau') && !cat.includes('vidange') && !cat.includes('elect') && !cat.includes('ferme') && !cat.includes('carburant') && !cat.includes('sauvage'));
-            } else if (cur.includes('eau') || cur.includes('water')) {
-                match = cat.includes('eau');
+            if (cur.includes('eau') || cur.includes('water')) {
+                match = cat.includes('eau') || spot.icon === '💧' || nameLower.includes('eau');
             } else if (cur.includes('vidange')) {
-                match = cat.includes('vidange');
+                match = cat.includes('vidange') || nameLower.includes('vidange');
             } else if (cur.includes('elect')) {
-                match = cat.includes('elect');
+                match = cat.includes('elect') || nameLower.includes('elect');
             } else if (cur.includes('ferme')) {
-                match = cat.includes('ferme');
+                match = cat.includes('ferme') || nameLower.includes('ferme');
             } else if (cur.includes('carburant')) {
-                match = cat.includes('carburant');
+                match = cat.includes('carburant') || nameLower.includes('carburant') || nameLower.includes('gazole');
             } else if (cur.includes('sauvage') || cur.includes('dodo')) {
-                match = cat.includes('sauvage') || cat.includes('dodo');
+                match = cat.includes('sauvage') || cat.includes('dodo') || nameLower.includes('sauvage');
+            } else if (cur.includes('aire') || cur.includes('camping')) {
+                match = cat.includes('aire') || (!cat.includes('eau') && !cat.includes('vidange') && !cat.includes('elect') && !cat.includes('ferme') && !cat.includes('carburant') && !cat.includes('sauvage'));
             } else {
                 match = cat.includes(cur);
             }
 
-            if (!match) return;
+            if (!match) return; // Ignore ce spot s'il ne correspond pas au filtre
         }
 
         const catLower = (spot.category || '').toLowerCase();
         let bgColor = '#e74c3c'; 
         let defaultIcon = '🚐';
 
-        if (catLower.includes('eau') || catLower.includes('water')) { bgColor = '#3498db'; defaultIcon = '💧'; }
+        if (catLower.includes('eau') || spot.icon === '💧') { bgColor = '#3498db'; defaultIcon = '💧'; }
         else if (catLower.includes('vidange')) { bgColor = '#16a085'; defaultIcon = '🚰'; }
         else if (catLower.includes('elect')) { bgColor = '#f1c40f'; defaultIcon = '⚡'; }
         else if (catLower.includes('ferme')) { bgColor = '#27ae60'; defaultIcon = '🚜'; }
@@ -2049,7 +2054,6 @@ function renderSpots() {
         markersGroup.addLayer(marker);
     });
 }
-
 let currentCategory = '';
 
 function toggleFilter(type) {
