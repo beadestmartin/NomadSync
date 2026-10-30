@@ -1967,7 +1967,7 @@ function renderSpots() {
     if (typeof filteredSpots !== 'undefined') allSpots = allSpots.concat(filteredSpots);
     else if (typeof rawSpots !== 'undefined') allSpots = allSpots.concat(rawSpots);
 
-    // Récupération de toutes les listes possibles
+    // Récupération de toutes les listes de catégories possibles
     ['waterSpots', 'rawWater', 'eau', 'pointsEau', 'electricite', 'rawElectricite', 'ferme', 'rawFerme', 'carburant', 'rawCarburant', 'sauvage', 'rawSauvage', 'dodosSauvages', 'vidange', 'rawVidange', 'vidanges'].forEach(varName => {
         if (typeof window[varName] !== 'undefined' && Array.isArray(window[varName])) {
             allSpots = allSpots.concat(window[varName]);
@@ -1975,29 +1975,48 @@ function renderSpots() {
     });
 
     allSpots.forEach(spot => {
+        // Attribution automatique de la catégorie si elle est absente
         if (!spot.category) {
             const nameLower = (spot.name || '').toLowerCase();
-            if (spot.icon === '💧' || nameLower.includes('eau')) spot.category = 'eau';
+            const descLower = (spot.description || '').toLowerCase();
+            if (spot.icon === '💧' || nameLower.includes('eau') || descLower.includes('eau')) spot.category = 'eau';
             else if (nameLower.includes('vidange') || nameLower.includes('usée')) spot.category = 'vidange';
             else if (nameLower.includes('elect') || nameLower.includes('edf')) spot.category = 'electricite';
             else if (nameLower.includes('ferme') || nameLower.includes('producteur')) spot.category = 'ferme';
             else if (nameLower.includes('carburant') || nameLower.includes('gasoil') || nameLower.includes('station')) spot.category = 'carburant';
-            else if (nameLower.includes('sauvage') || nameLower.includes('nature') || nameLower.includes('gratuit')) spot.category = 'sauvage';
+            else if (nameLower.includes('sauvage') || nameLower.includes('nature') || nameLower.includes('gratuit') || nameLower.includes('dodo')) spot.category = 'sauvage';
             else spot.category = 'aire';
         }
 
-        // Filtrage assoupli
+        // Filtrage précis pour chaque bouton de l'interface
         if (currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             const cat = (spot.category || '').toLowerCase();
             const cur = currentCategory.toLowerCase();
-            
-            const matchCat = cat.includes(cur) || cur.includes(cat);
-            const matchName = (spot.name || '').toLowerCase().includes(cur);
-            
-            if (!matchCat && !matchName) return;
+            const nameLower = (spot.name || '').toLowerCase();
+
+            let match = false;
+            if (cur.includes('aire') || cur.includes('camping')) {
+                match = cat.includes('aire') || cat.includes('camping') || (!cat.includes('eau') && !cat.includes('vidange') && !cat.includes('elect') && !cat.includes('ferme') && !cat.includes('carburant') && !cat.includes('sauvage'));
+            } else if (cur.includes('eau') || cur.includes('water')) {
+                match = cat.includes('eau') || nameLower.includes('eau') || spot.icon === '💧';
+            } else if (cur.includes('vidange')) {
+                match = cat.includes('vidange') || nameLower.includes('vidange') || nameLower.includes('usée');
+            } else if (cur.includes('elect')) {
+                match = cat.includes('elect') || nameLower.includes('elect') || nameLower.includes('edf');
+            } else if (cur.includes('ferme')) {
+                match = cat.includes('ferme') || nameLower.includes('ferme') || nameLower.includes('producteur');
+            } else if (cur.includes('carburant')) {
+                match = cat.includes('carburant') || nameLower.includes('carburant') || nameLower.includes('gasoil');
+            } else if (cur.includes('sauvage') || cur.includes('dodo')) {
+                match = cat.includes('sauvage') || cat.includes('dodo') || nameLower.includes('sauvage') || nameLower.includes('nature');
+            } else {
+                match = cat.includes(cur) || cur.includes(cat) || nameLower.includes(cur);
+            }
+
+            if (!match) return;
         }
 
-        // Attribution des couleurs et icônes par catégorie
+        // Attribution des couleurs et icônes spécifiques à chaque catégorie
         const catLower = (spot.category || '').toLowerCase();
         let bgColor = '#e74c3c'; // Rouge (aires)
         let defaultIcon = '🚐';
