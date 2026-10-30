@@ -2845,6 +2845,7 @@ function initMap() {
   
   setTimeout(() => { map.invalidateSize(); }, 300);
 }
+
 function renderSpots() {
     if (!map || !markersGroup) return;
     markersGroup.clearLayers();
@@ -2863,10 +2864,22 @@ function renderSpots() {
         const nameLower = (spot.name || '').toLowerCase();
         let cat = (spot.category || '').toLowerCase();
 
-        // Normalisation propre sans voler les aires qui ont de l'eau
-        if (cat === 'water') {
+        // Normalisation propre
+        if (cat === 'water' || cat === 'eau') {
             cat = 'eau';
-        } else if (cat === 'aire' || cat === 'parking' || !cat) {
+        } else if (cat === 'vidange') {
+            cat = 'vidange';
+        } else if (cat === 'electricite' || cat === 'elec') {
+            cat = 'electricite';
+        } else if (cat === 'ferme' || cat === 'farm') {
+            cat = 'ferme';
+        } else if (cat === 'carburant' || cat === 'fuel') {
+            cat = 'carburant';
+        } else if (cat === 'sauvage' || cat === 'wild' || cat === 'dodo sauvage' || cat === 'dodo' || nameLower.includes('sauvage') || nameLower.includes('nature') || nameLower.includes('dodo') || spot.type === 'wild') {
+            cat = 'sauvage';
+        } else if (cat === 'parking') {
+            cat = 'parking';
+        } else {
             if (nameLower.includes('vidange') || nameLower.includes('usée')) {
                 cat = 'vidange';
             } else if (nameLower.includes('elect') || nameLower.includes('edf')) {
@@ -2875,10 +2888,10 @@ function renderSpots() {
                 cat = 'ferme';
             } else if (nameLower.includes('carburant') || nameLower.includes('gazole') || nameLower.includes('station')) {
                 cat = 'carburant';
-            } else if (nameLower.includes('sauvage') || nameLower.includes('nature') || nameLower.includes('dodo') || spot.type === 'wild') {
-                cat = 'sauvage';
+            } else if (nameLower.includes('parking') && !nameLower.includes('aire')) {
+                cat = 'parking';
             } else {
-                cat = 'aire'; // Reste une aire de camping-car (même si elle a de l'eau)
+                cat = 'aire'; 
             }
         }
 
@@ -2901,7 +2914,9 @@ function renderSpots() {
                 match = (cat === 'sauvage');
             } else if (cur.includes('gratuit') || cur.includes('free')) {
                 match = (spot.type === 'free' || (spot.price && spot.price.toLowerCase().includes('0')));
-            } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car') || cur.includes('parking')) {
+            } else if (cur.includes('parking')) {
+                match = (cat === 'parking');
+            } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
                 match = (cat === 'aire');
             } else {
                 match = cat.includes(cur);
@@ -2911,18 +2926,41 @@ function renderSpots() {
         }
 
         let bgColor = '#e74c3c'; 
-let defaultIcon = '🚐';
+        let defaultIcon = '🚐';
 
-if (cat === 'eau') { bgColor = '#3498db'; defaultIcon = '💧'; }
-else if (cat === 'vidange') { bgColor = '#16a085'; defaultIcon = '🚰'; }
-else if (cat === 'electricite') { bgColor = '#f1c40f'; defaultIcon = '⚡'; }
-else if (cat === 'ferme') { bgColor = '#27ae60'; defaultIcon = '🚜'; }
-else if (cat === 'carburant') { bgColor = '#e67e22'; defaultIcon = '⛽'; }
-else if (cat === 'sauvage') { bgColor = '#8e44ad'; defaultIcon = '🌲'; }
-else if (cat === 'Dodo sauvage') { bgColor = '#D4621A'; defaultIcon = '🏕️'; }
-else if (cat === 'Aire') { bgColor = '#e74c3c'; defaultIcon = '🚐'; }
-else if (cat === 'Parking') { bgColor = '#e74c3c'; defaultIcon = '🅿️'; }
-else { bgColor = '#e74c3c'; defaultIcon = spot.icon || '🚐'; }
+        if (cat === 'eau') { 
+            bgColor = '#3498db'; 
+            defaultIcon = '💧'; 
+        } 
+        else if (cat === 'vidange') { 
+            bgColor = '#16a085'; 
+            defaultIcon = '🚰'; 
+        } 
+        else if (cat === 'electricite') { 
+            bgColor = '#f1c40f'; 
+            defaultIcon = '⚡'; 
+        } 
+        else if (cat === 'ferme') { 
+            bgColor = '#27ae60'; 
+            defaultIcon = '🚜'; 
+        } 
+        else if (cat === 'carburant') { 
+            bgColor = '#e67e22'; 
+            defaultIcon = '⛽'; 
+        } 
+        else if (cat === 'sauvage') { 
+            bgColor = '#D4621A'; // Orange/terracotta
+            defaultIcon = '🏕️'; // Tente
+        } 
+        else if (cat === 'parking') { 
+            bgColor = '#e74c3c'; // Rouge commun
+            defaultIcon = '🅿️'; // Parking
+        } 
+        else if (cat === 'aire') { 
+            bgColor = '#e74c3c'; // Rouge commun
+            defaultIcon = '🚐'; // Fourgon
+        }
+
         const customIcon = L.divIcon({
             className: 'custom-div-icon',
             html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + (spot.icon || defaultIcon) + '</div>',
@@ -2950,6 +2988,7 @@ else { bgColor = '#e74c3c'; defaultIcon = spot.icon || '🚐'; }
         markersGroup.addLayer(marker);
     });
 }
+
 
 function toggleFilter(type) {
     currentCategory = type;
