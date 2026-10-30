@@ -1951,11 +1951,11 @@ function renderSpots() {
         const nameLower = (spot.name || '').toLowerCase();
         let cat = (spot.category || '').toLowerCase();
 
-        // Normalisation propre des catégories et types
-        if (cat === 'aire' || cat === 'parking' || !cat) {
-            if (spot.icon === '💧' || nameLower.includes('eau') || (spot.services && typeof spot.services === 'object' && spot.services.water)) {
-                cat = 'eau';
-            } else if (nameLower.includes('vidange') || nameLower.includes('usée')) {
+        // Normalisation propre sans voler les aires qui ont de l'eau
+        if (cat === 'water') {
+            cat = 'eau';
+        } else if (cat === 'aire' || cat === 'parking' || !cat) {
+            if (nameLower.includes('vidange') || nameLower.includes('usée')) {
                 cat = 'vidange';
             } else if (nameLower.includes('elect') || nameLower.includes('edf')) {
                 cat = 'electricite';
@@ -1966,10 +1966,8 @@ function renderSpots() {
             } else if (nameLower.includes('sauvage') || nameLower.includes('nature') || nameLower.includes('dodo') || spot.type === 'wild') {
                 cat = 'sauvage';
             } else {
-                cat = 'aire'; // Tout le reste (Aire, Parking, etc.) devient une aire de camping-car affichable
+                cat = 'aire'; // Reste une aire de camping-car (même si elle a de l'eau)
             }
-        } else if (cat === 'water') {
-            cat = 'eau';
         }
 
         // Filtrage selon le bouton cliqué
