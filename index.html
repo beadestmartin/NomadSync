@@ -1933,75 +1933,44 @@ function initMap() {
   
   setTimeout(() => { map.invalidateSize(); }, 300);
 }
-
-function locateUser() {
-  if (!navigator.geolocation) {
-    alert("La géolocalisation n'est pas supportée par votre navigateur.");
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(position => {
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
-    map.setView([lat, lng], 13);
-    if (userMarker) {
-      map.removeLayer(userMarker);
-    }
-    userMarker = L.marker([lat, lng], {
-      icon: L.divIcon({
-        className: 'custom-div-icon',
-        html: `<div style="background:#0284c7; width:24px; height:24px; border-radius:50%; border:3px solid white; box-shadow:0 0 10px rgba(0,0,0,0.5);"></div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
-      })
-    }).addTo(map).bindPopup("<b>📍 Vous êtes ici (Frankie)</b>").openPopup();
-  }, () => {
-    alert("Impossible de récupérer votre position GPS.");
-  });
-}
 function renderSpots() {
     if (!map || !markersGroup) return;
     markersGroup.clearLayers();
 
+    // Récupération directe du tableau principal de spots de l'application
     let sourceSpots = [];
-
-    // Fonction utilitaire pour attacher la bonne catégorie selon la source d'origine
-    const addWithCategory = (arr, catName) => {
-        if (Array.isArray(arr)) {
-            arr.forEach(s => {
-                let spotCopy = Object.assign({}, s);
-                // On force la catégorie propre si elle est absente ou générique
-                if (!spotCopy.category || spotCopy.category === 'spot' || spotCopy.category === 'lieu') {
-                    spotCopy.category = catName;
-                }
-                sourceSpots.push(spotCopy);
-            });
+    const possibleArrays = [window.spots, window.rawSpots, window.listeSpots, window.allSpots, window.points, window.aires, window.rawAires];
+    for (let arr of possibleArrays) {
+        if (Array.isArray(arr) && arr.length > 0) {
+            sourceSpots = arr;
+            break;
         }
-    };
+    }
 
-    // Collecte ciblée par tableau d'origine pour éviter les mélanges
-    addWithCategory(window.rawAires || window.aires, 'aire');
-    addWithCategory(window.waterSpots || window.rawWater || window.eau || window.pointsEau, 'eau');
-    addWithCategory(window.vidange || window.rawVidange || window.vidanges, 'vidange');
-    addWithCategory(window.electricite || window.rawElectricite, 'electricite');
-    addWithCategory(window.ferme || window.rawFerme, 'ferme');
-    addWithCategory(window.carburant || window.rawCarburant, 'carburant');
-    addWithCategory(window.sauvage || window.rawSauvage || window.dodosSauvages, 'sauvage');
-
-    // Fallback global si aucun tableau spécifique n'est trouvé
-    if (sourceSpots.length === 0 && typeof rawSpots !== 'undefined' && Array.isArray(rawSpots)) {
-        addWithCategory(rawSpots, 'aire');
+    // Si aucun tableau nommé n'est trouvé, on balaie globalement la page
+    if (sourceSpots.length === 0) {
+        for (let key in window) {
+            try {
+                if (Array.isArray(window[key]) && window[key].length > 0 && window[key][0] && (window[key][0].lat !== undefined || window[key][0].latitude !== undefined)) {
+                    sourceSpots = sourceSpots.concat(window[key]);
+                }
+            } catch(e) {}
+        }
     }
 
     sourceSpots.forEach(spot => {
-        const cat = (spot.category || 'aire').toLowerCase();
+        if (!spot || typeof spot.lat === 'undefined') return;
+
+        // Lecture directe de la catégorie propre à chaque spot
+        let cat = (spot.category || spot.type || spot.cat || 'aire').toLowerCase();
 
         // Filtrage strict selon le bouton cliqué
         if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
-            const cur = currentCategory.toLowerCase();
+            let cur = currentCategory.toLowerCase();
             let match = false;
 
             if (cur.includes('eau') || cur.includes('water')) {
-                match = cat.includes('eau');
+                match = cat.includes('eau') || spot.icon === '💧';
             } else if (cur.includes('vidange')) {
                 match = cat.includes('vidange');
             } else if (cur.includes('elect')) {
@@ -2013,19 +1982,19 @@ function renderSpots() {
             } else if (cur.includes('sauvage') || cur.includes('dodo')) {
                 match = cat.includes('sauvage') || cat.includes('dodo');
             } else if (cur.includes('aire') || cur.includes('camping')) {
-                match = cat.includes('aire') || cat.includes('camping');
+                match = cat.includes('aire') || cat.includes('camping') || (!cat.includes('eau') && !cat.includes('vidange') && !cat.includes('elect') && !cat.includes('ferme') && !cat.includes('carburant') && !cat.includes('sauvage') && !cat.includes('dodo'));
             } else {
                 match = cat.includes(cur);
             }
 
-            if (!match) return; // Ignore le spot s'il ne correspond pas au filtre actif
+            if (!match) return; // Ignore ce spot s'il ne correspond pas au filtre actif
         }
 
-        // Attribution des couleurs et icônes
+        // Attribution des couleurs et icônes selon la vraie catégorie du spot
         let bgColor = '#e74c3c'; 
         let defaultIcon = '🚐';
 
-        if (cat.includes('eau')) { bgColor = '#3498db'; defaultIcon = '💧'; }
+        if (cat.includes('eau') || spot.icon === '💧') { bgColor = '#3498db'; defaultIcon = '💧'; }
         else if (cat.includes('vidange')) { bgColor = '#16a085'; defaultIcon = '🚰'; }
         else if (cat.includes('elect')) { bgColor = '#f1c40f'; defaultIcon = '⚡'; }
         else if (cat.includes('ferme')) { bgColor = '#27ae60'; defaultIcon = '🚜'; }
@@ -2046,8 +2015,8 @@ function renderSpots() {
         let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
 
         marker.bindPopup(
-            '<b>' + spot.name + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
-            '<small style="color:#666">📍 ' + spot.address + '</small><br>' +
+            '<b>' + (spot.name || 'Lieu') + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
+            '<small style="color:#666">📍 ' + (spot.address || '') + '</small><br>' +
             '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
             '⏱️ Durée : ' + (spot.stay || 'N/A') + photoHtml + '<br><br>' +
             '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">' +
