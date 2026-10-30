@@ -1937,69 +1937,75 @@ function renderSpots() {
     if (!map || !markersGroup) return;
     markersGroup.clearLayers();
 
-    // Récupération directe du tableau principal de spots de l'application
     let sourceSpots = [];
-    const possibleArrays = [window.spots, window.rawSpots, window.listeSpots, window.allSpots, window.points, window.aires, window.rawAires];
-    for (let arr of possibleArrays) {
-        if (Array.isArray(arr) && arr.length > 0) {
-            sourceSpots = arr;
-            break;
-        }
+    if (typeof rawSpots !== 'undefined' && Array.isArray(rawSpots)) {
+        sourceSpots = sourceSpots.concat(rawSpots);
     }
-
-    // Si aucun tableau nommé n'est trouvé, on balaie globalement la page
-    if (sourceSpots.length === 0) {
-        for (let key in window) {
-            try {
-                if (Array.isArray(window[key]) && window[key].length > 0 && window[key][0] && (window[key][0].lat !== undefined || window[key][0].latitude !== undefined)) {
-                    sourceSpots = sourceSpots.concat(window[key]);
-                }
-            } catch(e) {}
-        }
+    if (typeof rawWaterPoints !== 'undefined' && Array.isArray(rawWaterPoints)) {
+        sourceSpots = sourceSpots.concat(rawWaterPoints);
     }
 
     sourceSpots.forEach(spot => {
         if (!spot || typeof spot.lat === 'undefined') return;
 
-        // Lecture directe de la catégorie propre à chaque spot
-        let cat = (spot.category || spot.type || spot.cat || 'aire').toLowerCase();
+        const nameLower = (spot.name || '').toLowerCase();
+        let cat = (spot.category || '').toLowerCase();
 
-        // Filtrage strict selon le bouton cliqué
+        if (cat === 'aire' || !cat) {
+            if (spot.icon === '💧' || nameLower.includes('eau') || (spot.services && typeof spot.services === 'object' && spot.services.water)) {
+                cat = 'eau';
+            } else if (nameLower.includes('vidange') || nameLower.includes('usée')) {
+                cat = 'vidange';
+            } else if (nameLower.includes('elect') || nameLower.includes('edf')) {
+                cat = 'electricite';
+            } else if (nameLower.includes('ferme') || nameLower.includes('producteur')) {
+                cat = 'ferme';
+            } else if (nameLower.includes('carburant') || nameLower.includes('gazole') || nameLower.includes('station')) {
+                cat = 'carburant';
+            } else if (nameLower.includes('sauvage') || nameLower.includes('nature') || nameLower.includes('dodo') || spot.type === 'wild') {
+                cat = 'sauvage';
+            } else {
+                cat = 'aire';
+            }
+        } else if (cat === 'water') {
+            cat = 'eau';
+        }
+
         if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             let cur = currentCategory.toLowerCase();
             let match = false;
 
             if (cur.includes('eau') || cur.includes('water')) {
-                match = cat.includes('eau') || spot.icon === '💧';
+                match = (cat === 'eau');
             } else if (cur.includes('vidange')) {
-                match = cat.includes('vidange');
+                match = (cat === 'vidange');
             } else if (cur.includes('elect')) {
-                match = cat.includes('elect');
+                match = (cat === 'electricite');
             } else if (cur.includes('ferme')) {
-                match = cat.includes('ferme');
+                match = (cat === 'ferme');
             } else if (cur.includes('carburant')) {
-                match = cat.includes('carburant');
+                match = (cat === 'carburant');
             } else if (cur.includes('sauvage') || cur.includes('dodo')) {
-                match = cat.includes('sauvage') || cat.includes('dodo');
+                match = (cat === 'sauvage');
             } else if (cur.includes('aire') || cur.includes('camping')) {
-                match = cat.includes('aire') || cat.includes('camping') || (!cat.includes('eau') && !cat.includes('vidange') && !cat.includes('elect') && !cat.includes('ferme') && !cat.includes('carburant') && !cat.includes('sauvage') && !cat.includes('dodo'));
+                match = (cat === 'aire');
             } else {
                 match = cat.includes(cur);
             }
 
-            if (!match) return; // Ignore ce spot s'il ne correspond pas au filtre actif
+            if (!match) return;
         }
 
-        // Attribution des couleurs et icônes selon la vraie catégorie du spot
         let bgColor = '#e74c3c'; 
         let defaultIcon = '🚐';
 
-        if (cat.includes('eau') || spot.icon === '💧') { bgColor = '#3498db'; defaultIcon = '💧'; }
-        else if (cat.includes('vidange')) { bgColor = '#16a085'; defaultIcon = '🚰'; }
-        else if (cat.includes('elect')) { bgColor = '#f1c40f'; defaultIcon = '⚡'; }
-        else if (cat.includes('ferme')) { bgColor = '#27ae60'; defaultIcon = '🚜'; }
-        else if (cat.includes('carburant')) { bgColor = '#e67e22'; defaultIcon = '⛽'; }
-        else if (cat.includes('sauvage') || cat.includes('dodo')) { bgColor = '#8e44ad'; defaultIcon = '🌲'; }
+        if (cat === 'eau') { bgColor = '#3498db'; defaultIcon = '💧'; }
+        else if (cat === 'vidange') { bgColor = '#16a085'; defaultIcon = '🚰'; }
+        else if (cat === 'electricite') { bgColor = '#f1c40f'; defaultIcon = '⚡'; }
+        else if (cat === 'ferme') { bgColor = '#27ae60'; defaultIcon = '🚜'; }
+        else if (cat === 'carburant') { bgColor = '#e67e22'; defaultIcon = '⛽'; }
+        else if (cat === 'sauvage') { bgColor = '#8e44ad'; defaultIcon = '🌲'; }
+        else { bgColor = '#e74c3c'; defaultIcon = spot.icon || '🚐'; }
 
         const customIcon = L.divIcon({
             className: 'custom-div-icon',
@@ -2028,8 +2034,6 @@ function renderSpots() {
         markersGroup.addLayer(marker);
     });
 }
-
-let currentCategory = '';
 
 function toggleFilter(type) {
     currentCategory = type;
