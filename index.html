@@ -1951,7 +1951,8 @@ function renderSpots() {
         const nameLower = (spot.name || '').toLowerCase();
         let cat = (spot.category || '').toLowerCase();
 
-        if (cat === 'aire' || !cat) {
+        // Normalisation propre des catégories et types
+        if (cat === 'aire' || cat === 'parking' || !cat) {
             if (spot.icon === '💧' || nameLower.includes('eau') || (spot.services && typeof spot.services === 'object' && spot.services.water)) {
                 cat = 'eau';
             } else if (nameLower.includes('vidange') || nameLower.includes('usée')) {
@@ -1965,12 +1966,13 @@ function renderSpots() {
             } else if (nameLower.includes('sauvage') || nameLower.includes('nature') || nameLower.includes('dodo') || spot.type === 'wild') {
                 cat = 'sauvage';
             } else {
-                cat = 'aire';
+                cat = 'aire'; // Tout le reste (Aire, Parking, etc.) devient une aire de camping-car affichable
             }
         } else if (cat === 'water') {
             cat = 'eau';
         }
 
+        // Filtrage selon le bouton cliqué
         if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             let cur = currentCategory.toLowerCase();
             let match = false;
@@ -1987,7 +1989,9 @@ function renderSpots() {
                 match = (cat === 'carburant');
             } else if (cur.includes('sauvage') || cur.includes('dodo')) {
                 match = (cat === 'sauvage');
-            } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
+            } else if (cur.includes('gratuit') || cur.includes('free')) {
+                match = (spot.type === 'free' || (spot.price && spot.price.toLowerCase().includes('0')));
+            } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car') || cur.includes('parking')) {
                 match = (cat === 'aire');
             } else {
                 match = cat.includes(cur);
