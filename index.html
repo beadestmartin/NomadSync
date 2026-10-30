@@ -1967,7 +1967,6 @@ function renderSpots() {
     if (typeof filteredSpots !== 'undefined') allSpots = allSpots.concat(filteredSpots);
     else if (typeof rawSpots !== 'undefined') allSpots = allSpots.concat(rawSpots);
 
-    // Récupération de toutes les listes de catégories possibles
     ['waterSpots', 'rawWater', 'eau', 'pointsEau', 'electricite', 'rawElectricite', 'ferme', 'rawFerme', 'carburant', 'rawCarburant', 'sauvage', 'rawSauvage', 'dodosSauvages', 'vidange', 'rawVidange', 'vidanges'].forEach(varName => {
         if (typeof window[varName] !== 'undefined' && Array.isArray(window[varName])) {
             allSpots = allSpots.concat(window[varName]);
@@ -1975,7 +1974,6 @@ function renderSpots() {
     });
 
     allSpots.forEach(spot => {
-        // Attribution automatique de la catégorie si elle est absente
         if (!spot.category) {
             const nameLower = (spot.name || '').toLowerCase();
             const descLower = (spot.description || '').toLowerCase();
@@ -1988,37 +1986,36 @@ function renderSpots() {
             else spot.category = 'aire';
         }
 
-        // Filtrage précis pour chaque bouton de l'interface
+        // Filtrage strict par catégorie sélectionnée
         if (currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             const cat = (spot.category || '').toLowerCase();
             const cur = currentCategory.toLowerCase();
-            const nameLower = (spot.name || '').toLowerCase();
 
             let match = false;
             if (cur.includes('aire') || cur.includes('camping')) {
-                match = cat.includes('aire') || cat.includes('camping') || (!cat.includes('eau') && !cat.includes('vidange') && !cat.includes('elect') && !cat.includes('ferme') && !cat.includes('carburant') && !cat.includes('sauvage'));
+                // Les aires ne doivent afficher QUE ce qui est classé "aire" (et pas l'eau ou le reste)
+                match = cat === 'aire' || cat.includes('aire') || (!cat.includes('eau') && !cat.includes('vidange') && !cat.includes('elect') && !cat.includes('ferme') && !cat.includes('carburant') && !cat.includes('sauvage'));
             } else if (cur.includes('eau') || cur.includes('water')) {
-                match = cat.includes('eau') || nameLower.includes('eau') || spot.icon === '💧';
+                match = cat.includes('eau');
             } else if (cur.includes('vidange')) {
-                match = cat.includes('vidange') || nameLower.includes('vidange') || nameLower.includes('usée');
+                match = cat.includes('vidange');
             } else if (cur.includes('elect')) {
-                match = cat.includes('elect') || nameLower.includes('elect') || nameLower.includes('edf');
+                match = cat.includes('elect');
             } else if (cur.includes('ferme')) {
-                match = cat.includes('ferme') || nameLower.includes('ferme') || nameLower.includes('producteur');
+                match = cat.includes('ferme');
             } else if (cur.includes('carburant')) {
-                match = cat.includes('carburant') || nameLower.includes('carburant') || nameLower.includes('gasoil');
+                match = cat.includes('carburant');
             } else if (cur.includes('sauvage') || cur.includes('dodo')) {
-                match = cat.includes('sauvage') || cat.includes('dodo') || nameLower.includes('sauvage') || nameLower.includes('nature');
+                match = cat.includes('sauvage') || cat.includes('dodo');
             } else {
-                match = cat.includes(cur) || cur.includes(cat) || nameLower.includes(cur);
+                match = cat.includes(cur);
             }
 
             if (!match) return;
         }
 
-        // Attribution des couleurs et icônes spécifiques à chaque catégorie
         const catLower = (spot.category || '').toLowerCase();
-        let bgColor = '#e74c3c'; // Rouge (aires)
+        let bgColor = '#e74c3c'; 
         let defaultIcon = '🚐';
 
         if (catLower.includes('eau') || catLower.includes('water')) { bgColor = '#3498db'; defaultIcon = '💧'; }
