@@ -2830,7 +2830,7 @@ function renderSpots() {
             }
         }
 
-        // Filtrage dynamique selon le bouton de filtre sélectionné
+       // Filtrage dynamique selon le bouton de filtre sélectionné
         if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             let cur = currentCategory.toLowerCase();
             let match = false;
@@ -2848,7 +2848,7 @@ function renderSpots() {
             } else if (cur.includes('sauvage') || cur.includes('dodo')) {
                 match = (cat === 'sauvage');
             } else if (cur.includes('gratuit') || cur.includes('free')) {
-                match = (spot.type === 'free' || (spot.price && spot.price.toLowerCase().includes('0')));
+                match = (spot.type === 'free' || (spot.price && spot.price.toLowerCase().includes('0'))) && cat !== 'sauvage';
             } else if (cur.includes('parking')) {
                 match = (cat === 'parking');
             } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
@@ -2859,7 +2859,6 @@ function renderSpots() {
 
             if (!match) return;
         }
-
         // Attribution des couleurs et des icônes selon la catégorie
         let bgColor = '#e74c3c'; 
         let defaultIcon = '🚐';
