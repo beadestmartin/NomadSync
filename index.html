@@ -1958,7 +1958,6 @@ function locateUser() {
     alert("Impossible de récupérer votre position GPS.");
   });
 }
-
 function renderSpots() {
     if (!map || !markersGroup) return;
     markersGroup.clearLayers();
@@ -1986,14 +1985,12 @@ function renderSpots() {
             else spot.category = 'aire';
         }
 
-        // Filtrage strict par catégorie sélectionnée
         if (currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             const cat = (spot.category || '').toLowerCase();
             const cur = currentCategory.toLowerCase();
 
             let match = false;
             if (cur.includes('aire') || cur.includes('camping')) {
-                // Les aires ne doivent afficher QUE ce qui est classé "aire" (et pas l'eau ou le reste)
                 match = cat === 'aire' || cat.includes('aire') || (!cat.includes('eau') && !cat.includes('vidange') && !cat.includes('elect') && !cat.includes('ferme') && !cat.includes('carburant') && !cat.includes('sauvage'));
             } else if (cur.includes('eau') || cur.includes('water')) {
                 match = cat.includes('eau');
@@ -2027,28 +2024,27 @@ function renderSpots() {
 
         const customIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: `<div style="background-color: ${bgColor}; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">${spot.icon || defaultIcon}</div>`,
+            html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + (spot.icon || defaultIcon) + '</div>',
             iconSize: [32, 32],
             iconAnchor: [16, 16]
         });
         
         const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
-        let photoHtml = spot.photo ? `<img src="${spot.photo}" class="spot-popup-img" />` : '';
+        let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
         
-        let gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`;
-        let wazeUrl = `https://www.waze.com/ul?ll=${spot.lat},${spot.lng}&navigate=yes`;
+        let gmapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + spot.lat + ',' + spot.lng;
+        let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
 
-        marker.bindPopup(`
-            <b>${spot.name}</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">${spot.category}</span><br>
-            <small style="color:#666">📍 ${spot.address}</small><br>
-            💰 Tarif : <b>${spot.price || 'Gratuit'}</b><br>
-            ⏱️ Durée : ${spot.stay || 'N/A'}${photoHtml}<br><br>
-            
-            <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
-                <a href="${gmapsUrl}" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>
-                <a href="${wazeUrl}" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>
-            </div>
-        `);
+        marker.bindPopup(
+            '<b>' + spot.name + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + spot.category + '</span><br>' +
+            '<small style="color:#666">📍 ' + spot.address + '</small><br>' +
+            '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
+            '⏱️ Durée : ' + (spot.stay || 'N/A') + photoHtml + '<br><br>' +
+            '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">' +
+                '<a href="' + gmapsUrl + '" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>' +
+                '<a href="' + wazeUrl + '" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>' +
+            '</div>'
+        );
         
         markersGroup.addLayer(marker);
     });
