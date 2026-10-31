@@ -1413,19 +1413,18 @@ let rawSpots = [
     services: { water: false, waste: false },
     photo: ''
   },
-  {
-    name: 'Cosne-Cours-sur-Loire (Aire de la Loire)',
-    category: 'Aire',
-    address: 'Avenue du Général de Gaulle, 58200 Cosne-Cours-sur-Loire, France',
-    lat: 47.4112, lng: 2.9231,
-    type: 'free',
-    icon: '🚐',
-    price: '0 € (Gratuit)',
-    stay: '24h / Près du fleuve',
-    ground: 'Stabilisé',
-    services: { water: false, waste: false },
-    photo: ''
-  },
+ {
+    name: "Cosne-Cours-sur-Loire (Aire de la Loire)",
+    lat: 47.414046,
+    lng: 2.922319,
+    category: "aire",
+    icon: "🚐",
+    type: "free",
+    price: "Gratuit",
+    stay: "24h / Près du fleuve",
+    address: "Place de la Pêcherie, 58200 Cosne-Cours-sur-Loire",
+    description: "Aire de service et stationnement gratuit au bord de la Loire."
+},
   {
     name: 'Châlons-en-Champagne (Parking du Grand Jard)',
     category: 'Parking',
@@ -3468,7 +3467,6 @@ function renderSpots() {
             bgColor = '#e74c3c'; // Rouge
             defaultIcon = '🚐'; // Fourgon
         }
-
         // Création du marqueur visuel
         const customIcon = L.divIcon({
             className: 'custom-div-icon',
@@ -3480,7 +3478,8 @@ function renderSpots() {
         const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
         let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
         
-        let gmapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + spot.lat + ',' + spot.lng;
+        // Liens corrigés basés strictement sur les coordonnées GPS exactes
+        let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
         let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
 
         marker.bindPopup(
