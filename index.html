@@ -3268,11 +3268,11 @@ let rawSpots = [
   },
   {
     name: 'Ghisonaccia - Spot Nature Piste du Maquis',
-    category: 'sauvage',
+    category: 'nature', // <-- On passe en nature
     address: 'Piste d accès naturel, 20240 Ghisonaccia, Corse',
     lat: 41.676200,
     lng: 8.897300,
-    type: 'wild',
+    type: 'nature', // <-- On change le type aussi
     icon: '🌙',
     price: 'Gratuit',
     stay: 'Journée uniquement',
@@ -7429,11 +7429,11 @@ const rawFarmPoints = [
 ];
 
 const rawFuelPoints = [
-  { name: "Station GPL & Carburant", category: "carburant", icon: "⛽", lat: 48.0500, lng: -0.1500, address: "Zone artisanale", price: "Tarif station", stay: "Passage", photo: "" }
+  { name: "Station GPL & Carburant", category: "fuel", icon: "⛽", lat: 48.0500, lng: -0.1500, address: "Zone artisanale", price: "Tarif station", stay: "Passage", photo: "" }
 ];
 
 const rawDrainPoints = [
-  { name: "Aire de vidange", category: "vidange", icon: "🚰", lat: 48.0800, lng: -0.1100, address: "Aire municipale", price: "Gratuit", stay: "1h", photo: "" }
+  { name: "Aire de vidange", category: "drain", icon: "🚰", lat: 48.0800, lng: -0.1100, address: "Aire municipale", price: "Gratuit", stay: "1h", photo: "" }
 ];
 
 let filteredWaterPoints = rawWaterPoints.filter(spot => {
@@ -7510,35 +7510,36 @@ localStorage.clear();
 
 // Normalisation propre de la catégorie
 if (cat === 'water' || cat === 'eau') {
-    cat = 'eau';
+    cat = 'water';
 } else if (cat === 'vidange' || cat === 'drain') {
-    cat = 'vidange';
+    cat = 'drain';
 } else if (cat === 'nature') {
     cat = 'nature';
 } else if (cat === 'ferme' || cat === 'farm') {
-    cat = 'ferme';
+    cat = 'farm';
 } else if (cat === 'carburant' || cat === 'fuel') {
-    cat = 'carburant';
+    cat = 'fuel';
 } else if (cat === 'sauvage' || cat === 'wild' || cat === 'dodo sauvage' || cat === 'dodo secret' || spot.type === 'wild') {
-    cat = 'sauvage';
+    cat = 'wild';
+} else if (cat === 'aire' || cat === 'camping-car' || cat === 'free') {
+    cat = 'free';
 } else if (cat === 'parking') {
     cat = 'parking';
 } else {
     if (nameLower.includes('vidange') || nameLower.includes('usée')) {
-        cat = 'vidange';
+        cat = 'drain';
     } else if (nameLower.includes('elect') || nameLower.includes('edf') || nameLower.includes('électricité')) {
-        // L'électricité gratuite est rattachée aux fiches d'eau ou passe en eau/aire par défaut
-        cat = 'eau'; 
+        cat = 'water'; 
     } else if (nameLower.includes('nature') || nameLower.includes('forêt') || nameLower.includes('bois')) {
         cat = 'nature';
     } else if (nameLower.includes('ferme') || nameLower.includes('producteur')) {
-        cat = 'ferme';
+        cat = 'farm';
     } else if (nameLower.includes('carburant') || nameLower.includes('gazole') || (nameLower.includes('station') && !nameLower.includes('stationnement'))) {
-        cat = 'carburant';
+        cat = 'fuel';
     } else if (nameLower.includes('parking') && !nameLower.includes('aire')) {
         cat = 'parking';
     } else {
-        cat = 'aire'; 
+        cat = 'free'; 
     }
 }
 // Filtrage dynamique selon le bouton de filtre sélectionné
