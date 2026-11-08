@@ -7529,7 +7529,7 @@ if (catLower.includes('sauvage') || typeLower.includes('wild') || catLower.inclu
     // Tout le reste (les aires de camping-car, emplacements généraux)
     cat = 'free';
 }
-// Début de ton traitement de spot :
+// Début du traitement de ton spot :
 const cat = getNormalizedCategory(spot);
 
 // Filtrage dynamique selon le bouton de filtre sélectionné
@@ -7558,7 +7558,8 @@ if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory
     } else {
         match = cat.includes(cur);
     }
-    if (!match) return;
+    
+    if (!match) continue; // Utilise 'continue' dans une boucle, ou 'return' si tu es dans une fonction dédiée
 }
     
     // 8. Tout le reste (Aires de camping-car / gratuit)
