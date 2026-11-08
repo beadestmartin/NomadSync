@@ -3268,12 +3268,12 @@ let rawSpots = [
   },
   {
     name: 'Ghisonaccia - Spot Nature Piste du Maquis',
-    category: 'Parking',
+    category: 'sauvage',
     address: 'Piste d accès naturel, 20240 Ghisonaccia, Corse',
     lat: 41.676200,
     lng: 8.897300,
-    type: 'parking',
-    icon: '🅿️',
+    type: 'wild',
+    icon: '🌙',
     price: 'Gratuit',
     stay: 'Journée uniquement',
     ground: 'Terre / Cailloux',
@@ -7420,8 +7420,8 @@ const rawWaterPoints = [
   ]; 
 
 // --- AUTRES CATÉGORIES DE POINTS ---
-const rawWildPoints = [
-  { name: "Spot nature en forêt", category: "Dodo sauvage", icon: "🏕️", lat: 48.1234, lng: -0.2345, address: "Lisière de forêt", price: "Gratuit", stay: "48h max", photo: "" }
+const rawNaturePoints = [
+  { name: "Spot nature en forêt", category: "nature", icon: "🌙", lat: 48.1234, lng: -0.2345, address: "Lisière de forêt", price: "Gratuit", stay: "48h max", photo: "" }
 ];
 
 const rawFarmPoints = [
@@ -7430,10 +7430,6 @@ const rawFarmPoints = [
 
 const rawFuelPoints = [
   { name: "Station GPL & Carburant", category: "carburant", icon: "⛽", lat: 48.0500, lng: -0.1500, address: "Zone artisanale", price: "Tarif station", stay: "Passage", photo: "" }
-];
-
-const rawElecPoints = [
-  { name: "Borne électrique communale", category: "electricite", icon: "⚡", lat: 48.0200, lng: -0.1800, address: "Près de la mairie", price: "2€ / 4h", stay: "Illimité", photo: "" }
 ];
 
 const rawDrainPoints = [
@@ -7462,13 +7458,12 @@ const typeIcons = {
   parking: '🅿️', 
   'Dodo sauvage': '🏕️', 
   wild: '🏕️', 
+  nature: '🌙', 
   farm: '🚜', 
   fuel: '⛽', 
   carburant: '⛽', 
   water: '💧', 
   eau: '💧', 
-  elec: '⚡', 
-  electricite: '⚡', 
   drain: '🚰', 
   vidange: '🚰' 
 };
@@ -7516,23 +7511,26 @@ localStorage.clear();
 // Normalisation propre de la catégorie
 if (cat === 'water' || cat === 'eau') {
     cat = 'eau';
-} else if (cat === 'vidange') {
+} else if (cat === 'vidange' || cat === 'drain') {
     cat = 'vidange';
-} else if (cat === 'electricite' || cat === 'elec') {
-    cat = 'electricite';
+} else if (cat === 'nature') {
+    cat = 'nature';
 } else if (cat === 'ferme' || cat === 'farm') {
     cat = 'ferme';
 } else if (cat === 'carburant' || cat === 'fuel') {
     cat = 'carburant';
-} else if (cat === 'sauvage' || cat === 'wild' || cat === 'dodo sauvage' || cat === 'dodo' || nameLower.includes('sauvage') || nameLower.includes('nature') || nameLower.includes('dodo') || spot.type === 'wild') {
+} else if (cat === 'sauvage' || cat === 'wild' || cat === 'dodo sauvage' || cat === 'dodo secret' || spot.type === 'wild') {
     cat = 'sauvage';
 } else if (cat === 'parking') {
     cat = 'parking';
 } else {
     if (nameLower.includes('vidange') || nameLower.includes('usée')) {
         cat = 'vidange';
-    } else if (nameLower.includes('elect') || nameLower.includes('edf')) {
-        cat = 'electricite';
+    } else if (nameLower.includes('elect') || nameLower.includes('edf') || nameLower.includes('électricité')) {
+        // L'électricité gratuite est rattachée aux fiches d'eau ou passe en eau/aire par défaut
+        cat = 'eau'; 
+    } else if (nameLower.includes('nature') || nameLower.includes('forêt') || nameLower.includes('bois')) {
+        cat = 'nature';
     } else if (nameLower.includes('ferme') || nameLower.includes('producteur')) {
         cat = 'ferme';
     } else if (nameLower.includes('carburant') || nameLower.includes('gazole') || (nameLower.includes('station') && !nameLower.includes('stationnement'))) {
@@ -7543,7 +7541,6 @@ if (cat === 'water' || cat === 'eau') {
         cat = 'aire'; 
     }
 }
- 
 // Filtrage dynamique selon le bouton de filtre sélectionné
         if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             let cur = currentCategory.toLowerCase();
@@ -7553,8 +7550,8 @@ if (cat === 'water' || cat === 'eau') {
                 match = (cat === 'eau');
             } else if (cur.includes('vidange')) {
                 match = (cat === 'vidange');
-            } else if (cur.includes('elect')) {
-                match = (cat === 'electricite');
+            } else if (cur.includes('nature')) {
+                match = (cat === 'nature');
             } else if (cur.includes('ferme')) {
                 match = (cat === 'ferme');
             } else if (cur.includes('carburant')) {
@@ -7570,7 +7567,6 @@ if (cat === 'water' || cat === 'eau') {
             } else {
                 match = cat.includes(cur);
             }
-
             if (!match) return;
         }
         // Attribution des couleurs et des icônes selon la catégorie
@@ -7585,9 +7581,9 @@ if (cat === 'water' || cat === 'eau') {
             bgColor = '#16a085'; 
             defaultIcon = '🚰'; 
         } 
-        else if (cat === 'electricite') { 
-            bgColor = '#f1c40f'; 
-            defaultIcon = '⚡'; 
+        else if (cat === 'nature') { 
+            bgColor = '#2c3e50'; 
+            defaultIcon = '🌙'; // Lune pour les spots nature
         } 
         else if (cat === 'ferme') { 
             bgColor = '#27ae60'; 
@@ -7598,16 +7594,16 @@ if (cat === 'water' || cat === 'eau') {
             defaultIcon = '⛽'; 
         } 
         else if (cat === 'sauvage') { 
-            bgColor = '#D4621A'; // Terracotta
-            defaultIcon = '🏕️'; // Tente
+            bgColor = '#D4621A'; 
+            defaultIcon = '🏕️'; 
         } 
         else if (cat === 'parking') { 
-            bgColor = '#e74c3c'; // Rouge
-            defaultIcon = '🅿️'; // Parking
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🅿️'; 
         } 
         else if (cat === 'aire') { 
-            bgColor = '#e74c3c'; // Rouge
-            defaultIcon = '🚐'; // Fourgon
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🚐'; 
         }
         // Création du marqueur visuel
         const customIcon = L.divIcon({
