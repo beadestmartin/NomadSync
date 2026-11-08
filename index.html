@@ -7560,45 +7560,47 @@ if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory
     if (!match) return;
 }
     
-    // 8. Tout le reste (Aires de camping-car / gratuit)
+ // 8. Tout le reste (Aires de camping-car / gratuit)
     return 'aire';
 }
-        // Attribution des couleurs et des icônes selon la catégorie
-        let bgColor = '#e74c3c'; 
-        let defaultIcon = '🚐';
 
-        if (cat === 'eau') { 
-            bgColor = '#3498db'; 
-            defaultIcon = '💧'; 
-        } 
-        else if (cat === 'vidange') { 
-            bgColor = '#16a085'; 
-            defaultIcon = '🚰'; 
-        } 
-        else if (cat === 'nature') { 
-            bgColor = '#2c3e50'; 
-            defaultIcon = '🌙'; // Lune pour les spots nature
-        } 
-        else if (cat === 'ferme') { 
-            bgColor = '#27ae60'; 
-            defaultIcon = '🚜'; 
-        } 
-        else if (cat === 'carburant') { 
-            bgColor = '#e67e22'; 
-            defaultIcon = '⛽'; 
-        } 
-        else if (cat === 'sauvage') { 
-            bgColor = '#D4621A'; 
-            defaultIcon = '🏕️'; 
-        } 
-        else if (cat === 'parking') { 
-            bgColor = '#e74c3c'; 
-            defaultIcon = '🅿️'; 
-        } 
-        else if (cat === 'aire') { 
-            bgColor = '#e74c3c'; 
-            defaultIcon = '🚐'; 
-        }
+// Attribution des couleurs et des icônes selon la catégorie
+let bgColor = '#e74c3c'; 
+let defaultIcon = '🚐';
+
+if (cat === 'eau') { 
+    bgColor = '#3498db'; 
+    defaultIcon = '💧'; 
+} 
+else if (cat === 'vidange') { 
+    bgColor = '#16a085'; 
+    defaultIcon = '🚰'; 
+} 
+else if (cat === 'nature') { 
+    bgColor = '#2c3e50'; 
+    defaultIcon = '🌙'; // Lune pour les spots nature
+} 
+else if (cat === 'ferme') { 
+    bgColor = '#27ae60'; 
+    defaultIcon = '🚜'; 
+} 
+else if (cat === 'carburant') { 
+    bgColor = '#e67e22'; 
+    defaultIcon = '⛽'; 
+} 
+else if (cat === 'sauvage') { 
+    bgColor = '#D4621A'; 
+    defaultIcon = '🏕️'; 
+} 
+else if (cat === 'parking') { 
+    bgColor = '#e74c3c'; 
+    defaultIcon = '🅿️'; 
+} 
+else if (cat === 'aire') { 
+    bgColor = '#e74c3c'; 
+    defaultIcon = '🚐'; 
+}
+
         // Création du marqueur visuel
         const customIcon = L.divIcon({
             className: 'custom-div-icon',
