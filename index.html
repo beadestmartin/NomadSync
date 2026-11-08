@@ -7514,37 +7514,36 @@ function renderSpots() {
 localStorage.clear();
 
 // Normalisation propre de la catégorie
-        if (cat === 'water' || cat === 'eau') {
-            cat = 'eau';
-        } else if (cat === 'vidange') {
-            cat = 'vidange';
-        } else if (cat === 'electricite' || cat === 'elec') {
-            cat = 'electricite';
-        } else if (cat === 'ferme' || cat === 'farm') {
-            cat = 'ferme';
-        } else if (cat === 'carburant' || cat === 'fuel') {
-            cat = 'carburant';
-        } else if (cat === 'sauvage' || cat === 'wild' || cat === 'dodo sauvage' || cat === 'dodo' || nameLower.includes('sauvage') || nameLower.includes('nature') || nameLower.includes('dodo') || spot.type === 'wild') {
-            cat = 'sauvage';
-        } else if (cat === 'parking') {
-            cat = 'parking';
-        } else {
-            if (nameLower.includes('vidange') || nameLower.includes('usée')) {
-                cat = 'vidange';
-            } else if (nameLower.includes('elect') || nameLower.includes('edf')) {
-                cat = 'electricite';
-            } else if (nameLower.includes('ferme') || nameLower.includes('producteur')) {
-                cat = 'ferme';
-            } else if (nameLower.includes('carburant') || nameLower.includes('gazole') || (nameLower.includes('station') && !nameLower.includes('stationnement'))) {
-                cat = 'carburant';
-            } else if (nameLower.includes('parking') && !nameLower.includes('aire')) {
-                cat = 'parking';
-            } else {
-                cat = 'aire'; 
-            }
-        }
-        }
-        }
+if (cat === 'water' || cat === 'eau') {
+    cat = 'eau';
+} else if (cat === 'vidange') {
+    cat = 'vidange';
+} else if (cat === 'electricite' || cat === 'elec') {
+    cat = 'electricite';
+} else if (cat === 'ferme' || cat === 'farm') {
+    cat = 'ferme';
+} else if (cat === 'carburant' || cat === 'fuel') {
+    cat = 'carburant';
+} else if (cat === 'sauvage' || cat === 'wild' || cat === 'dodo sauvage' || cat === 'dodo' || nameLower.includes('sauvage') || nameLower.includes('nature') || nameLower.includes('dodo') || spot.type === 'wild') {
+    cat = 'sauvage';
+} else if (cat === 'parking') {
+    cat = 'parking';
+} else {
+    if (nameLower.includes('vidange') || nameLower.includes('usée')) {
+        cat = 'vidange';
+    } else if (nameLower.includes('elect') || nameLower.includes('edf')) {
+        cat = 'electricite';
+    } else if (nameLower.includes('ferme') || nameLower.includes('producteur')) {
+        cat = 'ferme';
+    } else if (nameLower.includes('carburant') || nameLower.includes('gazole') || (nameLower.includes('station') && !nameLower.includes('stationnement'))) {
+        cat = 'carburant';
+    } else if (nameLower.includes('parking') && !nameLower.includes('aire')) {
+        cat = 'parking';
+    } else {
+        cat = 'aire'; 
+    }
+}
+ 
 // Filtrage dynamique selon le bouton de filtre sélectionné
         if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             let cur = currentCategory.toLowerCase();
