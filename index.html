@@ -7559,10 +7559,6 @@ if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory
     
     if (!match) return;
 }
-    
- // 8. Tout le reste (Aires de camping-car / gratuit)
-    return 'aire';
-}
 
 // Attribution des couleurs et des icônes selon la catégorie
 let bgColor = '#e74c3c'; 
@@ -7600,7 +7596,6 @@ else if (cat === 'aire') {
     bgColor = '#e74c3c'; 
     defaultIcon = '🚐'; 
 }
-
         // Création du marqueur visuel
         const customIcon = L.divIcon({
             className: 'custom-div-icon',
