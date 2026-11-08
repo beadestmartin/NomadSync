@@ -7505,72 +7505,65 @@ function renderSpots() {
         const nameLower = (spot.name || '').toLowerCase();
         let cat = (spot.category || '').toLowerCase();
 
-function getNormalizedCategory(spot) {
-    const rawCat = (spot.category || '').toLowerCase();
-    const rawType = (spot.type || '').toLowerCase();
-    const rawDesc = (spot.description || '').toLowerCase();
-    const rawName = (spot.name || '').toLowerCase();
 
-    // 1. Dodos / Sauvages / Secrets (priorité absolue)
-    if (rawCat.includes('sauvage') || rawCat.includes('dodo') || rawCat.includes('secret') || rawType.includes('wild') || rawType.includes('dodo')) {
-        return 'wild';
-    }
-    // 2. Eau
-    if (rawCat.includes('eau') || rawType.includes('water') || rawName.includes('point d\'eau')) {
-        return 'water';
-    }
-    // 3. Vidange / Services
-    if (rawCat.includes('vidange') || rawType.includes('drain') || rawType.includes('waste') || rawDesc.includes('vidange des eaux')) {
-        return 'drain';
-    }
-    // 4. Fermes
-    if (rawCat.includes('ferme') || rawCat.includes('producteur') || rawType.includes('farm')) {
-        return 'farm';
-    }
-    // 5. Nature
-    if (rawCat.includes('nature') || rawType.includes('nature') || rawDesc.includes('forêt') || rawDesc.includes('bois')) {
-        return 'nature';
-    }
-    // 6. Carburant
-    if (rawCat.includes('carburant') || rawType.includes('fuel') || rawType.includes('gazole')) {
-        return 'fuel';
-    }
-    // 7. Parkings stricts
-    if (rawCat === 'parking' || rawType === 'parking') {
-        return 'parking';
-    }
-    
-    // 8. Tout le reste (Aires de camping-car)
-    return 'free';
+ // Normalisation propre, stricte et définitive de la catégorie
+const catLower = (cat || '').toLowerCase();
+const typeLower = (spot.type || '').toLowerCase();
+const descLower = (spot.description || '').toLowerCase();
+
+if (catLower.includes('sauvage') || typeLower.includes('wild') || catLower.includes('dodo') || catLower.includes('secret') || typeLower.includes('dodo')) {
+    cat = 'wild';
+} else if (catLower.includes('eau') || typeLower.includes('water') || typeLower.includes('eau')) {
+    cat = 'water';
+} else if (catLower.includes('vidange') || typeLower.includes('drain') || typeLower.includes('waste') || descLower.includes('vidange des eaux')) {
+    cat = 'drain';
+} else if (catLower.includes('nature') || typeLower.includes('nature') || descLower.includes('forêt') || descLower.includes('bois')) {
+    cat = 'nature';
+} else if (catLower.includes('ferme') || typeLower.includes('farm') || typeLower.includes('producteur') || typeLower.includes('ferme')) {
+    cat = 'farm';
+} else if (catLower.includes('carburant') || typeLower.includes('fuel') || typeLower.includes('gazole')) {
+    cat = 'fuel';
+} else if (catLower.includes('parking') || typeLower.includes('parking')) {
+    cat = 'parking';
+} else {
+    // Tout le reste (les aires de camping-car, emplacements généraux)
+    cat = 'free';
 }
-// Filtrage dynamique selon le bouton de filtre sélectionné
-        if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
-            let cur = currentCategory.toLowerCase();
-            let match = false;
+// Début de ton traitement de spot :
+const cat = getNormalizedCategory(spot);
 
-            if (cur.includes('eau') || cur.includes('water')) {
-                match = (cat === 'eau');
-            } else if (cur.includes('vidange')) {
-                match = (cat === 'vidange');
-            } else if (cur.includes('nature')) {
-                match = (cat === 'nature');
-            } else if (cur.includes('ferme')) {
-                match = (cat === 'ferme');
-            } else if (cur.includes('carburant')) {
-                match = (cat === 'carburant');
-            } else if (cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
-                match = (cat === 'sauvage');
-            } else if (cur.includes('gratuit') || cur.includes('free')) {
-                match = (spot.type === 'free' || (spot.price && spot.price.toLowerCase().includes('0'))) && cat !== 'sauvage';
-            } else if (cur.includes('parking')) {
-                match = (cat === 'parking');
-            } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
-                match = (cat === 'aire');
-            } else {
-                match = cat.includes(cur);
-            }
-            if (!match) return;
-        }
+// Filtrage dynamique selon le bouton de filtre sélectionné
+if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
+    let cur = currentCategory.toLowerCase();
+    let match = false;
+
+    if (cur.includes('eau') || cur.includes('water')) {
+        match = (cat === 'eau');
+    } else if (cur.includes('vidange')) {
+        match = (cat === 'vidange');
+    } else if (cur.includes('nature')) {
+        match = (cat === 'nature');
+    } else if (cur.includes('ferme')) {
+        match = (cat === 'ferme');
+    } else if (cur.includes('carburant')) {
+        match = (cat === 'carburant');
+    } else if (cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
+        match = (cat === 'sauvage');
+    } else if (cur.includes('gratuit') || cur.includes('free')) {
+        match = (spot.type === 'free' || (spot.price && spot.price.toLowerCase().includes('0'))) && cat !== 'sauvage';
+    } else if (cur.includes('parking')) {
+        match = (cat === 'parking');
+    } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
+        match = (cat === 'aire');
+    } else {
+        match = cat.includes(cur);
+    }
+    if (!match) return;
+}
+    
+    // 8. Tout le reste (Aires de camping-car / gratuit)
+    return 'aire';
+}
         // Attribution des couleurs et des icônes selon la catégorie
         let bgColor = '#e74c3c'; 
         let defaultIcon = '🚐';
