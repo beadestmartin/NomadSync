@@ -7510,7 +7510,10 @@ function renderSpots() {
         const nameLower = (spot.name || '').toLowerCase();
         let cat = (spot.category || '').toLowerCase();
 
-        // Normalisation propre de la catégorie
+        // Nettoyage temporaire de la mémoire du navigateur
+localStorage.clear();
+
+// Normalisation propre de la catégorie
         if (cat === 'water' || cat === 'eau') {
             cat = 'eau';
         } else if (cat === 'vidange') {
@@ -7532,13 +7535,15 @@ function renderSpots() {
                 cat = 'electricite';
             } else if (nameLower.includes('ferme') || nameLower.includes('producteur')) {
                 cat = 'ferme';
-            } else if (nameLower.includes('carburant') || nameLower.includes('gazole') || nameLower.includes('station')) {
+            } else if (nameLower.includes('carburant') || nameLower.includes('gazole') || (nameLower.includes('station') && !nameLower.includes('stationnement'))) {
                 cat = 'carburant';
             } else if (nameLower.includes('parking') && !nameLower.includes('aire')) {
                 cat = 'parking';
             } else {
                 cat = 'aire'; 
             }
+        }
+        }
         }
 // Filtrage dynamique selon le bouton de filtre sélectionné
         if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
