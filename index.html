@@ -7505,42 +7505,25 @@ function renderSpots() {
         const nameLower = (spot.name || '').toLowerCase();
         let cat = (spot.category || '').toLowerCase();
 
-        // Nettoyage temporaire de la mémoire du navigateur
-localStorage.clear();
 
-// Normalisation propre de la catégorie
-if (cat === 'water' || cat === 'eau') {
+ // Normalisation propre et stricte de la catégorie
+if (cat === 'water' || cat === 'eau' || nameLower.includes('eau')) {
     cat = 'water';
-} else if (cat === 'vidange' || cat === 'drain') {
+} else if (cat === 'drain' || cat === 'vidange' || nameLower.includes('vidange') || nameLower.includes('usée')) {
     cat = 'drain';
-} else if (cat === 'nature') {
+} else if (cat === 'nature' || nameLower.includes('nature') || nameLower.includes('forêt') || nameLower.includes('bois')) {
     cat = 'nature';
-} else if (cat === 'ferme' || cat === 'farm') {
+} else if (cat === 'farm' || cat === 'ferme' || nameLower.includes('ferme') || nameLower.includes('producteur')) {
     cat = 'farm';
-} else if (cat === 'carburant' || cat === 'fuel') {
+} else if (cat === 'fuel' || cat === 'carburant' || nameLower.includes('carburant') || nameLower.includes('gazole')) {
     cat = 'fuel';
-} else if (cat === 'sauvage' || cat === 'wild' || cat === 'dodo sauvage' || cat === 'dodo secret' || spot.type === 'wild') {
+} else if (cat === 'wild' || cat === 'sauvage' || cat === 'dodo') {
     cat = 'wild';
-} else if (cat === 'aire' || cat === 'camping-car' || cat === 'free') {
-    cat = 'free';
-} else if (cat === 'parking') {
+} else if (cat === 'parking' || nameLower.includes('parking')) {
     cat = 'parking';
 } else {
-    if (nameLower.includes('vidange') || nameLower.includes('usée')) {
-        cat = 'drain';
-    } else if (nameLower.includes('elect') || nameLower.includes('edf') || nameLower.includes('électricité')) {
-        cat = 'water'; 
-    } else if (nameLower.includes('nature') || nameLower.includes('forêt') || nameLower.includes('bois')) {
-        cat = 'nature';
-    } else if (nameLower.includes('ferme') || nameLower.includes('producteur')) {
-        cat = 'farm';
-    } else if (nameLower.includes('carburant') || nameLower.includes('gazole') || (nameLower.includes('station') && !nameLower.includes('stationnement'))) {
-        cat = 'fuel';
-    } else if (nameLower.includes('parking') && !nameLower.includes('aire')) {
-        cat = 'parking';
-    } else {
-        cat = 'free'; 
-    }
+    // Uniquement les vraies aires de camping-car / emplacements généraux
+    cat = 'free';
 }
 // Filtrage dynamique selon le bouton de filtre sélectionné
         if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
