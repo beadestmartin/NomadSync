@@ -4616,9 +4616,9 @@ const forbiddenKeywords = ["nuit interdite", "interdiction de stationner la nuit
 let seenCoords = new Set();
 
 let filteredSpots = rawSpots.filter(spot => {
-  const isFree = spot.type === 'free' || spot.price.toLowerCase().includes('gratuit');
+  const isFree = spot.type === 'free' || (spot.price || "").toLowerCase().includes('gratuit');
   const stayText = (spot.stay || "").toLowerCase();
-  const nameText = spot.name.toLowerCase();
+  const nameText = (spot.name || "").toLowerCase();
   const addressText = (spot.address || "").toLowerCase();
 
   const isForbidden = forbiddenKeywords.some(keyword => 
