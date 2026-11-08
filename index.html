@@ -4612,6 +4612,7 @@ let rawSpots = [
   }
   ];
 
+const forbiddenKeywords = ["nuit interdite", "interdiction de stationner la nuit", "barrière", "hauteur", "gabarit", "payant", "journée"];
 let seenCoords = new Set();
 
 let filteredSpots = rawSpots.filter(spot => {
