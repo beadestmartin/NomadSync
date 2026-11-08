@@ -7529,10 +7529,8 @@ if (catLower.includes('sauvage') || typeLower.includes('wild') || catLower.inclu
     // Tout le reste (les aires de camping-car, emplacements généraux)
     cat = 'free';
 }
-// Début du traitement de ton spot :
-   cat = getNormalizedCategory(spot);
+cat = getNormalizedCategory(spot);
 
-// Filtrage dynamique selon le bouton de filtre sélectionné
 if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
     let cur = currentCategory.toLowerCase();
     let match = false;
@@ -7559,7 +7557,7 @@ if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory
         match = cat.includes(cur);
     }
     
-   if (!match) return;
+    if (!match) return;
 }
     
     // 8. Tout le reste (Aires de camping-car / gratuit)
