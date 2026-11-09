@@ -7506,35 +7506,72 @@ function renderSpots() {
         let cat = (spot.category || '').toLowerCase();
 
 
-cat = getNormalizedCategory(spot);
-
-if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
-    let cur = currentCategory.toLowerCase();
-    let match = false;
-
-    if (cur.includes('eau') || cur.includes('water')) {
-        match = (cat === 'eau');
-    } else if (cur.includes('vidange')) {
-        match = (cat === 'vidange');
-    } else if (cur.includes('nature')) {
-        match = (cat === 'nature');
-    } else if (cur.includes('ferme')) {
-        match = (cat === 'ferme');
-    } else if (cur.includes('carburant')) {
-        match = (cat === 'carburant');
-    } else if (cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
-        match = (cat === 'sauvage');
-    } else if (cur.includes('gratuit') || cur.includes('free')) {
-        match = (spot.type === 'free' || (spot.price && spot.price.toLowerCase().includes('0'))) && cat !== 'sauvage';
-    } else if (cur.includes('parking')) {
-        match = (cat === 'parking');
-    } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
-        match = (cat === 'aire');
-    } else {
-        match = cat.includes(cur);
-    }
+function getNormalizedCategory(spot) {
+    if (!spot) return 'aire';
     
-    if (!match) return;
+    let raw = (spot.category || spot.type || spot.kind || spot.tags || '').toString().toLowerCase();
+    let name = (spot.name || spot.title || '').toString().toLowerCase();
+    let desc = (spot.description || spot.comment || '').toString().toLowerCase();
+    let combined = raw + ' ' + name + ' ' + desc;
+
+    if (combined.includes('eau') || combined.includes('water') || combined.includes('robinet') || combined.includes('potable')) {
+        return 'eau';
+    }
+    if (combined.includes('vidange') || combined.includes('flot bleu') || combined.includes('eaux usées') || combined.includes('grise') || combined.includes('noire')) {
+        return 'vidange';
+    }
+    if (combined.includes('nature') || combined.includes('foret') || combined.includes('forêt') || combined.includes('lac') || combined.includes('riviere') || combined.includes('rivière') || combined.includes('montagne') || combined.includes('campagne')) {
+        return 'nature';
+    }
+    if (combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('bienvenue à la ferme') || combined.includes('grappe')) {
+        return 'ferme';
+    }
+    if (combined.includes('carburant') || combined.includes('station') || combined.includes('gpl') || combined.includes('essence') || combined.includes('diesel') || combined.includes('station-service')) {
+        return 'carburant';
+    }
+    if (combined.includes('sauvage') || combined.includes('wild') || combined.includes('dodo') || combined.includes('bivouac') || combined.includes('libre')) {
+        return 'sauvage';
+    }
+    if (combined.includes('parking') || combined.includes('stationnement') || combined.includes('place')) {
+        return 'parking';
+    }
+    return 'aire';
+}
+
+function toggleFilter(type) {
+    currentCategory = type;
+    renderSpots();
+}
+
+function toggleAddSpotForm() {
+    const form = document.getElementById('add-spot-form');
+    form.style.display = form.style.display === 'block' ? 'none' : 'block';
+}
+  
+function handleAddNewSpot(e) {
+    e.preventDefault();
+    const name = document.getElementById('newSpotName').value;
+    const address = document.getElementById('newSpotAddress').value;
+    const type = document.getElementById('newSpotType').value;
+    const photoInput = document.getElementById('newSpotPhoto');
+
+    let photoUrl = '';
+    if (photoInput.files && photoInput.files[0]) {
+      photoUrl = URL.createObjectURL(photoInput.files[0]);
+    }
+
+    const center = map ? map.getCenter() : { lat: 46.6, lng: 1.88 };
+    const newSpot = {
+      name: name,
+      address: address,
+      lat: center.lat + (Math.random() - 0.5) * 0.05,
+      lng: center.lng + (Math.random() - 0.5) * 0.05,
+      type: type,
+      icon: typeIcons[type] || '📍',
+      price: type === 'fuel' ? 'Tarif Temps Réel' : '0 € (Gratuit)',
+      stay: '24h / Indiqué sur place',
+      photo: photoUrl
+    };
 }
 
 // Attribution des couleurs et des icônes selon la catégorie
