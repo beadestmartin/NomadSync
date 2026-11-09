@@ -7601,9 +7601,6 @@ function renderSpots() {
             '</div>'
         );
 
-        markersGroup.addLayer(marker);
-    });
-}
         // Attribution des couleurs et des icônes selon la catégorie
         let bgColor = '#e74c3c'; 
         let defaultIcon = '🚐';
@@ -7670,7 +7667,7 @@ function renderSpots() {
         );
 
         markersGroup.addLayer(marker);
-   // });
+    });
 }
 function renderSpots() {
     if (!map || !markersGroup) return;
