@@ -7506,29 +7506,6 @@ function renderSpots() {
         let cat = (spot.category || '').toLowerCase();
 
 
- // Normalisation propre, stricte et définitive de la catégorie
-const catLower = (cat || '').toLowerCase();
-const typeLower = (spot.type || '').toLowerCase();
-const descLower = (spot.description || '').toLowerCase();
-
-if (catLower.includes('sauvage') || typeLower.includes('wild') || catLower.includes('dodo') || catLower.includes('secret') || typeLower.includes('dodo')) {
-    cat = 'wild';
-} else if (catLower.includes('eau') || typeLower.includes('water') || typeLower.includes('eau')) {
-    cat = 'water';
-} else if (catLower.includes('vidange') || typeLower.includes('drain') || typeLower.includes('waste') || descLower.includes('vidange des eaux')) {
-    cat = 'drain';
-} else if (catLower.includes('nature') || typeLower.includes('nature') || descLower.includes('forêt') || descLower.includes('bois')) {
-    cat = 'nature';
-} else if (catLower.includes('ferme') || typeLower.includes('farm') || typeLower.includes('producteur') || typeLower.includes('ferme')) {
-    cat = 'farm';
-} else if (catLower.includes('carburant') || typeLower.includes('fuel') || typeLower.includes('gazole')) {
-    cat = 'fuel';
-} else if (catLower.includes('parking') || typeLower.includes('parking')) {
-    cat = 'parking';
-} else {
-    // Tout le reste (les aires de camping-car, emplacements généraux)
-    cat = 'free';
-}
 cat = getNormalizedCategory(spot);
 
 if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
