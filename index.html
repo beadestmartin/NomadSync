@@ -7601,37 +7601,43 @@ function renderSpots() {
         markersGroup.addLayer(marker);
     });
 }
-
 function getNormalizedCategory(spot) {
     if (!spot) return 'aire';
     
-    let raw = (spot.category || spot.type || spot.kind || spot.tags || '').toString().toLowerCase();
+    let type = (spot.type || spot.category || spot.kind || '').toString().toLowerCase();
+    let raw = (spot.tags || '').toString().toLowerCase();
     let name = (spot.name || spot.title || '').toString().toLowerCase();
     let desc = (spot.description || spot.comment || '').toString().toLowerCase();
     let combined = raw + ' ' + name + ' ' + desc;
 
-    // 1. Carburant en premier (très spécifique)
-    if (combined.includes('carburant') || combined.includes('station') || combined.includes('gpl') || combined.includes('essence') || combined.includes('diesel') || combined.includes('station-service')) {
+    // 1. Si le type technique est explicitement défini dans les données, on le respecte à 100%
+    if (type.includes('fuel') || type.includes('carburant') || type.includes('station')) return 'carburant';
+    if (type.includes('ferme') || type.includes('producer')) return 'ferme';
+    if (type.includes('vidange') || type.includes('service')) return 'vidange';
+    if (type.includes('water') || type.includes('eau') || type.includes('robinet')) return 'eau';
+    if (type.includes('nature') || type.includes('wild') || type.includes('sauvage') || type.includes('bivouac') || type.includes('dodo')) return 'nature';
+    if (type.includes('parking') || type.includes('stationnement')) return 'parking';
+
+    // 2. Sinon, on analyse le texte avec des filtres stricts
+    if (combined.includes('station-service') || combined.includes(' gpl ') || combined.includes('essence') || combined.includes('diesel')) {
         return 'carburant';
     }
-    // 2. Ferme
-    if (combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('bienvenue à la ferme') || combined.includes('grappe')) {
+    if (combined.includes('bienvenue à la ferme') || combined.includes('producteur') || combined.includes('agriculteur')) {
         return 'ferme';
     }
-    // 3. Vidange
-    if (combined.includes('vidange') || combined.includes('flot bleu') || combined.includes('eaux usées') || combined.includes('grise') || combined.includes('noire')) {
+    if (combined.includes('vidange') || combined.includes('flot bleu') || combined.includes('eaux usées')) {
         return 'vidange';
     }
-    // 4. Eau (uniquement si le mot eau/robinet/potable est explicite, évite les confusions)
-    if (combined.includes('robinet') || combined.includes('potable') || /\beau\b/.test(combined) || combined.includes('water')) {
+    if (combined.includes('sauvage') || combined.includes('bivouac') || combined.includes('dodo') || combined.includes('libre')) {
+        return 'sauvage';
+    }
+    if (combined.includes('robinet') || combined.includes('potable') || /\beau\b/.test(combined)) {
         return 'eau';
     }
-    // 5. Nature / Bivouac
-    if (combined.includes('nature') || combined.includes('foret') || combined.includes('forêt') || combined.includes('lac') || combined.includes('riviere') || combined.includes('rivière') || combined.includes('montagne') || combined.includes('campagne') || combined.includes('sauvage') || combined.includes('wild') || combined.includes('dodo') || combined.includes('bivouac') || combined.includes('libre')) {
+    if (combined.includes('foret') || combined.includes('forêt') || combined.includes('lac') || combined.includes('riviere') || combined.includes('rivière') || combined.includes('montagne')) {
         return 'nature';
     }
-    // 6. Parking
-    if (combined.includes('parking') || combined.includes('stationnement') || combined.includes('place')) {
+    if (combined.includes('parking') || combined.includes('stationnement')) {
         return 'parking';
     }
     
