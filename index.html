@@ -7604,43 +7604,41 @@ function renderSpots() {
 function getNormalizedCategory(spot) {
     if (!spot) return 'aire';
     
+    // On isole proprement chaque champ pour éviter les confusions d'adresse
     let type = (spot.type || spot.category || spot.kind || '').toString().toLowerCase();
     let name = (spot.name || spot.title || '').toString().toLowerCase();
     let desc = (spot.description || spot.comment || '').toString().toLowerCase();
-    let combined = type + ' ' + name + ' ' + desc;
 
-    // 1. Carburant
-    if (type === 'fuel' || type === 'carburant' || combined.includes('station-service') || combined.includes('essence') || combined.includes('diesel') || combined.includes(' gpl ')) {
+    // 1. Carburant strict
+    if (type === 'fuel' || type === 'carburant' || type === 'station' || name.includes('station-service') || name.includes('essence')) {
         return 'carburant';
     }
     // 2. Ferme
-    if (type === 'ferme' || combined.includes('bienvenue à la ferme') || combined.includes('producteur') || combined.includes('agriculteur')) {
+    if (type === 'ferme' || name.includes('ferme') || name.includes('producteur') || desc.includes('bienvenue à la ferme')) {
         return 'ferme';
     }
-    // 3. VIDANGE EN PRIORITÉ ÉTENDUE (pour ne plus rater les aires de services et grilles)
-    if (type === 'vidange' || type === 'service' || combined.includes('vidange') || combined.includes('flot bleu') || combined.includes('eaux usées') || combined.includes('eaux usees') || combined.includes('grise') || combined.includes('noire') || combined.includes('borne')) {
+    // 3. Vidange (prioritaire si le type ou le nom l'indique explicitement)
+    if (type === 'vidange' || type === 'service' || name.includes('vidange') || desc.includes('vidange') || desc.includes('eaux usées') || desc.includes('flot bleu')) {
         return 'vidange';
     }
-    // 4. Sauvage
-    if (type === 'sauvage' || type === 'wild' || combined.includes('sauvage') || combined.includes('bivouac') || combined.includes('dodo') || combined.includes('libre')) {
+    // 4. Sauvage / Bivouac
+    if (type === 'sauvage' || type === 'wild' || type === 'bivouac' || name.includes('bivouac') || name.includes('sauvage') || desc.includes('bivouac') || desc.includes('sauvage')) {
         return 'sauvage';
     }
-    // 5. Eau (si ce n'est pas déjà capturé par la vidange)
-    if (!spot._isWaterSource && (type === 'water' || combined.includes('robinet') || combined.includes('potable') || /\beau\b/.test(combined))) {
-        return 'eau';
-    }
-    if (spot._isWaterSource) {
+    // 5. Eau (si c'est un point d'eau dédié ou explicite dans le nom/type)
+    if (spot._isWaterSource || type === 'water' || name.includes('eau') || name.includes('robinet') || desc.includes('potable')) {
         return 'eau';
     }
     // 6. Nature
-    if (type === 'nature' || combined.includes('foret') || combined.includes('forêt') || combined.includes('lac') || combined.includes('riviere') || combined.includes('rivière') || combined.includes('montagne')) {
+    if (type === 'nature' || name.includes('foret') || name.includes('lac') || name.includes('riviere') || desc.includes('nature')) {
         return 'nature';
     }
     // 7. Parking
-    if (type === 'parking' || combined.includes('parking') || combined.includes('stationnement')) {
+    if (type === 'parking' || type === 'stationnement' || name.includes('parking')) {
         return 'parking';
     }
     
+    // Par défaut, si c'est un spot classique sans mention spécifique, c'est une aire de camping-car !
     return 'aire';
 }
 
