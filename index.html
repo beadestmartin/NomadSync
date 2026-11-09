@@ -7533,12 +7533,72 @@ function renderSpots() {
             if (!match) return;
         }
 
-      const marker = L.marker([spot.lat, spot.lng]).addTo(markersGroup);
-        
-        let popupContent = '<b>' + (spot.name || 'Spot') + '</b><br>' + (spot.address || '') + '<br>';
-        if (spot.price) popupContent += 'Prix : ' + spot.price + '<br>';
-        if (spot.description) popupContent += '<p>' + spot.description + '</p>';
-        marker.bindPopup(popupContent);
+        // Attribution des couleurs et des icônes selon la catégorie
+        let bgColor = '#e74c3c'; 
+        let defaultIcon = '🚐';
+
+        if (cat === 'eau') { 
+            bgColor = '#3498db'; 
+            defaultIcon = '💧'; 
+        } 
+        else if (cat === 'vidange') { 
+            bgColor = '#16a085'; 
+            defaultIcon = '🚰'; 
+        } 
+        else if (cat === 'nature') { 
+            bgColor = '#2c3e50'; 
+            defaultIcon = '🌙'; 
+        } 
+        else if (cat === 'ferme') { 
+            bgColor = '#27ae60'; 
+            defaultIcon = '🚜'; 
+        } 
+        else if (cat === 'carburant') { 
+            bgColor = '#e67e22'; 
+            defaultIcon = '⛽'; 
+        } 
+        else if (cat === 'sauvage') { 
+            bgColor = '#D4621A'; 
+            defaultIcon = '🏕️'; 
+        } 
+        else if (cat === 'parking') { 
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🅿️'; 
+        } 
+        else if (cat === 'aire') { 
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🚐'; 
+        }
+
+        // Création du marqueur visuel
+        const customIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
+        let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
+
+        let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
+        let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
+
+        marker.bindPopup(
+            '<b>' + (spot.name || 'Lieu') + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
+            '<small style="color:#666">📍 ' + (spot.address || '') + '</small><br>' +
+            '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
+            '⏱️ Durée : ' + (spot.stay || 'N/A') + '<br>' +
+            (spot.exchange ? '🤝 Échange : <b>' + spot.exchange + '</b><br>' : '') +
+            (spot.electricity ? '⚡ Électricité : <b>' + spot.electricity + '</b><br>' : '') +
+            photoHtml + '<br>' +
+            '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">' +
+                '<a href="' + gmapsUrl + '" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>' +
+                '<a href="' + wazeUrl + '" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>' +
+            '</div>'
+        );
+
+        markersGroup.addLayer(marker);
     });
 }
 
@@ -7572,110 +7632,6 @@ function getNormalizedCategory(spot) {
         return 'parking';
     }
     return 'aire';
-	
-function toggleFilter(type) {
-    currentCategory = type;
-    renderSpots();
-}
-function toggleAddSpotForm() {
-    const form = document.getElementById('add-spot-form');
-    form.style.display = form.style.display === 'block' ? 'none' : 'block';
-}
-  
-function handleAddNewSpot(e) {
-    e.preventDefault();
-    const name = document.getElementById('newSpotName').value;
-    const address = document.getElementById('newSpotAddress').value;
-    const type = document.getElementById('newSpotType').value;
-    const photoInput = document.getElementById('newSpotPhoto');
-
-    let photoUrl = '';
-    if (photoInput.files && photoInput.files[0]) {
-      photoUrl = URL.createObjectURL(photoInput.files[0]);
-    }
-
-    const center = map ? map.getCenter() : { lat: 46.6, lng: 1.88 };
-    const newSpot = {
-      name: name,
-      address: address,
-      lat: center.lat + (Math.random() - 0.5) * 0.05,
-      lng: center.lng + (Math.random() - 0.5) * 0.05,
-      type: type,
-      icon: typeIcons[type] || '📍',
-      price: type === 'fuel' ? 'Tarif Temps Réel' : '0 € (Gratuit)',
-      stay: '24h / Indiqué sur place',
-      photo: photoUrl
-    };
-}
-
-// Attribution des couleurs et des icônes selon la catégorie
-let bgColor = '#e74c3c'; 
-let defaultIcon = '🚐';
-
-if (cat === 'eau') { 
-    bgColor = '#3498db'; 
-    defaultIcon = '💧'; 
-} 
-else if (cat === 'vidange') { 
-    bgColor = '#16a085'; 
-    defaultIcon = '🚰'; 
-} 
-else if (cat === 'nature') { 
-    bgColor = '#2c3e50'; 
-    defaultIcon = '🌙'; // Lune pour les spots nature
-} 
-else if (cat === 'ferme') { 
-    bgColor = '#27ae60'; 
-    defaultIcon = '🚜'; 
-} 
-else if (cat === 'carburant') { 
-    bgColor = '#e67e22'; 
-    defaultIcon = '⛽'; 
-} 
-else if (cat === 'sauvage') { 
-    bgColor = '#D4621A'; 
-    defaultIcon = '🏕️'; 
-} 
-else if (cat === 'parking') { 
-    bgColor = '#e74c3c'; 
-    defaultIcon = '🅿️'; 
-} 
-else if (cat === 'aire') { 
-    bgColor = '#e74c3c'; 
-    defaultIcon = '🚐'; 
-}
-
-// Création du marqueur visuel
-const customIcon = L.divIcon({
-    className: 'custom-div-icon',
-    html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
-    iconSize: [32, 32],
-    iconAnchor: [16, 16]
-});
-
-const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
-let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
-
-// Liens corrigés basés strictement sur les coordonnées GPS exactes
-let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
-let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
-
-marker.bindPopup(
-    '<b>' + (spot.name || 'Lieu') + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
-    '<small style="color:#666">📍 ' + (spot.address || '') + '</small><br>' +
-    '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
-    '⏱️ Durée : ' + (spot.stay || 'N/A') + '<br>' +
-    (spot.exchange ? '🤝 Échange : <b>' + spot.exchange + '</b><br>' : '') +
-    (spot.electricity ? '⚡ Électricité : <b>' + spot.electricity + '</b><br>' : '') +
-    photoHtml + '<br>' +
-    '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">' +
-        '<a href="' + gmapsUrl + '" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>' +
-        '<a href="' + wazeUrl + '" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>' +
-    '</div>'
-);
-
-markersGroup.addLayer(marker);
-});
 }
 
 function toggleFilter(type) {
@@ -7687,7 +7643,7 @@ function toggleAddSpotForm() {
     const form = document.getElementById('add-spot-form');
     form.style.display = form.style.display === 'block' ? 'none' : 'block';
 }
-  
+
 function handleAddNewSpot(e) {
     e.preventDefault();
     const name = document.getElementById('newSpotName').value;
