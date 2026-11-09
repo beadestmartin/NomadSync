@@ -7489,12 +7489,12 @@ function initAndCleanSpots() {
             else if (type.includes('sauvage') || type.includes('wild') || type.includes('bivouac') || combined.includes('bivouac') || combined.includes('dodo')) {
                 spot.category = 'sauvage';
             } 
-            // 4. Vidanges
+            // 4. Vidanges (prioritaire devant l'eau)
             else if (type.includes('vidange') || combined.includes('vidange') || combined.includes('eaux usées') || combined.includes('eaux usees') || combined.includes('grise') || combined.includes('noire')) {
                 spot.category = 'vidange';
             } 
-            // 5. Eau
-            else if (type.includes('water') || type.includes('eau') || combined.includes('robinet') || combined.includes('potable')) {
+            // 5. Eau (strict pour ne pas attraper les mots comme château ou plateau)
+            else if (type.includes('water') || type === 'eau' || name.includes('point d\'eau') || combined.includes('robinet') || combined.includes('potable')) {
                 spot.category = 'eau';
             } 
             // 6. Nature
