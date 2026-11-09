@@ -7825,6 +7825,34 @@ function switchTab(tab) {
         return;
     }
 
+    // 2. Sinon, on ferme tout et on ouvre l'onglet sélectionné
+    document.getElementById('panel-itineraire').style.display = 'none';
+    document.getElementById('view-jauges').style.display = 'none';
+    document.getElementById('view-securite').style.display = 'none';
+
+    if (targetElement) targetElement.style.display = 'block';
+
+    // Remettre tous les boutons en transparent
+    ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) {
+            b.classList.remove('active');
+            b.style.background = 'transparent';
+            b.style.color = '#555';
+        }
+    });
+
+    // Activer le bouton cliqué
+    const activeBtnId = tab === 'itineraire' ? 'tab-route' : (tab === 'jauges' ? 'tab-gauges' : 'tab-security');
+    const activeBtn = document.getElementById(activeBtnId);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.style.background = '#D4621A';
+        activeBtn.style.color = 'white';
+    }
+
+    setTimeout(() => { if (typeof map !== 'undefined' && map) map.invalidateSize(); }, 200);
+}
     // 2. Sinon, on cache tous les panneaux
     document.getElementById('panel-itineraire').style.display = 'none';
     document.getElementById('view-jauges').style.display = 'none';
