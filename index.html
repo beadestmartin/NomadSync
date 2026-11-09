@@ -7611,39 +7611,42 @@ function getNormalizedCategory(spot) {
     let tags = (spot.tags || '').toString().toLowerCase();
     let combined = type + ' ' + name + ' ' + desc + ' ' + tags;
 
-    if (type.includes('fuel') || type.includes('carburant') || name.includes('station-service')) return 'carburant';
+    // 1. Carburant
+    if (type.includes('fuel') || type.includes('carburant') || name.includes('station-service') || type.includes('station')) {
+        return 'carburant';
+    }
     
-    // Fermes
+    // 2. Fermes
     if (type.includes('ferme') || combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('grappe') || combined.includes('fermier')) {
         return 'ferme';
     }
 
-    // Vidanges
-    if (type.includes('vidange') || type.includes('service') || combined.includes('vidange') || combined.includes('eaux usées') || combined.includes('eaux usees') || combined.includes('grise') || combined.includes('noire') || combined.includes('flot bleu') || combined.includes('borne')) {
-        return 'vidange';
-    }
-
-    // Sauvage
+    // 3. Sauvage / Bivouac / Dodo
     if (type.includes('sauvage') || type.includes('wild') || type.includes('bivouac') || combined.includes('bivouac') || combined.includes('dodo')) {
         return 'sauvage';
     }
 
-    // Eau
-    if (type.includes('water') || combined.includes('robinet') || combined.includes('potable') || /\beau\b/.test(combined)) {
+    // 4. Vidanges strictes (on évite de chopper les aires globales via "service")
+    if (type.includes('vidange') || type.includes('eaux usées') || type.includes('eaux usees') || combined.includes('vidange') || combined.includes('eaux grises') || combined.includes('eaux noires') || combined.includes('flot bleu')) {
+        return 'vidange';
+    }
+
+    // 5. Eau pure (robinet, eau potable, point d'eau dédié)
+    if (type.includes('water') || type.includes('eau') || combined.includes('robinet') || combined.includes('potable') || combined.includes('point d\'eau')) {
         return 'eau';
     }
 
-    // Nature
+    // 6. Nature (forêt, lac, rivière, etc.)
     if (type.includes('nature') || combined.includes('foret') || combined.includes('lac') || combined.includes('riviere') || combined.includes('montagne')) {
         return 'nature';
     }
 
-  // Parking
-    if (type.includes('parking') || type.includes('stationnement') || name.includes('parking')) {
+    // 7. Parking pur
+    if (type === 'parking' || type === 'stationnement' || (name.includes('parking') && !type.includes('aire'))) {
         return 'parking';
     }
 
-    // Par défaut, tout le reste bascule proprement en aire de camping-car
+    // 8. Par défaut, tout le reste (aires, campings, emplacements) bascule proprement en aire
     return 'aire';
 }
 function toggleFilter(type) {
