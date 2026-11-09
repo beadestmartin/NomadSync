@@ -7508,27 +7508,27 @@ function renderSpots() {
             let cur = currentCategory.toLowerCase();
             let match = false;
 
-            if (cur.includes('eau') || cur.includes('water')) {
+            if (cur === 'eau' || (cur.includes('eau') && !cur.includes('vidange'))) {
                 match = (cat === 'eau');
-            } else if (cur.includes('vidange')) {
+            } else if (cur === 'vidange' || cur.includes('vidange')) {
                 match = (cat === 'vidange');
-            } else if (cur.includes('nature')) {
+            } else if (cur === 'nature' || cur.includes('nature')) {
                 match = (cat === 'nature');
-            } else if (cur.includes('ferme')) {
+            } else if (cur === 'ferme' || cur.includes('ferme')) {
                 match = (cat === 'ferme');
-            } else if (cur.includes('carburant')) {
+            } else if (cur === 'carburant' || cur.includes('carburant')) {
                 match = (cat === 'carburant');
-            } else if (cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
+            } else if (cur === 'sauvage' || cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
                 match = (cat === 'sauvage');
-            } else if (cur.includes('gratuit') || cur.includes('free')) {
-                let isFree = (spot.type === 'free' || !spot.price || spot.price === '' || spot.price.toLowerCase().includes('0') || spot.price.toLowerCase().includes('gratuit'));
-                match = isFree && (cat !== 'carburant');
-            } else if (cur.includes('parking')) {
+            } else if (cur === 'parking' || cur.includes('parking')) {
                 match = (cat === 'parking');
-            } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
+            } else if (cur === 'gratuit' || cur.includes('gratuit') || cur.includes('free')) {
+                let isFree = (spot.type === 'free' || !spot.price || spot.price === '' || spot.price.toLowerCase().includes('0') || spot.price.toLowerCase().includes('gratuit'));
+                match = isFree && (cat === 'aire' || cat === 'parking' || cat === 'nature' || cat === 'sauvage');
+            } else if (cur === 'aire' || cur === 'aires' || cur.includes('aire')) {
                 match = (cat === 'aire');
             } else {
-                match = cat.includes(cur);
+                match = (cat === cur);
             }
             
             if (!match) return;
@@ -7600,7 +7600,6 @@ function renderSpots() {
         markersGroup.addLayer(marker);
     });
 }
-
 function getNormalizedCategory(spot) {
     if (!spot) return 'aire';
     if (spot._isWaterSource) return 'eau';
