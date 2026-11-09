@@ -7533,11 +7533,11 @@ function renderSpots() {
             if (!match) return;
         }
 
-       const marker = L.marker([spot.lat, spot.lng]).addTo(markersGroup);
+      const marker = L.marker([spot.lat, spot.lng]).addTo(markersGroup);
         
-        let popupContent = `<b>${spot.name || 'Spot'}</b><br>${spot.address || ''}<br>`;
-        if (spot.price) popupContent += `Prix : ${spot.price}<br>`;
-        if (spot.description) popupContent += `<p>${spot.description}</p>`;
+        let popupContent = '<b>' + (spot.name || 'Spot') + '</b><br>' + (spot.address || '') + '<br>';
+        if (spot.price) popupContent += 'Prix : ' + spot.price + '<br>';
+        if (spot.description) popupContent += '<p>' + spot.description + '</p>';
         marker.bindPopup(popupContent);
     });
 }
