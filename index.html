@@ -8168,7 +8168,6 @@ function cleanAndNormalizeSpot(rawSpot) {
     pricingServices: rawSpot.pricingServices?.trim() || '',
     photo: rawSpot.photo?.trim() || ''
   };
-}
 
 // ==========================================
 // TABLEAU GLOBAL DES SPOTS (TOUT À LA FIN)
@@ -8185,7 +8184,7 @@ const spots = [
 const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
 spots.push(...customSpots);
 
- window.onload = function() {
+window.onload = function() {
     initMap();
     loadSavedData();
 };
