@@ -7496,7 +7496,8 @@ function renderSpots() {
         sourceSpots = sourceSpots.concat(rawSpots);
     }
     if (typeof rawWaterPoints !== 'undefined' && Array.isArray(rawWaterPoints)) {
-        sourceSpots = sourceSpots.concat(rawWaterPoints);
+        let waterTagged = rawWaterPoints.map(p => ({ ...p, _isWaterSource: true }));
+        sourceSpots = sourceSpots.concat(waterTagged);
     }
 
     sourceSpots.forEach(spot => {
@@ -7521,7 +7522,9 @@ function renderSpots() {
             } else if (cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
                 match = (cat === 'sauvage');
             } else if (cur.includes('gratuit') || cur.includes('free')) {
-                match = (spot.type === 'free' || (spot.price && spot.price.toLowerCase().includes('0'))) && cat !== 'sauvage';
+                // Filtre gratuit assoupli
+                let isFree = (spot.type === 'free' || !spot.price || spot.price === '' || spot.price.toLowerCase().includes('0') || spot.price.toLowerCase().includes('gratuit'));
+                match = isFree && (cat !== 'carburant');
             } else if (cur.includes('parking')) {
                 match = (cat === 'parking');
             } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
@@ -7542,7 +7545,7 @@ function renderSpots() {
             defaultIcon = '💧'; 
         } 
         else if (cat === 'vidange') { 
-            bgColor = '#16a085'; 
+            bgColor = '#8e44ad'; // Violet distinctif pour la vidange
             defaultIcon = '🚰'; 
         } 
         else if (cat === 'nature') { 
@@ -7601,51 +7604,118 @@ function renderSpots() {
         markersGroup.addLayer(marker);
     });
 }
+        // Attribution des couleurs et des icônes selon la catégorie
+        let bgColor = '#e74c3c'; 
+        let defaultIcon = '🚐';
+
+        if (cat === 'eau') { 
+            bgColor = '#3498db'; 
+            defaultIcon = '💧'; 
+        } 
+        else if (cat === 'vidange') { 
+            bgColor = '#8e44ad'; 
+            defaultIcon = '🚰'; 
+        }
+        else if (cat === 'nature') { 
+            bgColor = '#2c3e50'; 
+            defaultIcon = '🌙'; 
+        } 
+        else if (cat === 'ferme') { 
+            bgColor = '#27ae60'; 
+            defaultIcon = '🚜'; 
+        } 
+        else if (cat === 'carburant') { 
+            bgColor = '#e67e22'; 
+            defaultIcon = '⛽'; 
+        } 
+        else if (cat === 'sauvage') { 
+            bgColor = '#D4621A'; 
+            defaultIcon = '🏕️'; 
+        } 
+        else if (cat === 'parking') { 
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🅿️'; 
+        } 
+        else if (cat === 'aire') { 
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🚐'; 
+        }
+
+        // Création du marqueur visuel
+        const customIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
+        let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
+
+        let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
+        let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
+
+        marker.bindPopup(
+            '<b>' + (spot.name || 'Lieu') + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
+            '<small style="color:#666">📍 ' + (spot.address || '') + '</small><br>' +
+            '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
+            '⏱️ Durée : ' + (spot.stay || 'N/A') + '<br>' +
+            (spot.exchange ? '🤝 Échange : <b>' + spot.exchange + '</b><br>' : '') +
+            (spot.electricity ? '⚡ Électricité : <b>' + spot.electricity + '</b><br>' : '') +
+            photoHtml + '<br>' +
+            '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">' +
+                '<a href="' + gmapsUrl + '" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>' +
+                '<a href="' + wazeUrl + '" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>' +
+            '</div>'
+        );
+
+        markersGroup.addLayer(marker);
+    });
+}
 function getNormalizedCategory(spot) {
     if (!spot) return 'aire';
-    
-    // Si c'est un point d'eau source dédié de ta liste d'eau
     if (spot._isWaterSource) return 'eau';
 
     let type = (spot.type || spot.category || spot.kind || '').toString().toLowerCase();
     let name = (spot.name || spot.title || '').toString().toLowerCase();
     let desc = (spot.description || spot.comment || '').toString().toLowerCase();
+    let tags = (spot.tags || '').toString().toLowerCase();
+    let combined = type + ' ' + name + ' ' + desc + ' ' + tags;
 
-    // 1. Carburant strict
-    if (type === 'fuel' || type === 'carburant' || type === 'station' || name.includes('station-service') || name.includes('essence')) {
-        return 'carburant';
-    }
-
-    // 2. Si c'est explicitement une AIRE de camping-car (dans son type ou son nom)
-    if (type === 'aire' || type === 'camping-car' || type === 'camp-car' || name.includes('aire') || desc.includes('aire de camping')) {
-        return 'aire';
-    }
-
-    // 3. Ferme
-    if (type === 'ferme' || name.includes('ferme') || name.includes('producteur') || desc.includes('bienvenue à la ferme')) {
+    if (type.includes('fuel') || type.includes('carburant') || name.includes('station-service')) return 'carburant';
+    
+    // Fermes
+    if (type.includes('ferme') || combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('grappe') || combined.includes('fermier')) {
         return 'ferme';
     }
 
-    // 4. Vidange (uniquement si c'est une borne/station de service dédiée, pas une aire complète)
-    if (type === 'vidange' || type === 'service' || name.includes('vidange') || desc.includes('borne de vidange')) {
+    // Vidanges
+    if (type.includes('vidange') || type.includes('service') || combined.includes('vidange') || combined.includes('eaux usées') || combined.includes('eaux usees') || combined.includes('grise') || combined.includes('noire') || combined.includes('flot bleu') || combined.includes('borne')) {
         return 'vidange';
     }
 
-    // 5. Sauvage / Bivouac
-    if (type === 'sauvage' || type === 'wild' || type === 'bivouac' || name.includes('bivouac') || name.includes('sauvage') || desc.includes('bivouac')) {
+    // Sauvage
+    if (type.includes('sauvage') || type.includes('wild') || type.includes('bivouac') || combined.includes('bivouac') || combined.includes('dodo')) {
         return 'sauvage';
     }
 
-    // 6. Eau (robinet / point d'eau isolé)
-    if (type === 'water' || name.includes('robinet') || desc.includes('eau potable')) {
+    // Eau
+    if (type.includes('water') || combined.includes('robinet') || combined.includes('potable') || /\beau\b/.test(combined)) {
         return 'eau';
     }
 
-    // 7. Nature
-    if (type === 'nature' || name.includes('foret') || name.includes('lac') || name.includes('riviere') || desc.includes('nature')) {
+    // Nature
+    if (type.includes('nature') || combined.includes('foret') || combined.includes('lac') || combined.includes('riviere') || combined.includes('montagne')) {
         return 'nature';
     }
 
+    // Parking
+    if (type.includes('parking') || type.includes('stationnement') || name.includes('parking')) {
+        return 'parking';
+    }
+
+    return 'aire';
+}
     // 8. Parking
     if (type === 'parking' || type === 'stationnement' || name.includes('parking')) {
         return 'parking';
