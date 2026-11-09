@@ -7572,13 +7572,11 @@ function getNormalizedCategory(spot) {
         return 'parking';
     }
     return 'aire';
-}
-
+	
 function toggleFilter(type) {
     currentCategory = type;
     renderSpots();
 }
-
 function toggleAddSpotForm() {
     const form = document.getElementById('add-spot-form');
     form.style.display = form.style.display === 'block' ? 'none' : 'block';
