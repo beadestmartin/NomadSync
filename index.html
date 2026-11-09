@@ -7610,27 +7610,31 @@ function getNormalizedCategory(spot) {
     let desc = (spot.description || spot.comment || '').toString().toLowerCase();
     let combined = raw + ' ' + name + ' ' + desc;
 
-    if (combined.includes('eau') || combined.includes('water') || combined.includes('robinet') || combined.includes('potable')) {
-        return 'eau';
-    }
-    if (combined.includes('vidange') || combined.includes('flot bleu') || combined.includes('eaux usées') || combined.includes('grise') || combined.includes('noire')) {
-        return 'vidange';
-    }
-    if (combined.includes('nature') || combined.includes('foret') || combined.includes('forêt') || combined.includes('lac') || combined.includes('riviere') || combined.includes('rivière') || combined.includes('montagne') || combined.includes('campagne')) {
-        return 'nature';
-    }
-    if (combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('bienvenue à la ferme') || combined.includes('grappe')) {
-        return 'ferme';
-    }
+    // 1. Carburant en premier (très spécifique)
     if (combined.includes('carburant') || combined.includes('station') || combined.includes('gpl') || combined.includes('essence') || combined.includes('diesel') || combined.includes('station-service')) {
         return 'carburant';
     }
-    if (combined.includes('sauvage') || combined.includes('wild') || combined.includes('dodo') || combined.includes('bivouac') || combined.includes('libre')) {
-        return 'sauvage';
+    // 2. Ferme
+    if (combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('bienvenue à la ferme') || combined.includes('grappe')) {
+        return 'ferme';
     }
+    // 3. Vidange
+    if (combined.includes('vidange') || combined.includes('flot bleu') || combined.includes('eaux usées') || combined.includes('grise') || combined.includes('noire')) {
+        return 'vidange';
+    }
+    // 4. Eau (uniquement si le mot eau/robinet/potable est explicite, évite les confusions)
+    if (combined.includes('robinet') || combined.includes('potable') || /\beau\b/.test(combined) || combined.includes('water')) {
+        return 'eau';
+    }
+    // 5. Nature / Bivouac
+    if (combined.includes('nature') || combined.includes('foret') || combined.includes('forêt') || combined.includes('lac') || combined.includes('riviere') || combined.includes('rivière') || combined.includes('montagne') || combined.includes('campagne') || combined.includes('sauvage') || combined.includes('wild') || combined.includes('dodo') || combined.includes('bivouac') || combined.includes('libre')) {
+        return 'nature';
+    }
+    // 6. Parking
     if (combined.includes('parking') || combined.includes('stationnement') || combined.includes('place')) {
         return 'parking';
     }
+    
     return 'aire';
 }
 
