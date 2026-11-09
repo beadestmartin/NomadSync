@@ -7659,7 +7659,7 @@ else if (cat === 'aire') {
         let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
         let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
 
-        marker.bindPopup(
+      marker.bindPopup(
         '<b>' + (spot.name || 'Lieu') + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
         '<small style="color:#666">📍 ' + (spot.address || '') + '</small><br>' +
         '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
@@ -7671,8 +7671,10 @@ else if (cat === 'aire') {
             '<a href="' + gmapsUrl + '" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>' +
             '<a href="' + wazeUrl + '" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>' +
         '</div>'
- markersGroup.addLayer(marker);
-);
+    );
+
+    markersGroup.addLayer(marker);
+});
 }
 
 function toggleFilter(type) {
