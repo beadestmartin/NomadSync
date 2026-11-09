@@ -7502,9 +7502,45 @@ function renderSpots() {
     sourceSpots.forEach(spot => {
         if (!spot || typeof spot.lat === 'undefined') return;
 
-        const nameLower = (spot.name || '').toLowerCase();
-        let cat = (spot.category || '').toLowerCase();
+        let cat = getNormalizedCategory(spot);
 
+        if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
+            let cur = currentCategory.toLowerCase();
+            let match = false;
+
+            if (cur.includes('eau') || cur.includes('water')) {
+                match = (cat === 'eau');
+            } else if (cur.includes('vidange')) {
+                match = (cat === 'vidange');
+            } else if (cur.includes('nature')) {
+                match = (cat === 'nature');
+            } else if (cur.includes('ferme')) {
+                match = (cat === 'ferme');
+            } else if (cur.includes('carburant')) {
+                match = (cat === 'carburant');
+            } else if (cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
+                match = (cat === 'sauvage');
+            } else if (cur.includes('gratuit') || cur.includes('free')) {
+                match = (spot.type === 'free' || (spot.price && spot.price.toLowerCase().includes('0'))) && cat !== 'sauvage';
+            } else if (cur.includes('parking')) {
+                match = (cat === 'parking');
+            } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
+                match = (cat === 'aire');
+            } else {
+                match = cat.includes(cur);
+            }
+            
+            if (!match) return;
+        }
+
+        const marker = L.marker([spot.lat, spot.lng]).addTo(markersGroup);
+        
+        let popupContent = `<b>${spot.name || 'Spot'}</b><br>${spot.address || ''}<br>`;
+        if (spot.price) popupContent += `Prix : ${spot.price}<br>`;
+        if (spot.description) popupContent += `<p>${spot.description}</p>`;
+        marker.bindPopup(popupContent);
+    });
+}
 
 function getNormalizedCategory(spot) {
     if (!spot) return 'aire';
