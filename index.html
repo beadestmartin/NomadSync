@@ -2075,7 +2075,7 @@ let rawSpots = [
   lat: 49.806054,
   lng: 6.407057,
   type: 'aire_stationnement',
-  icon: '🚐',
+  icon: '🅿️',
   price: 'Gratuit',
   stay: 'Jour uniquement (Nuitée interdite)',
   ground: 'Bitumé / Stabilisé',
@@ -8118,6 +8118,56 @@ if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
         .catch(err => console.log('Service Worker non enregistré', err));
     });
+/**
+ * Normalise et nettoie un spot selon les standards de l'application.
+ */
+function cleanAndNormalizeSpot(rawSpot) {
+  let type = rawSpot.type || 'aire_stationnement';
+  let category = rawSpot.category || 'Parking / Stationnement';
+  let icon = rawSpot.icon || '🚐';
+
+  if (category.includes("Point d'eau") || type === 'water') {
+    type = 'water';
+    category = "Point d'eau";
+    icon = '💧';
+  } else if (category.includes("Vidange") || type === 'vidange') {
+    type = 'vidange';
+    category = 'Vidange';
+    icon = '🔧';
+  } else if (category.includes("Ferme") || type === 'ferme') {
+    type = 'ferme';
+    category = 'Ferme / Accueil producteur';
+    icon = '🚜';
+  } else if (category.includes("nature") || type === 'nature') {
+    type = 'nature';
+    category = 'nature';
+    icon = '🌙';
+  } else if (category.includes("Parking") || category.includes("Aire") || type === 'aire_stationnement') {
+    type = 'aire_stationnement';
+    icon = rawSpot.icon || (category.includes('Jour') ? '🅿️' : '🚐');
+  }
+
+  return {
+    name: rawSpot.name?.trim() || 'Spot sans nom',
+    category: category,
+    address: rawSpot.address?.trim() || '',
+    lat: parseFloat(rawSpot.lat) || 0,
+    lng: parseFloat(rawSpot.lng) || 0,
+    type: type,
+    icon: icon,
+    price: rawSpot.price?.trim() || 'Gratuit',
+    stay: rawSpot.stay?.trim() || 'Non spécifié',
+    ground: rawSpot.ground?.trim() || 'Non spécifié',
+    petsAllowed: typeof rawSpot.petsAllowed === 'boolean' ? rawSpot.petsAllowed : true,
+    description: rawSpot.description?.trim() || '',
+    services: {
+      water: Boolean(rawSpot.services?.water),
+      electricity: Boolean(rawSpot.services?.electricity),
+      waste: Boolean(rawSpot.services?.waste)
+    },
+    pricingServices: rawSpot.pricingServices?.trim() || '',
+    photo: rawSpot.photo?.trim() || ''
+  };
 }
 
 // ==========================================
@@ -8130,7 +8180,7 @@ const spots = [
   ...rawFarmPoints,
   ...rawFuelPoints,
   ...rawDrainPoints
-];
+].map(cleanAndNormalizeSpot);
 
 const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
 spots.push(...customSpots);
