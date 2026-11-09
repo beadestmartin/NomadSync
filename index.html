@@ -7644,22 +7644,23 @@ else if (cat === 'aire') {
     bgColor = '#e74c3c'; 
     defaultIcon = '🚐'; 
 }
-        // Création du marqueur visuel
-        const customIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
-        });
-        
-        const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
-        let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
-        
-        // Liens corrigés basés strictement sur les coordonnées GPS exactes
-        let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
-        let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
 
-     marker.bindPopup(
+// Création du marqueur visuel
+const customIcon = L.divIcon({
+    className: 'custom-div-icon',
+    html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16]
+});
+
+const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
+let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
+
+// Liens corrigés basés strictement sur les coordonnées GPS exactes
+let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
+let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
+
+marker.bindPopup(
     '<b>' + (spot.name || 'Lieu') + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
     '<small style="color:#666">📍 ' + (spot.address || '') + '</small><br>' +
     '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
@@ -7681,6 +7682,7 @@ function toggleFilter(type) {
     currentCategory = type;
     renderSpots();
 }
+
 function toggleAddSpotForm() {
     const form = document.getElementById('add-spot-form');
     form.style.display = form.style.display === 'block' ? 'none' : 'block';
@@ -7721,8 +7723,7 @@ function handleAddNewSpot(e) {
     document.getElementById('add-spot-form').style.display = 'none';
     e.target.reset();
     alert("✅ Votre spot a été ajouté et sauvegardé avec succès !");
-  }
-
+}
   function exportSpotsJSON() {
     const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
     if (customSpots.length === 0) {
