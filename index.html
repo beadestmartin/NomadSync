@@ -7468,24 +7468,73 @@ const typeIcons = {
   vidange: '🚰' 
 };
 
-function initMap() {
-  if (map) return;
-  map = L.map('map').setView([46.603354, 1.888334], 5);
-  
- L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
-  
-  markersGroup = L.layerGroup().addTo(map);
-  routeLayer = L.layerGroup().addTo(map);
-  
-  if (typeof renderSpots === 'function') {
-    renderSpots();
-  }
-  
-  setTimeout(() => { map.invalidateSize(); }, 300);
+function initAndCleanSpots() {
+    if (typeof rawSpots !== 'undefined' && Array.isArray(rawSpots)) {
+        rawSpots.forEach(spot => {
+            let type = (spot.type || spot.category || spot.kind || '').toString().toLowerCase();
+            let name = (spot.name || spot.title || '').toString().toLowerCase();
+            let desc = (spot.description || spot.comment || '').toString().toLowerCase();
+            let tags = (spot.tags || '').toString().toLowerCase();
+            let combined = type + ' ' + name + ' ' + desc + ' ' + tags;
+
+            // 1. Carburant
+            if (type.includes('fuel') || type.includes('carburant') || name.includes('station-service')) {
+                spot.category = 'carburant';
+            } 
+            // 2. Fermes
+            else if (type.includes('ferme') || combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('grappe')) {
+                spot.category = 'ferme';
+            } 
+            // 3. Sauvage / Bivouac
+            else if (type.includes('sauvage') || type.includes('wild') || type.includes('bivouac') || combined.includes('bivouac') || combined.includes('dodo')) {
+                spot.category = 'sauvage';
+            } 
+            // 4. Vidanges
+            else if (type.includes('vidange') || combined.includes('vidange') || combined.includes('eaux usées') || combined.includes('eaux usees') || combined.includes('grise') || combined.includes('noire')) {
+                spot.category = 'vidange';
+            } 
+            // 5. Eau
+            else if (type.includes('water') || type.includes('eau') || combined.includes('robinet') || combined.includes('potable')) {
+                spot.category = 'eau';
+            } 
+            // 6. Nature
+            else if (type.includes('nature') || combined.includes('foret') || combined.includes('lac') || combined.includes('riviere')) {
+                spot.category = 'nature';
+            } 
+            // 7. Parking
+            else if ((type.includes('parking') || type.includes('stationnement') || name.includes('parking')) && !name.includes('station-service')) {
+                spot.category = 'parking';
+            } 
+            // 8. Aire par défaut
+            else {
+                spot.category = 'aire';
+            }
+        });
+    }
 }
+
+function initMap() {
+    if (map) return;
+    map = L.map('map').setView([46.603354, 1.888334], 5);
+    
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    
+    markersGroup = L.layerGroup().addTo(map);
+    routeLayer = L.layerGroup().addTo(map);
+    
+    // Nettoyage et étiquetage en amont avant affichage
+    initAndCleanSpots();
+
+    if (typeof renderSpots === 'function') {
+        renderSpots();
+    }
+    
+    setTimeout(() => { map.invalidateSize(); }, 300);
+}
+
 function renderSpots() {
     if (!map || !markersGroup) return;
     markersGroup.clearLayers();
@@ -7495,40 +7544,24 @@ function renderSpots() {
         sourceSpots = sourceSpots.concat(rawSpots);
     }
     if (typeof rawWaterPoints !== 'undefined' && Array.isArray(rawWaterPoints)) {
-        let waterTagged = rawWaterPoints.map(p => ({ ...p, _isWaterSource: true }));
+        let waterTagged = rawWaterPoints.map(p => ({ ...p, category: 'eau', _isWaterSource: true }));
         sourceSpots = sourceSpots.concat(waterTagged);
     }
 
     sourceSpots.forEach(spot => {
         if (!spot || typeof spot.lat === 'undefined') return;
 
-        let cat = getNormalizedCategory(spot);
+        let cat = spot.category || 'aire';
 
         if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             let cur = currentCategory.toLowerCase();
             let match = false;
 
-            if (cur === 'eau' || (cur.includes('eau') && !cur.includes('vidange'))) {
-                match = (cat === 'eau');
-            } else if (cur === 'vidange' || cur.includes('vidange')) {
-                match = (cat === 'vidange');
-            } else if (cur === 'nature' || cur.includes('nature')) {
-                match = (cat === 'nature');
-            } else if (cur === 'ferme' || cur.includes('ferme')) {
-                match = (cat === 'ferme');
-            } else if (cur === 'carburant' || cur.includes('carburant')) {
-                match = (cat === 'carburant');
-            } else if (cur === 'sauvage' || cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
-                match = (cat === 'sauvage');
-            } else if (cur === 'parking' || cur.includes('parking')) {
-                match = (cat === 'parking');
-            } else if (cur === 'gratuit' || cur.includes('gratuit') || cur.includes('free')) {
+            if (cur === 'gratuit' || cur.includes('gratuit') || cur.includes('free')) {
                 let isFree = (spot.type === 'free' || !spot.price || spot.price === '' || spot.price.toLowerCase().includes('0') || spot.price.toLowerCase().includes('gratuit'));
                 match = isFree && (cat === 'aire' || cat === 'parking' || cat === 'nature' || cat === 'sauvage');
-            } else if (cur === 'aire' || cur === 'aires' || cur.includes('aire')) {
-                match = (cat === 'aire');
             } else {
-                match = (cat === cur);
+                match = (cat === cur || cur.includes(cat));
             }
             
             if (!match) return;
@@ -7600,54 +7633,7 @@ function renderSpots() {
         markersGroup.addLayer(marker);
     });
 }
-function getNormalizedCategory(spot) {
-    if (!spot) return 'aire';
-    if (spot._isWaterSource) return 'eau';
 
-    let type = (spot.type || spot.category || spot.kind || '').toString().toLowerCase();
-    let name = (spot.name || spot.title || '').toString().toLowerCase();
-    let desc = (spot.description || spot.comment || '').toString().toLowerCase();
-    let tags = (spot.tags || '').toString().toLowerCase();
-    let combined = type + ' ' + name + ' ' + desc + ' ' + tags;
-
-    // 1. Carburant
-    if (type.includes('fuel') || type.includes('carburant') || name.includes('station-service') || type.includes('station')) {
-        return 'carburant';
-    }
-    
-    // 2. Fermes
-    if (type.includes('ferme') || combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('grappe') || combined.includes('fermier')) {
-        return 'ferme';
-    }
-
-    // 3. Sauvage / Bivouac / Dodo
-    if (type.includes('sauvage') || type.includes('wild') || type.includes('bivouac') || combined.includes('bivouac') || combined.includes('dodo')) {
-        return 'sauvage';
-    }
-
-    // 4. Vidanges strictes (on évite de chopper les aires globales via "service")
-    if (type.includes('vidange') || type.includes('eaux usées') || type.includes('eaux usees') || combined.includes('vidange') || combined.includes('eaux grises') || combined.includes('eaux noires') || combined.includes('flot bleu')) {
-        return 'vidange';
-    }
-
-    // 5. Eau pure (robinet, eau potable, point d'eau dédié)
-    if (type.includes('water') || type.includes('eau') || combined.includes('robinet') || combined.includes('potable') || combined.includes('point d\'eau')) {
-        return 'eau';
-    }
-
-    // 6. Nature (forêt, lac, rivière, etc.)
-    if (type.includes('nature') || combined.includes('foret') || combined.includes('lac') || combined.includes('riviere') || combined.includes('montagne')) {
-        return 'nature';
-    }
-
-    // 7. Parking pur
-    if (type === 'parking' || type === 'stationnement' || (name.includes('parking') && !type.includes('aire'))) {
-        return 'parking';
-    }
-
-    // 8. Par défaut, tout le reste (aires, campings, emplacements) bascule proprement en aire
-    return 'aire';
-}
 function toggleFilter(type) {
     currentCategory = type;
     renderSpots();
