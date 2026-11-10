@@ -2075,7 +2075,7 @@ let rawSpots = [
   lat: 49.806054,
   lng: 6.407057,
   type: 'aire_stationnement',
-  icon: '🅿️',
+  icon: '🚐',
   price: 'Gratuit',
   stay: 'Jour uniquement (Nuitée interdite)',
   ground: 'Bitumé / Stabilisé',
@@ -7468,71 +7468,23 @@ const typeIcons = {
   vidange: '🚰' 
 };
 
-function initAndCleanSpots() {
-    if (typeof rawSpots !== 'undefined' && Array.isArray(rawSpots)) {
-        rawSpots.forEach(spot => {
-            let type = (spot.type || spot.category || spot.kind || '').toString().toLowerCase();
-            let name = (spot.name || spot.title || '').toString().toLowerCase();
-            let desc = (spot.description || spot.comment || '').toString().toLowerCase();
-            let tags = (spot.tags || '').toString().toLowerCase();
-            let combined = type + ' ' + name + ' ' + desc + ' ' + tags;
-
-            // 1. Carburant
-            if (type.includes('fuel') || type.includes('carburant') || name.includes('station-service')) {
-                spot.category = 'carburant';
-            } 
-            // 2. Fermes
-            else if (type.includes('ferme') || combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('grappe')) {
-                spot.category = 'ferme';
-            } 
-            // 3. Sauvage / Bivouac
-            else if (type.includes('sauvage') || type.includes('wild') || type.includes('bivouac') || combined.includes('bivouac') || combined.includes('dodo')) {
-                spot.category = 'sauvage';
-            } 
-            // 4. Vidanges (prioritaire devant l'eau)
-            else if (type.includes('vidange') || combined.includes('vidange') || combined.includes('eaux usées') || combined.includes('eaux usees') || combined.includes('grise') || combined.includes('noire')) {
-                spot.category = 'vidange';
-            } 
-            // 5. Eau (strict pour ne pas attraper les mots comme château ou plateau)
-            else if (type.includes('water') || type === 'eau' || name.includes('point d\'eau') || combined.includes('robinet') || combined.includes('potable')) {
-                spot.category = 'eau';
-            } 
-            // 6. Nature
-            else if (type.includes('nature') || combined.includes('foret') || combined.includes('lac') || combined.includes('riviere')) {
-                spot.category = 'nature';
-            } 
-            // 7. Parking
-            else if ((type.includes('parking') || type.includes('stationnement') || name.includes('parking')) && !name.includes('station-service')) {
-                spot.category = 'parking';
-            } 
-            // 8. Aire par défaut
-            else {
-                spot.category = 'aire';
-            }
-        });
-    }
-}
-
 function initMap() {
-    if (map) return;
-    map = L.map('map').setView([46.603354, 1.888334], 5);
-    
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-    
-    markersGroup = L.layerGroup().addTo(map);
-    routeLayer = L.layerGroup().addTo(map);
-    
-    // Nettoyage et étiquetage en amont avant affichage
-    initAndCleanSpots();
-
-    if (typeof renderSpots === 'function') {
-        renderSpots();
-    }
-    
-    setTimeout(() => { map.invalidateSize(); }, 300);
+  if (map) return;
+  map = L.map('map').setView([46.603354, 1.888334], 5);
+  
+ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+  
+  markersGroup = L.layerGroup().addTo(map);
+  routeLayer = L.layerGroup().addTo(map);
+  
+  if (typeof renderSpots === 'function') {
+    renderSpots();
+  }
+  
+  setTimeout(() => { map.invalidateSize(); }, 300);
 }
 
 function renderSpots() {
@@ -7544,24 +7496,222 @@ function renderSpots() {
         sourceSpots = sourceSpots.concat(rawSpots);
     }
     if (typeof rawWaterPoints !== 'undefined' && Array.isArray(rawWaterPoints)) {
-        let waterTagged = rawWaterPoints.map(p => ({ ...p, category: 'eau', _isWaterSource: true }));
+        let waterTagged = rawWaterPoints.map(p => ({ ...p, _isWaterSource: true }));
         sourceSpots = sourceSpots.concat(waterTagged);
     }
 
     sourceSpots.forEach(spot => {
         if (!spot || typeof spot.lat === 'undefined') return;
 
-        let cat = spot.category || 'aire';
+        let cat = getNormalizedCategory(spot);
 
         if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
             let cur = currentCategory.toLowerCase();
             let match = false;
 
-            if (cur === 'gratuit' || cur.includes('gratuit') || cur.includes('free')) {
+            if (cur.includes('eau') || cur.includes('water')) {
+                match = (cat === 'eau');
+            } else if (cur.includes('vidange')) {
+                match = (cat === 'vidange');
+            } else if (cur.includes('nature')) {
+                match = (cat === 'nature');
+            } else if (cur.includes('ferme')) {
+                match = (cat === 'ferme');
+            } else if (cur.includes('carburant')) {
+                match = (cat === 'carburant');
+            } else if (cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
+                match = (cat === 'sauvage');
+            } else if (cur.includes('gratuit') || cur.includes('free')) {
+                // Filtre gratuit assoupli
                 let isFree = (spot.type === 'free' || !spot.price || spot.price === '' || spot.price.toLowerCase().includes('0') || spot.price.toLowerCase().includes('gratuit'));
-                match = isFree && (cat === 'aire' || cat === 'parking' || cat === 'nature' || cat === 'sauvage');
+                match = isFree && (cat !== 'carburant');
+            } else if (cur.includes('parking')) {
+                match = (cat === 'parking');
+            } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
+                match = (cat === 'aire');
             } else {
-                match = (cat === cur || cur.includes(cat));
+                match = cat.includes(cur);
+            }
+            
+        if (!match) return;
+        }
+
+        // Attribution des couleurs et des icônes selon la catégorie
+        let bgColor = '#e74c3c'; 
+        let defaultIcon = '🚐';
+
+        if (cat === 'eau') { 
+            bgColor = '#3498db'; 
+            defaultIcon = '💧'; 
+        } 
+        else if (cat === 'vidange') { 
+            bgColor = '#8e44ad'; 
+            defaultIcon = '🚰'; 
+        } 
+        else if (cat === 'nature') { 
+            bgColor = '#2c3e50'; 
+            defaultIcon = '🌙'; 
+        } 
+        else if (cat === 'ferme') { 
+            bgColor = '#27ae60'; 
+            defaultIcon = '🚜'; 
+        } 
+        else if (cat === 'carburant') { 
+            bgColor = '#e67e22'; 
+            defaultIcon = '⛽'; 
+        } 
+        else if (cat === 'sauvage') { 
+            bgColor = '#D4621A'; 
+            defaultIcon = '🏕️'; 
+        } 
+        else if (cat === 'parking') { 
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🅿️'; 
+        } 
+        else if (cat === 'aire') { 
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🚐'; 
+        }
+
+        // Création du marqueur visuel
+        const customIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
+        let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
+
+        let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
+        let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
+
+        marker.bindPopup(
+            '<b>' + (spot.name || 'Lieu') + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
+            '<small style="color:#666">📍 ' + (spot.address || '') + '</small><br>' +
+            '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
+            '⏱️ Durée : ' + (spot.stay || 'N/A') + '<br>' +
+            (spot.exchange ? '🤝 Échange : <b>' + spot.exchange + '</b><br>' : '') +
+            (spot.electricity ? '⚡ Électricité : <b>' + spot.electricity + '</b><br>' : '') +
+            photoHtml + '<br>' +
+            '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">' +
+                '<a href="' + gmapsUrl + '" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>' +
+                '<a href="' + wazeUrl + '" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>' +
+            '</div>'
+        );
+
+      // Attribution des couleurs et des icônes selon la catégorie
+        let bgColor = '#e74c3c';
+        let defaultIcon = '🚐';
+
+        if (cat === 'eau') {
+            bgColor = '#3498db'; 
+            defaultIcon = '💧'; 
+        } 
+        else if (cat === 'vidange') { 
+            bgColor = '#8e44ad'; 
+            defaultIcon = '🚰'; 
+        }
+        else if (cat === 'nature') { 
+            bgColor = '#2c3e50'; 
+            defaultIcon = '🌙'; 
+        } 
+        else if (cat === 'ferme') { 
+            bgColor = '#27ae60'; 
+            defaultIcon = '🚜'; 
+        } 
+        else if (cat === 'carburant') { 
+            bgColor = '#e67e22'; 
+            defaultIcon = '⛽'; 
+        } 
+        else if (cat === 'sauvage') { 
+            bgColor = '#D4621A'; 
+            defaultIcon = '🏕️'; 
+        } 
+        else if (cat === 'parking') { 
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🅿️'; 
+        } 
+        else if (cat === 'aire') { 
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🚐'; 
+        }
+
+        // Création du marqueur visuel
+        const customIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
+        let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
+
+        let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
+        let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
+
+        marker.bindPopup(
+            '<b>' + (spot.name || 'Lieu') + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
+            '<small style="color:#666">📍 ' + (spot.address || '') + '</small><br>' +
+            '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
+            '⏱️ Durée : ' + (spot.stay || 'N/A') + '<br>' +
+            (spot.exchange ? '🤝 Échange : <b>' + spot.exchange + '</b><br>' : '') +
+            (spot.electricity ? '⚡ Électricité : <b>' + spot.electricity + '</b><br>' : '') +
+            photoHtml + '<br>' +
+            '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">' +
+                '<a href="' + gmapsUrl + '" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>' +
+                '<a href="' + wazeUrl + '" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>' +
+            '</div>'
+        );
+
+        markersGroup.addLayer(marker);
+    });
+}
+function renderSpots() {
+    if (!map || !markersGroup) return;
+    markersGroup.clearLayers();
+
+    let sourceSpots = [];
+    if (typeof rawSpots !== 'undefined' && Array.isArray(rawSpots)) {
+        sourceSpots = sourceSpots.concat(rawSpots);
+    }
+    if (typeof rawWaterPoints !== 'undefined' && Array.isArray(rawWaterPoints)) {
+        let waterTagged = rawWaterPoints.map(p => ({ ...p, _isWaterSource: true }));
+        sourceSpots = sourceSpots.concat(waterTagged);
+    }
+
+    sourceSpots.forEach(spot => {
+        if (!spot || typeof spot.lat === 'undefined') return;
+
+        let cat = getNormalizedCategory(spot);
+
+        if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
+            let cur = currentCategory.toLowerCase();
+            let match = false;
+
+            if (cur.includes('eau') || cur.includes('water')) {
+                match = (cat === 'eau');
+            } else if (cur.includes('vidange')) {
+                match = (cat === 'vidange');
+            } else if (cur.includes('nature')) {
+                match = (cat === 'nature');
+            } else if (cur.includes('ferme')) {
+                match = (cat === 'ferme');
+            } else if (cur.includes('carburant')) {
+                match = (cat === 'carburant');
+            } else if (cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
+                match = (cat === 'sauvage');
+            } else if (cur.includes('gratuit') || cur.includes('free')) {
+                let isFree = (spot.type === 'free' || !spot.price || spot.price === '' || spot.price.toLowerCase().includes('0') || spot.price.toLowerCase().includes('gratuit'));
+                match = isFree && (cat !== 'carburant');
+            } else if (cur.includes('parking')) {
+                match = (cat === 'parking');
+            } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
+                match = (cat === 'aire');
+            } else {
+                match = cat.includes(cur);
             }
             
             if (!match) return;
@@ -7632,6 +7782,59 @@ function renderSpots() {
 
         markersGroup.addLayer(marker);
     });
+}
+
+function getNormalizedCategory(spot) {
+    if (!spot) return 'aire';
+    if (spot._isWaterSource) return 'eau';
+
+    let type = (spot.type || spot.category || spot.kind || '').toString().toLowerCase();
+    let name = (spot.name || spot.title || '').toString().toLowerCase();
+    let desc = (spot.description || spot.comment || '').toString().toLowerCase();
+    let tags = (spot.tags || '').toString().toLowerCase();
+    let combined = type + ' ' + name + ' ' + desc + ' ' + tags;
+
+    if (type.includes('fuel') || type.includes('carburant') || name.includes('station-service')) return 'carburant';
+    
+    // Fermes
+    if (type.includes('ferme') || combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('grappe') || combined.includes('fermier')) {
+        return 'ferme';
+    }
+
+    // Vidanges
+    if (type.includes('vidange') || type.includes('service') || combined.includes('vidange') || combined.includes('eaux usées') || combined.includes('eaux usees') || combined.includes('grise') || combined.includes('noire') || combined.includes('flot bleu') || combined.includes('borne')) {
+        return 'vidange';
+    }
+
+    // Sauvage
+    if (type.includes('sauvage') || type.includes('wild') || type.includes('bivouac') || combined.includes('bivouac') || combined.includes('dodo')) {
+        return 'sauvage';
+    }
+
+    // Eau
+    if (type.includes('water') || combined.includes('robinet') || combined.includes('potable') || /\beau\b/.test(combined)) {
+        return 'eau';
+    }
+
+    // Nature
+    if (type.includes('nature') || combined.includes('foret') || combined.includes('lac') || combined.includes('riviere') || combined.includes('montagne')) {
+        return 'nature';
+    }
+
+    // Parking
+    if (type.includes('parking') || type.includes('stationnement') || name.includes('parking')) {
+        return 'parking';
+    }
+
+    return 'aire';
+}
+    // 8. Parking
+    if (type === 'parking' || type === 'stationnement' || name.includes('parking')) {
+        return 'parking';
+    }
+    
+    // Par défaut, tout le reste bascule proprement en aire de camping-car
+    return 'aire';
 }
 
 function toggleFilter(type) {
@@ -8118,56 +8321,8 @@ if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
         .catch(err => console.log('Service Worker non enregistré', err));
     });
-/**
- * Normalise et nettoie un spot selon les standards de l'application.
- */
-function cleanAndNormalizeSpot(rawSpot) {
-  let type = rawSpot.type || 'aire_stationnement';
-  let category = rawSpot.category || 'Parking / Stationnement';
-  let icon = rawSpot.icon || '🚐';
+}
 
-  if (category.includes("Point d'eau") || type === 'water') {
-    type = 'water';
-    category = "Point d'eau";
-    icon = '💧';
-  } else if (category.includes("Vidange") || type === 'vidange') {
-    type = 'vidange';
-    category = 'Vidange';
-    icon = '🔧';
-  } else if (category.includes("Ferme") || type === 'ferme') {
-    type = 'ferme';
-    category = 'Ferme / Accueil producteur';
-    icon = '🚜';
-  } else if (category.includes("nature") || type === 'nature') {
-    type = 'nature';
-    category = 'nature';
-    icon = '🌙';
-  } else if (category.includes("Parking") || category.includes("Aire") || type === 'aire_stationnement') {
-    type = 'aire_stationnement';
-    icon = rawSpot.icon || (category.includes('Jour') ? '🅿️' : '🚐');
-  }
-
-  return {
-    name: rawSpot.name?.trim() || 'Spot sans nom',
-    category: category,
-    address: rawSpot.address?.trim() || '',
-    lat: parseFloat(rawSpot.lat) || 0,
-    lng: parseFloat(rawSpot.lng) || 0,
-    type: type,
-    icon: icon,
-    price: rawSpot.price?.trim() || 'Gratuit',
-    stay: rawSpot.stay?.trim() || 'Non spécifié',
-    ground: rawSpot.ground?.trim() || 'Non spécifié',
-    petsAllowed: typeof rawSpot.petsAllowed === 'boolean' ? rawSpot.petsAllowed : true,
-    description: rawSpot.description?.trim() || '',
-    services: {
-      water: Boolean(rawSpot.services?.water),
-      electricity: Boolean(rawSpot.services?.electricity),
-      waste: Boolean(rawSpot.services?.waste)
-    },
-    pricingServices: rawSpot.pricingServices?.trim() || '',
-    photo: rawSpot.photo?.trim() || ''
-  };
 // ==========================================
 // TABLEAU GLOBAL DES SPOTS (TOUT À LA FIN)
 // ==========================================
@@ -8178,16 +8333,19 @@ const spots = [
   ...rawFarmPoints,
   ...rawFuelPoints,
   ...rawDrainPoints
-].map(cleanAndNormalizeSpot);
+];
 
 const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
 spots.push(...customSpots);
 
-window.onload = function() {
+ window.onload = function() {
     initMap();
     loadSavedData();
 };
+</script>
+</html>
 
+<script>
 const translations = {
     fr: {
         title: "NomadSync",
@@ -8222,87 +8380,90 @@ const translations = {
         tab4: "🛡️ Infos & Sicherheit"
     }
 };
-
-// Fonction pour récupérer la météo selon la position du véhicule
-function chargerMeteo(lat, lng) {
-  console.log("📍 Coordonnées reçues :", lat, lng);
-  
-  const currentMonthYear = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date());
-
-  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
-    .then(response => {
-      console.log("🌐 Réponse de l'API Open-Meteo reçue");
-      return response.json();
-    })
-    .then(data => {
-      console.log("📊 Données météo brutes :", data);
-      const temp = Math.round(data.current_weather.temperature);
-      const windSpeed = Math.round(data.current_weather.windspeed);
-      
-      let alertHtml = "";
-      if (windSpeed > 50) {
-        alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🔴 <strong>ATTENTION</strong> Rafales à ${windSpeed} km/h (${temp}°C) - Fermez impérativement les lanterneaux !`;
-      } else if (windSpeed > 25) {
-        alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟡 Vent modéré (${windSpeed} km/h, ${temp}°C) - Prudence sur les stores.`;
-      } else {
-        alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟢 Calme (${windSpeed} km/h, ${temp}°C) - Conditions favorables.`;
-      }
-
-      const weatherWidget = document.querySelector('.weather-current-text');
-      if(weatherWidget) {
-        weatherWidget.innerHTML = alertHtml;
-        console.log("✅ Affichage météo mis à jour avec succès !");
-      } else {
-        console.log("⚠️ Élément '.weather-current-text' introuvable dans le HTML.");
-      }
-    })
-    .catch(err => console.log("❌ Erreur lors de l'appel météo :", err));
-}
-
-// Utilisation de la géolocalisation du téléphone
-if (navigator.geolocation) {
-  console.log("🛰️ Demande de géolocalisation en cours...");
-  navigator.geolocation.getCurrentPosition(
-    position => {
-      chargerMeteo(position.coords.latitude, position.coords.longitude);
-    },
-    error => {
-      console.log("❌ Erreur de géolocalisation :", error.message);
-    }
-  );
-} else {
-  console.log("❌ La géolocalisation n'est pas supportée par ce navigateur.");
-}
-
-function changeLanguage(lang) {
-    const t = window.translations ? window.translations[lang] : null;
-    if (t) {
-        document.title = t.title;
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (t[key]) {
-                el.innerHTML = t[key];
-            }
-        });
-    }
-    localStorage.setItem('nomadsync_lang', lang);
-    console.log("Langue active :", lang);
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-    const savedLang = localStorage.getItem('nomadsync_lang');
-    if (savedLang) {
-        const select = document.getElementById('langSelect');
-        if (select) select.value = savedLang;
-        changeLanguage(savedLang);
-    }
-});
 </script>
 
-<!-- Mention légale -->
-<footer style="text-align: center; padding: 15px; font-size: 12px; color: #666; background: #f8f9fa; border-top: 1px solid #dee2e6; margin-top: 20px;">
-  <p><strong>Mention légale :</strong> Les informations de stationnement sont indicatives. L'utilisatrice demeure seule responsable du respect de la réglementation locale en vigueur sur chaque emplacement.</p>
-</footer>
+<script>
+    // Fonction pour récupérer la météo selon la position du véhicule
+    function chargerMeteo(lat, lng) {
+      console.log("📍 Coordonnées reçues :", lat, lng);
+      
+      const currentMonthYear = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date());
 
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
+        .then(response => {
+          console.log("🌐 Réponse de l'API Open-Meteo reçue");
+          return response.json();
+        })
+        .then(data => {
+          console.log("📊 Données météo brutes :", data);
+          const temp = Math.round(data.current_weather.temperature);
+          const windSpeed = Math.round(data.current_weather.windspeed);
+          
+          let alertHtml = "";
+          if (windSpeed > 50) {
+            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🔴 <strong>ATTENTION</strong> Rafales à ${windSpeed} km/h (${temp}°C) - Fermez impérativement les lanterneaux !`;
+          } else if (windSpeed > 25) {
+            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟡 Vent modéré (${windSpeed} km/h, ${temp}°C) - Prudence sur les stores.`;
+          } else {
+            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟢 Calme (${windSpeed} km/h, ${temp}°C) - Conditions favorables.`;
+          }
+
+          const weatherWidget = document.querySelector('.weather-current-text');
+          if(weatherWidget) {
+            weatherWidget.innerHTML = alertHtml;
+            console.log("✅ Affichage météo mis à jour avec succès !");
+          } else {
+            console.log("⚠️ Élément '.weather-current-text' introuvable dans le HTML.");
+          }
+        })
+        .catch(err => console.log("❌ Erreur lors de l'appel météo :", err));
+    }
+
+    // Utilisation de la géolocalisation du téléphone
+    if (navigator.geolocation) {
+      console.log("🛰️ Demande de géolocalisation en cours...");
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          chargerMeteo(position.coords.latitude, position.coords.longitude);
+        },
+        error => {
+          console.log("❌ Erreur de géolocalisation :", error.message);
+        }
+      );
+    } else {
+      console.log("❌ La géolocalisation n'est pas supportée par ce navigateur.");
+    }
+  </script>
+
+  <!-- Mention légale -->
+  <footer style="text-align: center; padding: 15px; font-size: 12px; color: #666; background: #f8f9fa; border-top: 1px solid #dee2e6; margin-top: 20px;">
+    <p><strong>Mention légale :</strong> Les informations de stationnement sont indicatives. L'utilisatrice demeure seule responsable du respect de la réglementation locale en vigueur sur chaque emplacement.</p>
+  </footer>
+
+  <script>
+    function changeLanguage(lang) {
+        const t = window.translations ? window.translations[lang] : null;
+        if (t) {
+            document.title = t.title;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.innerHTML = t[key];
+                }
+            });
+        }
+        localStorage.setItem('nomadsync_lang', lang);
+        console.log("Langue active :", lang);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('nomadsync_lang');
+        if (savedLang) {
+            const select = document.getElementById('langSelect');
+            if (select) select.value = savedLang;
+            changeLanguage(savedLang);
+        }
+    });
+  </script>
 </body>
 </html>
