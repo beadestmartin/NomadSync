@@ -7763,14 +7763,6 @@ function getNormalizedCategory(spot) {
 
     return 'aire';
 }
-    // 8. Parking
-    if (type === 'parking' || type === 'stationnement' || name.includes('parking')) {
-        return 'parking';
-    }
-    
-    // Par défaut, tout le reste bascule proprement en aire de camping-car
-    return 'aire';
-}
 
 function toggleFilter(type) {
     currentCategory = type;
@@ -8277,8 +8269,6 @@ spots.push(...customSpots);
     initMap();
     loadSavedData();
 };
-</script>
-</html>
 
 <script>
 const translations = {
