@@ -7572,38 +7572,9 @@ function renderSpots() {
             bgColor = '#e74c3c'; 
             defaultIcon = '🚐'; 
         }
-
-        // Création du marqueur visuel
-        const customIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
-        });
-
-        const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
-        let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
-
-        let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
-        let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
-
-        marker.bindPopup(
-            '<b>' + (spot.name || 'Lieu') + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
-            '<small style="color:#666">📍 ' + (spot.address || '') + '</small><br>' +
-            '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
-            '⏱️ Durée : ' + (spot.stay || 'N/A') + '<br>' +
-            (spot.exchange ? '🤝 Échange : <b>' + spot.exchange + '</b><br>' : '') +
-            (spot.electricity ? '⚡ Électricité : <b>' + spot.electricity + '</b><br>' : '') +
-            photoHtml + '<br>' +
-            '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">' +
-                '<a href="' + gmapsUrl + '" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>' +
-                '<a href="' + wazeUrl + '" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>' +
-            '</div>'
-        );
-
-  // Attribution des couleurs et des icônes selon la catégorie
-    bgColor = '#e74c3c';
-    defaultIcon = '🚐';
+// Attribution des couleurs et des icônes selon la catégorie
+    let bgColor = '#e74c3c';
+    let defaultIcon = '🚐';
 
     if (cat === 'eau') {
         bgColor = '#3498db'; 
@@ -7637,36 +7608,37 @@ function renderSpots() {
         bgColor = '#e74c3c'; 
         defaultIcon = '🚐'; 
     }
-        // Création du marqueur visuel
-        const customIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
-        });
 
-        const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
-        let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
-
-        let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
-        let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
-
-        marker.bindPopup(
-            '<b>' + (spot.name || 'Lieu') + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
-            '<small style="color:#666">📍 ' + (spot.address || '') + '</small><br>' +
-            '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
-            '⏱️ Durée : ' + (spot.stay || 'N/A') + '<br>' +
-            (spot.exchange ? '🤝 Échange : <b>' + spot.exchange + '</b><br>' : '') +
-            (spot.electricity ? '⚡ Électricité : <b>' + spot.electricity + '</b><br>' : '') +
-            photoHtml + '<br>' +
-            '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">' +
-                '<a href="' + gmapsUrl + '" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>' +
-                '<a href="' + wazeUrl + '" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>' +
-            '</div>'
-        );
-
-        markersGroup.addLayer(marker);
+    // Création du marqueur visuel
+    const customIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
     });
+
+    const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
+    let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
+
+    let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
+    let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
+
+    marker.bindPopup(
+        '<b>' + (spot.name || 'Lieu') + '</b> <span style="font-size:0.85em; background:#eee; padding:2px 6px; border-radius:4px;">' + cat + '</span><br>' +
+        '<small style="color:#666">📍 ' + (spot.address || '') + '</small><br>' +
+        '💰 Tarif : <b>' + (spot.price || 'Gratuit') + '</b><br>' +
+        '⏱️ Durée : ' + (spot.stay || 'N/A') + '<br>' +
+        (spot.exchange ? '🤝 Échange : <b>' + spot.exchange + '</b><br>' : '') +
+        (spot.electricity ? '⚡ Électricité : <b>' + spot.electricity + '</b><br>' : '') +
+        photoHtml + '<br>' +
+        '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">' +
+            '<a href="' + gmapsUrl + '" target="_blank" style="background:#4285F4; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🗺️ Google Maps</a>' +
+            '<a href="' + wazeUrl + '" target="_blank" style="background:#33ccff; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.9em;">🚗 Waze</a>' +
+        '</div>'
+    );
+
+    markersGroup.addLayer(marker);
+});
 }
 function renderSpots() {
     if (!map || !markersGroup) return;
