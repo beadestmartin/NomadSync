@@ -235,10 +235,9 @@
     <h3>📱 Partager NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleQrModal()">✕</span></h3>
     <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Faites flasher ce QR code avec un autre téléphone pour partager instantanément l'application :</p>
     <div style="text-align: center; padding: 10px;">
-      <img id="qrCodeImg" src="" alt="QR Code NomadSync" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); background: white; padding: 6px;" />
+      <img id="qrCodeImg" src="#" alt="QR Code NomadSync" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); background: white; padding: 6px;" />
     </div>
   </div>
-</div> <!-- <-- CETTE BALISE DIV FERME TROP TÔT OU N'A RIEN À FAIRE LÀ -->
   
     <!-- ESPACE VIP -->
     <div id="vip-modal">
@@ -319,8 +318,8 @@
             <li>Des <strong>stations-service low-cost ou économiques</strong> (type Leclerc, Intermarché, Total Access, etc., en évitant les pompes hors de prix ou sur autoroute).</li>
           </ul>
         </div>
-
-        <form onsubmit="handleAddNewSpot(event)">
+      
+<form onsubmit="handleAddNewSpot(event)">
           <div class="form-grid">
             <input type="text" id="newSpotName" placeholder="Nom du Spot ou de la Station" required />
             <input type="text" id="newSpotAddress" placeholder="Adresse complète / Code Postal / Ville" required />
@@ -338,10 +337,9 @@
           <button type="submit" style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer; margin-top: 10px;">Enregistrer le bon plan</button>
         </form>
       </div>
-    </div>
- <!-- ZONE UNIQUE DE CONTENU D'ONGLETS -->
+  <!-- ZONE UNIQUE DE CONTENU D'ONGLETS -->
 <div class="content-area">
-
+      
   <!-- 1. ONGLET ITINÉRAIRE (Contient le calculateur ET la carte) -->
   <div id="panel-itineraire" style="display: block;">
     <div class="route-card">
@@ -405,21 +403,24 @@
 
   <!-- La carte en dessous des boutons -->
   <div id="map" style="width: 100%; height: 450px; border-radius: 12px;"></div>  
- <!-- 2. ONGLET JAUGES & VAN -->
-  <div id="view-jauges" style="display: none;">
-    <!-- MODULE BLUETOOTH -->
-    <div class="bluetooth-card">
-      <h3 style="margin-top: 0; color: var(--accent-color); display: flex; align-items: center; gap: 8px;">
-        <span>📡 Synchronisation Bluetooth (Véhicules Récents)</span>
-      </h3>
-      <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
-        Possédez-vous un camping-car ou van récent équipé de systèmes connectés (centrales Schaudt, CBE, Truma iNet, batteries au lithium intelligentes) ? 
-        <strong>NomadSync</strong> centralise toutes ces données en temps réel. Fini de multiplier les applications constructeurs : connectez votre véhicule en Bluetooth pour suivre d'un seul coup d'œil vos niveaux de vie, la charge solaire et l'état de votre chauffage.
-      </p>
-      <button onclick="alert('Recherche de périphériques Bluetooth à proximité... (Assurez-vous que le Bluetooth de votre appareil et de la centrale du van sont activés)')" style="background: var(--accent-color); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
-        🔗 Connecter mon van en Bluetooth
-      </button>
-    </div>
+</div>
+
+<!-- 2. ONGLET JAUGES & VAN -->
+<div id="view-jauges" style="display: none;">
+  <!-- MODULE BLUETOOTH -->
+  <div class="bluetooth-card">
+    <h3 style="margin-top: 0; color: var(--accent-color); display: flex; align-items: center; gap: 8px;">
+      <span>📡 Synchronisation Bluetooth (Véhicules Récents)</span>
+    </h3>
+    <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
+      Possédez-vous un camping-car ou van récent équipé de systèmes connectés (centrales Schaudt, CBE, Truma iNet, batteries au lithium intelligentes) ? 
+      <strong>NomadSync</strong> centralise toutes ces données en temps réel. Fini de multiplier les applications constructeurs : connectez votre véhicule en Bluetooth pour suivre d'un seul coup d'œil vos niveaux de vie, la charge solaire et l'état de votre chauffage.
+    </p>
+    <button onclick="alert('Recherche de périphériques Bluetooth à proximité... (Assurez-vous que le Bluetooth de votre appareil et de la centrale du van sont activés)')" style="background: var(--accent-color); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
+      🔗 Connecter mon van en Bluetooth
+    </button>
+  </div>
+</div>
 
     <!-- PENSE-BÊTE / CHECKLIST DÉPART -->
     <div class="bluetooth-card" style="border-color: #10b981;">
@@ -473,7 +474,6 @@
         </div>
         <span id="bubbleText" style="font-size:0.8rem; opacity:0.8; display: block; margin-top: 6px;">Véhicule parfaitement horizontal</span>
       </div>
-    </div>
   </div> <!-- Fin de #view-jauges -->
 
 
