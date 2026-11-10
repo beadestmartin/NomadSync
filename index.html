@@ -7601,43 +7601,42 @@ function renderSpots() {
             '</div>'
         );
 
-      // Attribution des couleurs et des icônes selon la catégorie
-        let bgColor = '#e74c3c';
-        let defaultIcon = '🚐';
+  // Attribution des couleurs et des icônes selon la catégorie
+    bgColor = '#e74c3c';
+    defaultIcon = '🚐';
 
-        if (cat === 'eau') {
-            bgColor = '#3498db'; 
-            defaultIcon = '💧'; 
-        } 
-        else if (cat === 'vidange') { 
-            bgColor = '#8e44ad'; 
-            defaultIcon = '🚰'; 
-        }
-        else if (cat === 'nature') { 
-            bgColor = '#2c3e50'; 
-            defaultIcon = '🌙'; 
-        } 
-        else if (cat === 'ferme') { 
-            bgColor = '#27ae60'; 
-            defaultIcon = '🚜'; 
-        } 
-        else if (cat === 'carburant') { 
-            bgColor = '#e67e22'; 
-            defaultIcon = '⛽'; 
-        } 
-        else if (cat === 'sauvage') { 
-            bgColor = '#D4621A'; 
-            defaultIcon = '🏕️'; 
-        } 
-        else if (cat === 'parking') { 
-            bgColor = '#e74c3c'; 
-            defaultIcon = '🅿️'; 
-        } 
-        else if (cat === 'aire') { 
-            bgColor = '#e74c3c'; 
-            defaultIcon = '🚐'; 
-        }
-
+    if (cat === 'eau') {
+        bgColor = '#3498db'; 
+        defaultIcon = '💧'; 
+    } 
+    else if (cat === 'vidange') { 
+        bgColor = '#8e44ad'; 
+        defaultIcon = '🚰'; 
+    }
+    else if (cat === 'nature') { 
+        bgColor = '#2c3e50'; 
+        defaultIcon = '🌙'; 
+    } 
+    else if (cat === 'ferme') { 
+        bgColor = '#27ae60'; 
+        defaultIcon = '🚜'; 
+    } 
+    else if (cat === 'carburant') { 
+        bgColor = '#e67e22'; 
+        defaultIcon = '⛽'; 
+    } 
+    else if (cat === 'sauvage') { 
+        bgColor = '#D4621A'; 
+        defaultIcon = '🏕️'; 
+    } 
+    else if (cat === 'parking') { 
+        bgColor = '#e74c3c'; 
+        defaultIcon = '🅿️'; 
+    } 
+    else if (cat === 'aire') { 
+        bgColor = '#e74c3c'; 
+        defaultIcon = '🚐'; 
+    }
         // Création du marqueur visuel
         const customIcon = L.divIcon({
             className: 'custom-div-icon',
