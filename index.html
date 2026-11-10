@@ -8387,14 +8387,14 @@ async function checkMeteoAlert() {
     moveBubble(0, 0);
   }
 
-  // --- CHECKLIST / PENSE-BÊTE ---
+ // --- CHECKLIST / PENSE-BÊTE ---
   function saveChecklist() {
     const checks = ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'];
     checks.forEach(id => {
       const checked = document.getElementById(id).checked;
       localStorage.setItem(`nomadsync_${id}`, checked);
     });
-  }
+  } // <--- C'est cette accolade qui manquait cruellement ici !
 
 function loadSavedData() {
     const savedTheme = localStorage.getItem('nomadsync_theme');
@@ -8431,7 +8431,6 @@ function loadSavedData() {
 
     renderFuelExpenses();
 }
- 
 // <-- Ici la fonction loadSavedData() se ferme proprement
 
 if ('serviceWorker' in navigator) {
