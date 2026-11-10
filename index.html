@@ -7903,7 +7903,6 @@ function switchTab(tab) {
         if (typeof markersGroup !== 'undefined' && markersGroup) markersGroup.clearLayers();
         setTimeout(() => { if (typeof map !== 'undefined' && map) map.invalidateSize(); }, 200);
     }
-}
 
 // --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
   async function calculateAndDrawRoute() {
