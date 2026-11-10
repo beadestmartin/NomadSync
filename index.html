@@ -8440,7 +8440,7 @@ const translations = {
     <p><strong>Mention légale :</strong> Les informations de stationnement sont indicatives. L'utilisatrice demeure seule responsable du respect de la réglementation locale en vigueur sur chaque emplacement.</p>
   </footer>
 
-  <script>
+ <script>
     function changeLanguage(lang) {
         const t = window.translations ? window.translations[lang] : null;
         if (t) {
@@ -8463,7 +8463,11 @@ const translations = {
             if (select) select.value = savedLang;
             changeLanguage(savedLang);
         }
+
+        if (typeof verifierStatut === 'function') {
+            verifierStatut();
+        }
     });
-  </script>
+</script>
 </body>
 </html>
