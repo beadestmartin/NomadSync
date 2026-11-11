@@ -1,0 +1,8000 @@
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  let map, markersGroup, routeLayer, userMarker, routeLine;
+  let isOffline = false;
+  let filters = { free: false, wild: false, farm: false, fuel: false, water: false, elec: false, drain: false };
+
+let rawSpots = [
+  {
+    name: 'Pen Bé - Aire de la Marche au Bœuf (Assérac)',
+    category: 'aire',
+    address: 'Chemin de la Marche aux Bœufs, 44410 Assérac, France',
+    lat: 47.431451,
+    lng: -2.451946,
+    type: 'aire',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: '48 heures max',
+    ground: 'Terre / Bitume',
+    petsAllowed: true,
+    description: 'Aire de stationnement située à Pen Bé près d\'Assérac. Emplacement calme à proximité de la côte.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Combourg (Aire de repos D795)',
+    category: 'parking',
+    address: 'D795, 35270 Combourg, France',
+    lat: 48.391024,
+    lng: -1.752662,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: '24h / Halte de nuit',
+    ground: 'Bitume / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de repos située le long de la D795 à Combourg. Pratique pour une halte ou un stationnement de courte durée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+ {
+    name: 'Parking des Sables Menus - Le Croisic',
+    category: 'nature',
+    address: '44490 Le Croisic, Loire-Atlantique, France',
+    lat: 47.287553,
+    lng: -2.524606,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Nuitée tolérée (Discrétion absolue)',
+    ground: 'Terre / Bitume / Bord de côte',
+    petsAllowed: true,
+    description: 'ATTENTION : Spot strictement réservé aux vans et petits fourgons aménagés discrets. Accès et manœuvres très délicats pour les grands camping-cars. Aucune barrière de hauteur physique stricte, mais zone littorale très surveillée. Nuitée tolérée en mode zéro déballage (ni cales, ni store, ni mobilier extérieur). Aucun service.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking de la place du 8 Mai - Le Croisic',
+    category: 'parking',
+    address: 'Pl. du 8 Mai 1945, 44490 Le Croisic',
+    lat: 47.296121,
+    lng: -2.511999,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Jour uniquement (Nuitée interdite par arrêté municipal)',
+    ground: 'Bitume / Grand parking du port',
+    petsAllowed: true,
+    description: 'Grand parking gratuit sur le port. Pas de barrière de hauteur, mais accès restreint entre des potelets/chicanes d\'entrée (passage étroit, manœuvre à prévoir pour les grands camping-cars). Stationnement idéal pour visiter le port de jour. Nuitée strictement interdite aux véhicules habitables sur toute la commune. Aucun service.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car Mareuil-sur-Lay - Stationnement',
+    category: 'aire',
+    address: 'Place des Halles, 85320 Mareuil-sur-Lay-Dissais',
+    lat: 46.536370,
+    lng: -1.223777,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Bitume / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de stationnement gratuite pour camping-cars, jouxtant une zone ouverte aux véhicules plus imposants (camions). Pas de barrière de hauteur, accès très facile. Cadre agréable près des halles et de la rivière.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking D730 - Mortagne-sur-Gironde',
+    category: 'parking',
+    address: 'D730, 17120 Mortagne-sur-Gironde',
+    lat: 45.519361,
+    lng: -0.756003,
+    type: 'parking_nuit_toleree',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée tolérée (bruyant)',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Petite aire de stationnement compacte (capacité 3 à 4 véhicules max), située directement en bordure de la D730. Pratique pour un dépannage rapide ou une halte de nuit, mais attention : cadre très bruyant en raison du passage routier. Aucun service.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire municipale - Aulnay',
+    category: 'aire',
+    address: '17470 Aulnay',
+    lat: 46.048169,
+    lng: -0.351102,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Herbe',
+    petsAllowed: true,
+    description: 'Aire municipale très agréable et verdoyante. Stationnement, eau et vidanges entièrement gratuits. Pas de barrière de hauteur, accès facile.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire naturelle La Croix du Pont - Saint-Dyé-sur-Loire',
+    category: 'aire',
+    address: 'La Croix du Pont, 41500 Saint-Dyé-sur-Loire',
+    lat: 47.654912,
+    lng: 1.478782,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée (tolérance 48h)',
+    ground: 'Herbe / Stabilisé',
+    petsAllowed: true,
+    description: 'Superbe spot de stationnement gratuit situé au bord de l\'eau (La Croix du Pont), idéal pour un accès direct aux sentiers de Loire et à la piste cyclable vers Chambord. Aucun portique de hauteur, cadre calme et verdoyant. Pas de service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Montmarault - Parking de transit (Route de Montluçon)',
+    category: 'parking',
+    address: 'Route de Montluçon, 03390 Montmarault, France',
+    lat: 46.318682,
+    lng: 2.944068,
+    type: 'free',
+    icon: '🅿️',
+    price: '0 € (Gratuit)',
+    stay: 'Halte de nuit / Transit (peut être bruyant)',
+    ground: 'Bitume / Stabilisé',
+    services: { water: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking de l\'Étang du Moulin Neuf - Malansac',
+    category: 'sauvage',
+    address: 'Le Moulin Neuf, 56220 Malansac',
+    lat: 47.693927,
+    lng: -2.347273,
+    type: 'parking_nuit_toleree',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée tolérée',
+    ground: 'Stabilisé / Bitume',
+    petsAllowed: true,
+    description: 'Parking très agréable situé au bord de l\'étang du Moulin Neuf (partie sans barrière de hauteur). Nuitée tolérée au calme. Idéal pour la baignade, les balades et pour rejoindre à pied le village classé de Rochefort-en-Terre en 20 minutes par le sentier piéton. Sanitaires publics à proximité.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking de l\'Étang du Moulin Neuf (Zone Libre) - Rochefort-en-Terre',
+    category: 'nature',
+    address: 'Le Moulin Neuf, 56220 Rochefort-en-Terre',
+    lat: 47.695248,
+    lng: -2.347260,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Nuitée tolérée',
+    ground: 'Stabilisé / Herbe',
+    petsAllowed: true,
+    description: 'Stationnement gratuit et sans barrière de hauteur, implanté dans un cadre verdoyant au bord de l\'étang. Idéal pour profiter de la nature, de la baignade et des chemins piétonniers menant directement au village de Rochefort-en-Terre. Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de stationnement de Léhon - Dinan',
+    category: 'aire',
+    address: 'Léhon, 22100 Dinan',
+    lat: 48.442184,
+    lng: -2.042099,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Parking et stationnement gratuits pour camping-cars (quelques places voitures avec barrières à l\'avant, mais accès libre pour les camping-cars). Cadre très calme et verdoyant à proximité du terrain de tennis, des ruines du château, de l\'eau et du village de Léhon. Petit marché le samedi matin.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Marboué - Stationnement',
+    category: 'aire',
+    address: '28200 Marboué',
+    lat: 48.112618,
+    lng: 1.328578,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée tolérée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Parking de camping-cars légèrement en retrait de la route principale. Un peu de passage routier mais nuit tout à fait correcte. Boulangerie à 150m.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire municipale de Saint-Denis-Lanneray - Stationnement',
+    category: 'aire',
+    address: '28200 Saint-Denis-Lanneray',
+    lat: 48.066919,
+    lng: 1.289156,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de stationnement municipale entièrement gratuite. Nuitée autorisée et calme pour les camping-cars. Aucun portique de hauteur.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking Rue du Canal - Josselin',
+    category: 'parking',
+    address: 'Rue du Canal, 56120 Josselin',
+    lat: 47.950828,
+    lng: -2.545368,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour',
+    ground: 'Stabilisé / Herbe',
+    petsAllowed: true,
+    description: 'Parking gratuit idéalement situé au bord du canal de Nantes à Brest avec une très belle vue sur le château. Aucun portique de hauteur. Idéal pour faire une pause, pique-niquer et se promener le long du chemin de halage ou monter au village. Pas de services.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car de Saragosse (Zaragoza) - Stationnement',
+    category: 'aire',
+    address: 'Calle de Luciano Gracia, 50018 Zaragoza, Espagne',
+    lat: 41.682942,
+    lng: -0.890243,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée (48h max)',
+    ground: 'Bitume',
+    petsAllowed: true,
+    description: 'Aire municipale gratuite au niveau du campus universitaire. ATTENTION ACCÈS : Entrée très peu visible depuis la Calle de Luciano Gracia. Bien serrer à droite en arrivant le long du campus pour ne pas rater la rampe d\'accès. Aucun portique de hauteur. Station du tramway à proximité directe pour visiter le centre.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking Vallée de l\'Ourika (Aghbalou)',
+    category: 'sauvage',
+    address: 'Région Marrakech-Safi, Maroc',
+    lat: 31.346199,
+    lng: -7.756939,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Payant (Gardien local ~10-20 DH)',
+    stay: 'Halte de jour / Nuitée tolérée',
+    ground: 'Terre / Stabilisé',
+    petsAllowed: true,
+    description: 'Espace de stationnement en terre en bordure de route dans la vallée. Aucun portique de hauteur, accès très facile pour tout gabarit. Gardien présent en journée. Pratique pour une halte ou visiter les environs, mais proche du passage routier. Aucun service.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Malansac - Aire de Camping-Car (1 Rue Saint-Fiacre)',
+    category: 'aire',
+    address: '1 Rue Saint-Fiacre, 56220 Malansac, France',
+    lat: 47.6781,
+    lng: -2.2997,
+    type: 'free',
+    icon: '🚐',
+    price: '0 € (Gratuit)',
+    stay: '24h / Nuit',
+    ground: 'Enherbé / Stabilisé',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Le Guerno - Stationnement (9 Rue des Oiseaux)',
+    category: 'aire',
+    address: '9 Rue des Oiseaux, 56190 Le Guerno, France',
+    lat: 47.582894,
+    lng: -2.406358,
+    type: 'free',
+    icon: '🚐',
+    price: '0 € (Gratuit)',
+    stay: '24h / Nuit',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Miranda do Corvo - Parque de Autocaravanes (R. do Po...)',
+    category: 'aire',
+    address: 'Rua do Poço, Miranda do Corvo, Portugal',
+    lat: 40.087730,
+    lng: -8.332485,
+    type: 'free',
+    icon: '🚐',
+    price: '0 € (Gratuit)',
+    stay: '24h / Nuit',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Réminiac - Aire gratuite',
+    category: 'aire',
+    address: '56140 Réminiac, France',
+    lat: 47.859631,
+    lng: -2.236565,
+    type: 'free',
+    icon: '🚐',
+    price: '0 € (Gratuit)',
+    stay: '24h / Nuit',
+    ground: 'Stabilisé / Pelouse',
+    petsAllowed: true,
+    description: 'Grandes pelouses avec de petites haies de séparation. À proximité : un étang, un bar...',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Tafraoute - La Palmeraie',
+    category: 'aire',
+    address: '85450 Tafraoute, Maroc',
+    lat: 29.721379,
+    lng: -8.984403,
+    type: 'paid',
+    icon: '🚐',
+    price: '15 MAD (~1,40 €) / 24h',
+    stay: '24h / Nuit',
+    ground: 'Terre / Sable',
+    petsAllowed: true,
+    description: 'Cadre magnifique dans la palmeraie avec gardien. Attention aux accès selon les véhicules. Marchands ambulants sur place (pain, eau).',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Le Louroux-Béconnais - Parking du Plan d\'eau',
+    category: 'parking',
+    address: '49370 Val d\'Erdre-Auxence (Le Louroux-Béconnais), France',
+    lat: 47.539788,
+    lng: -0.871583,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée (6 à 7 places)',
+    ground: 'Goudron / Plat',
+    petsAllowed: true,
+    description: 'Parking plat et goudronné d\'une capacité de 6 à 7 places, idéal pour passer la nuit au calme. Situé à côté d\'un petit plan d\'eau, de jeux pour enfants et de toilettes. Proche du centre-bourg et des commerces.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Ombrée d\'Anjou - Parking Route du Bourg d\'Iré',
+    category: 'parking',
+    address: '6147 Rte du Bourg d\'Iré, 49520 Ombrée d\'Anjou, France',
+    lat: 47.7032198,
+    lng: -1.0274674,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement',
+    ground: 'Herbe / Bitume',
+    petsAllowed: true,
+    description: 'Parking situé le long de la route du Bourg d\'Iré à Ombrée d\'Anjou, agréable et situé à proximité immédiate d\'un plan d\'eau.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Place Pour Camping Car - Saint-Genest-Lerpt',
+    category: 'aire',
+    address: 'Rue de la Plage, 42230 Saint-Genest-Lerpt, France',
+    lat: 45.448093,
+    lng: 4.256079,
+    type: 'aire',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée / Illimité',
+    ground: 'Parking',
+    petsAllowed: true,
+    description: 'Une dizaine de places de parking gratuites adaptées aux camping-cars pour le stationnement et la nuit. Remerciements à la commune.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Camping-Car - Combrée (Ombrée d\'Anjou)',
+    category: 'aire',
+    address: '117 rue de Bretagne, Combrée, 49520 Ombrée d\'Anjou, France',
+    lat: 47.716715,
+    lng: -0.998841,
+    type: 'area',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: '5 à 6 camping-cars',
+    ground: 'Stabilisé / Ombragé',
+    petsAllowed: true,
+    description: 'Aire très agréable avec service, eau potable gratuite, WC, tables de pique-nique à l\'ombre, terrain de boules, proche des commerces et de la voie verte de Châteaubriant à Château-Gontier.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking Camping Car - Saint-Genest-Malifaux',
+    category: 'parking',
+    address: 'Saint-Genest-Malifaux, 42660 Saint-Genest-Malifaux, France',
+    lat: 45.326813,
+    lng: 4.480556,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement nuit / Randonnée',
+    ground: 'Parking goudronné / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking calme, parfait pour la nuit, sans bruit, idéal pour les départs de randonnées. Aucun service.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Louis Blanc - Le Mans',
+    category: 'parking',
+    address: 'Parking Louis Blanc, Le Mans, France',
+    lat: 48.013096,
+    lng: 0.199339,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée / Grande capacité',
+    ground: 'Goudronné / Stabilisé',
+    petsAllowed: true,
+    description: 'Grand parking urbain situé sur les bords de la Sarthe au Mans, très fréquenté par les camping-cars et autobus pour le stationnement et la nuit. Aucun service.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de Marolles-les-Braults - Stationnement & Services',
+    category: 'aire',
+    address: '7 La Touche, 72260 Marolles-les-Braults',
+    lat: 48.257371,
+    lng: 0.316871,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    pricingServices: 'Eau payante (2 €)',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Petite aire municipale gratuite pour 4 à 5 camping-cars. Borne sur place : eau potable payante (2 €) et vidanges disponibles. Commerces à proximité : boulangerie, pâtisserie, bar-tabac, presse, restaurant et Super U Express avec laverie 24/24.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking Gratuit - Tétouan',
+    category: 'parking',
+    address: 'Tétouan, Maroc',
+    lat: 35.590901,
+    lng: -5.331845,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée / Stationnement',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Parking gratuit situé à Tétouan, idéal pour une halte ou passer la nuit. Aucun service particulier.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Côtier - Trégunc',
+    category: 'parking',
+    address: '29910 Trégunc',
+    lat: 47.799043,
+    lng: -3.833254,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée (48h max)',
+    ground: 'Terre / Stabilisé',
+    petsAllowed: true,
+    description: 'Superbe parking gratuit en bord de mer sans barrière de hauteur. Stationnement jour et nuit toléré (limité à 48h / 2 nuits max). Idéal pour l\'accès direct à la plage et au GR34. Aucun service sur place, interdiction de déballer.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de Thoard (La Chaunasse) - Stationnement',
+    category: 'aire',
+    address: 'La Chaunasse, 04380 Thoard',
+    lat: 44.153494,
+    lng: 6.149998,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Petite aire municipale calme et entièrement gratuite d\'une capacité de 4 à 6 emplacements. Aucun portique de hauteur. Idéal pour une halte ou passer la nuit au vert.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking Público Los Cahorros',
+    category: 'parking',
+    address: 'Calle tras Torre, 7A, 18193 Monachil, Granada, Espagne',
+    lat: 37.131186,
+    lng: -3.537097,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour uniquement (nuit déconseillée)',
+    ground: 'Poussiéreux / Terre',
+    petsAllowed: true,
+    description: 'Parking public très poussiéreux, parfait pour garer son véhicule le temps d\'une splendide randonnée sur les sentiers des Cahorros. Attention, stationnement de nuit non toléré pour les camping-cars. Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Autocaravanas Sierra Nevada - Calle del Torcal',
+    category: 'parking',
+    address: 'C. del Torcal, 18196 Sierra Nevada, Granada, Espagne',
+    lat: 37.099429,
+    lng: -3.399612,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée tolérée (hors saison de ski)',
+    ground: 'Bitume',
+    petsAllowed: true,
+    description: 'Parking très propre aménagé sur 3 niveaux en terrasses, offrant une magnifique vue dégagée sur les montagnes de la Sierra Nevada. Emplacement au calme, idéal pour passer la nuit (tolérée hors saison de ski). Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Relais Maison des Amicales - Le Grand-Quevilly',
+    category: 'parking',
+    address: '52 Av. Georges Braque, 76120 Le Grand-Quevilly',
+    lat: 49.399407,
+    lng: 1.041320,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour uniquement (Nuitée interdite)',
+    ground: 'Bitume',
+    petsAllowed: true,
+    description: 'Parking relais gratuit (60 places) situé au pied du métro et des bus pour rejoindre directement le centre-ville de Rouen. Accessible en journée pour visiter la ville. Nuitée et camping interdits sur le P+R. Aucun service.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Zeveneke - Bruges',
+    category: 'parking',
+    address: 'Zeveneke, 8000 Brugge, Belgique',
+    lat: 51.230474,
+    lng: 3.227334,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour uniquement (Nuitée interdite)',
+    ground: 'Stabilisé / Asphalte',
+    petsAllowed: true,
+    description: 'Grand parking gratuit sans barrière de hauteur, situé à proximité du commissariat de police de Bruges. Idéal pour une halte de jour et visiter la ville. Attention : stationnement de nuit strictly interdit aux camping-cars. Aucun service.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'P&R Boogschutterslaan - Bruges',
+    category: 'parking',
+    address: 'Boogschutterslaan, 8310 Brugge, Belgique',
+    lat: 51.215785,
+    lng: 3.247890,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Payant / Relais (Tarif P&R)',
+    stay: 'Stationnement de jour uniquement (Nuitée interdite)',
+    ground: 'Bitume',
+    petsAllowed: true,
+    description: 'Parking relais officiel de Bruges accessible aux véhicules de plus grand gabarit (camping-cars en journée). Idéal pour stationner et rejoindre le centre-ville en transports. Attention : stationnement de nuit et camping interdits. Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de Cormeilles - Stationnement et Services Payants',
+    category: 'aire',
+    address: '2 Av. de Chepstow, 27260 Cormeilles',
+    lat: 49.248955,
+    lng: 0.374088,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit (Stationnement)',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Herbe',
+    petsAllowed: true,
+    description: 'Aire de camping-car municipale offrant un stationnement gratuit et une nuitée autorisée dans un cadre verdoyant proche du village. L\'accès à l\'eau et à l\'électricité est payant (environ 2 € via la borne de services). Vidange des eaux grises et cassettes disponible sur place.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire Camping-Car Esquelbecq - Stationnement et Borne',
+    category: 'aire',
+    address: 'Esquelbecq, 59470 Esquelbecq',
+    lat: 50.890194,
+    lng: 2.432289,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit (Stationnement)',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Herbe',
+    petsAllowed: true,
+    description: 'Belle aire de camping-car gratuite, située à deux pas du centre-ville, juste à côté du château et d\'une aire de jeux pour les enfants. L\'eau et l\'électricité sont disponibles via une borne de services payante (jetons).',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking Avenue Maurice Schumann - Dunkerque (Canal)',
+    category: 'parking',
+    address: '189a Avenue Maurice Schumann, 59140 Dunkerque, France',
+    lat: 51.033611,
+    lng: 2.378056,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement jour / Nuitée tolérée',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Parking public gratuit le long du canal de Bourbourg. Sans barrière de hauteur. Adapté aux camping-cars et fourgons standards (< 3,5t). Strictement inadapté aux grands gabarits (poids lourds, double essieu / 19t) en raison des manœuvres et des restrictions de tonnage.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Avenue Maurice Schumann - Dunkerque (Diurne)',
+    category: 'parking',
+    address: 'Avenue Maurice Schumann, 59140 Dunkerque, France',
+    lat: 51.035526,
+    lng: 2.367016,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement diurne (nuitée non recommandée)',
+    ground: 'Bitume / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking situé sur l\'avenue Maurice Schumann à Dunkerque. Adapté pour un arrêt en journée, mais la nuitée en camping-car y est incertaine ou non autorisée par la réglementation locale.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire Camping-Car - Grand-Fort-Philippe',
+    category: 'aire',
+    address: 'Rue du Maréchal Foch, 59153 Grand-Fort-Philippe',
+    lat: 51.002589,
+    lng: 2.097803,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit (Stationnement)',
+    stay: 'Nuitée autorisée (72h max)',
+    ground: 'Stabilisé / Caillou',
+    petsAllowed: true,
+    description: 'Aire de stationnement pour camping-cars gratuite et autorisée pour la nuit (72h max). Aucun service direct sur place. Possibilité d\'accéder aux services du camping municipal situé juste en face (payant, environ 6 €).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aparcamiento público - Güéjar Sierra',
+    category: 'parking',
+    address: '18160 Güéjar Sierra, Granada, Espagne',
+    lat: 37.158144,
+    lng: -3.442623,
+    type: 'parking_nuit',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée / tolérée',
+    ground: 'Asphalte / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking public entièrement gratuit situé à Güéjar Sierra, sans barrière de hauteur. Totalement accessible aux camping-cars et vans. Idéal pour stationner, passer la nuit, visiter le village ou partir en randonnée. Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Casa de Campo - Madrid',
+    category: 'parking',
+    address: 'Casa de Campo, Moncloa-Aravaca, 28011 Madrid, Espagne',
+    lat: 40.426337,
+    lng: -3.752682,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour uniquement (Nuitée interdite)',
+    ground: 'Asphalte / Stabilisé',
+    petsAllowed: true,
+    description: 'Grand parking gratuit situé dans le parc de la Casa de Campo à Madrid, sans barrière de hauteur et accessible aux camping-cars en journée. Idéal pour visiter les environs ou le parc. Attention : la nuitée et le camping y sont strictement interdits et surveillés. Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire communale - Cariñena',
+    category: 'aire',
+    address: 'C. del Carmen, 50400 Cariñena, Zaragoza, Espagne',
+    lat: 41.338082,
+    lng: -1.230325,
+    type: 'parking',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuit autorisée',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Aire municipale gratuite avec emplacements stabilisés et plateforme de services complète (eau potable et vidanges). Peu d\'ombre mais emplacement plat et fonctionnel pour une étape.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de l\'Étang - Chauvigny',
+    category: 'aire',
+    address: 'Route de Poitiers, 86300 Chauvigny, Vienne, France',
+    lat: 46.493702,
+    lng: 0.753647,
+    type: 'parking',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuit autorisée (Bruyant - Interdit le vendredi jour de marché)',
+    ground: 'Stabilisé / Herbe',
+    petsAllowed: true,
+    description: 'Aire municipale gratuite au bord d\'un étang à proximité du centre. Stationnement interdit les vendredis pour cause de marché. Cadre agréable avec plan d\'eau, mais nuit très bruyante en raison du passage important de poids lourds sur l\'axe routier adjacent.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aparcamiento Gratuito - Potes',
+    category: 'parking',
+    address: 'Liébana, 39570 Potes, Cantabrie, Espagne',
+    lat: 43.157435,
+    lng: -4.618956,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement autorisé',
+    ground: 'Herbe / Stabilisé (Légère pente)',
+    petsAllowed: true,
+    description: 'Grand parking gratuit très pratique pour les camping-cars, situé à 5 minutes à pied du centre de Potes et juste en face d\'un supermarché. Entrée avec une petite rampe d\'accès. Terrain en herbe/stabilisé avec une légère pente par endroits, mais facile d\'y trouver un emplacement à peu près plat.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Área de Autocaravanas - Mora de Rubielos',
+    category: 'aire',
+    address: 'Calle Dr. Gómez Ferrer, 36, 44400 Mora de Rubielos, Teruel, Espagne',
+    lat: 40.254002,
+    lng: -0.750091,
+    type: 'free',
+    icon: '🚐',
+    price: '0 € (Gratuit)',
+    stay: 'Stationnement autorisé',
+    ground: 'Bitume / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire municipale gratuite pour camping-cars avec eau et vidanges (eaux grises et noires). Pas d\'électricité.',
+    services: { water: true, waste: true, electricity: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Stade du Refuge - Uzès',
+    category: 'parking',
+    address: 'Route de Nîmes, 30700 Uzès, Gard, France',
+    lat: 44.006986,
+    lng: 4.418347,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement et nuit autorisés',
+    ground: 'Bitume / Stabilisé',
+    petsAllowed: true,
+    description: 'Grand parking gratuit très accessible et pratique pour les camping-cars, situé près du stade et à quelques minutes à pied du centre historique d\'Uzès. Nuit tolérée/autorisée. Pas de services (eau/vidange).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking du Dr Jean Forestier - Mèze',
+    category: 'parking',
+    address: '23 Rue Sergent Nunes Pategou, 34140 Mèze, Hérault, France',
+    lat: 43.424524,
+    lng: 3.603951,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement (Nuit interdite)',
+    ground: 'Bitume',
+    petsAllowed: true,
+    description: 'Parking public gratuit sans barrière de hauteur, idéal pour s\'arrêter la journée et visiter le centre de Mèze ou le port à pied. Stationnement nocturne strictement interdit pour les camping-cars.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Área de autocaravanas - Huesca',
+    category: 'aire',
+    address: '72 Calle San Jorge, 22004 Huesca, Aragon, Espagne',
+    lat: 42.194875,
+    lng: -0.412025,
+    type: 'aire',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Stationnement et nuit autorisés',
+    ground: 'Stabilisé / Ombragé',
+    petsAllowed: true,
+    description: 'Aire municipale gratuite très pratique et bien située à Huesca. Proche d\'un supermarché Mercadona et du centre-ville à pied.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de la Voie Verte - Fénery',
+    category: 'parking',
+    address: 'Rue de la Gare, 79450 Fénery, Deux-Sèvres, France',
+    lat: 46.686177,
+    lng: -0.362731,
+    type: 'parking',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Stationnement et nuit autorisés',
+    ground: 'Stabilisé / Herbe',
+    petsAllowed: true,
+    description: 'Aire de stationnement calme et gratuite située le long de la Voie Verte à l\'ancienne gare de Fénery. Idéale pour passer la nuit et faire des balades. Point d\'eau et sanitaires disponibles sur place, sans borne de vidange.',
+    services: { water: true, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Área de Autocaravanas - Torquemada',
+    category: 'aire',
+    address: 'Calle Barrio Nuevo, 34230 Torquemada, Palencia, Espagne',
+    lat: 42.036925,
+    lng: -4.316494,
+    type: 'aire',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Stationnement et nuit autorisés',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de camping-car municipale gratuite à Torquemada, idéale pour faire une halte et passer la nuit au calme.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Esplanada del Pantà d\'Elx',
+    category: 'parking',
+    address: 'Partida Carrus, 1256A, 03207 Elche, Alicante, Espagne',
+    lat: 38.298541,
+    lng: -0.717578,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement et nuit autorisés',
+    ground: 'Terre / En espalier',
+    petsAllowed: true,
+    description: 'Grand parking en terre aménagé en paliers / espalier près du lac du barrage d\'Elche. Emplacement idéal en pleine nature pour se garer, passer la nuit au calme et accéder aux sentiers de balade.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking de la Gaudinais',
+    category: 'parking',
+    address: 'Rue de la Gaudinais, 44350 Guérande, France',
+    lat: 47.330869,
+    lng: -2.433222,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuit tolérée',
+    ground: 'Enrobé / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking gratuit au pied des remparts de Guérande. Très pratique pour visiter la cité médiévale, stationnement de jour et nuit généralement toléré malgré l\'absence de services.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de services et stationnement - Matha',
+    category: 'aire',
+    address: '3 Av. Paul Monmoine, 17160 Matha',
+    lat: 45.866281,
+    lng: -0.322246,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Ombragé',
+    petsAllowed: true,
+    description: 'Aire municipale propre, bien située et bien ombragée. Stationnement gratuit et autorisé pour la nuit.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Val-de-Cognac',
+    category: 'aire',
+    address: '1 Allée des Coquelicots, 16370 Val-de-Cognac (Cherves-Richemont)',
+    lat: 45.740337,
+    lng: -0.355970,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné (5 emplacements)',
+    petsAllowed: true,
+    description: 'Aire municipale gratuite de 5 emplacements goudronnés. Stationnement et services d\'eau/vidange gratuits. Attention : l\'eau potable est coupée hors gel de novembre à mi-avril par la mairie. Électricité très rudimentaire pour dépannage uniquement.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Astorga (Plaza de Toros)',
+    category: 'aire',
+    address: '114 Carretera Sanabria, 24700 Astorga, León, Espagne',
+    lat: 42.452123,
+    lng: -6.065427,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Terre (près des arènes)',
+    petsAllowed: true,
+    description: 'Aire municipale gratuite située à environ 15-20 min à pied du centre historique (Cathédrale et Palais de Gaudí). Environ 15 emplacements, calme la nuit. Services gratuits (vidange et eau), mais attention : pas d\'électricité, et le robinet pour les cassettes WC est parfois hors service.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking Plage de la Paracou',
+    category: 'parking',
+    address: 'Prom. Georges Pernoud, 85100 Les Sables-d\'Olonne, France',
+    lat: 46.503155,
+    lng: -1.809414,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuit autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Parking adapté aux grands gabarits près de la plage de la Paracou. Stationnement et nuit autorisés.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Prinquiau',
+    category: 'aire',
+    address: '15 Rue du Champoulain, 44260 Prinquiau, France',
+    lat: 47.366962,
+    lng: -2.012281,
+    type: 'aire',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuit autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire municipale de Prinquiau. Stationnement et nuitée gratuits pour les camping-cars.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+ {
+    name: 'Parking de la Cascade (Zone Camping-Car) - Saint-Gervais-les-Bains',
+    category: 'parking',
+    address: 'Impasse de la Cascade, 74170 Saint-Gervais-les-Bains',
+    lat: 45.887804,
+    lng: 6.713116,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Bitume / Partagé',
+    petsAllowed: true,
+    description: 'Parking municipal gratuit et partagé avec les voitures, disposant d\'une zone dédiée au fond pour les véhicules de loisirs. Stationnement pratique mais manœuvres à anticiper selon l\'affluence. Aucun service garanti sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Palencia',
+    category: 'aire',
+    address: '34005 Palencia, Province de Palencia, Espagne',
+    lat: 42.003253,
+    lng: -4.534559,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Goudronné',
+    petsAllowed: true,
+    description: 'Aire municipale très agréable et calme, entièrement gratuite. Située à portée de marche de la ville, de sa cathédrale et du magnifique parc avec lac et rivière. Services gratuits disponibles, attention pas d\'électricité.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Trasmoz',
+    category: 'aire',
+    address: 'Calle General Mola, 50583 Trasmoz, Saragosse, Espagne',
+    lat: 41.827624,
+    lng: -1.720211,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire municipale spacieuse, calme et entièrement gratuite située à proximité du village de Trasmoz. Services d\'eau et de vidange disponibles sur place sans barrière d\'accès.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parque Estacionamento Gratuito Tavira',
+    category: 'parking',
+    address: '8800-318 Tavira, Portugal',
+    lat: 37.129929,
+    lng: -7.641437,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Grand parking public gratuit à Tavira, idéal pour le stationnement de jour et la visite de la ville. Nuitée réglementée, sans services.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Gratuit Oulad Teima',
+    category: 'parking',
+    address: 'Oulad Teima, Maroc',
+    lat: 30.389171,
+    lng: -9.223527,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour (nuit en discrétion)',
+    ground: 'Revêtu / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking public gratuit situé à Oulad Teima. Idéal pour une halte pratique ou un stationnement de jour, sans services.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking - Atlas Studios',
+    category: 'parking',
+    address: 'BP 28 Route de Marrakech, Ouarzazate, Maroc',
+    lat: 30.940408,
+    lng: -6.966711,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour uniquement (Visite des studios)',
+    ground: 'Goudron / Terrain stabilisé',
+    petsAllowed: true,
+    description: 'Grand parking idéal pour se garer en journée le temps de visiter les Atlas Studios. Très facile d’accès et spacieux pour les camping-cars et fourgons. À éviter pour la nuit (site isolé hors horaires d’ouverture).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Camping Municipal - Ouarzazate',
+    category: 'aire',
+    address: 'Ouarzazate, 45000, Maroc',
+    lat: 30.923113,
+    lng: -6.886819,
+    type: 'free',
+    icon: '🚐',
+    price: '70-100 MAD / nuit (~7-9 €)',
+    stay: 'Nuitée autorisée',
+    ground: 'Terre battue / Stabilisé',
+    petsAllowed: true,
+    description: 'Camping municipal de Ouarzazate. Emplacements délimités et ombragés avec gardien. Idéal pour faire une pause confortable et sécurisée en ville. Paiement en espèces uniquement.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking - Avenue Al Maghreb Al Arabi',
+    category: 'parking',
+    address: 'Av. Al-Maghreb Al-Arabi, Ouarzazate, Maroc',
+    lat: 30.925793,
+    lng: -6.910601,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit ou soumis à une petite participation informelle (quelques dirhams au gardien)',
+    stay: 'Stationnement de jour uniquement',
+    ground: 'Goudron / Urbain',
+    petsAllowed: true,
+    description: 'Emplacement de stationnement situé en zone urbaine, idéal pour se garer en journée afin d’accéder aux commodités locales. Présence possible d’un gardien pour la surveillance.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking - Marché & Hôpital',
+    category: 'parking',
+    address: 'Marché Lotissement du Centre, Ouarzazate, Maroc',
+    lat: 30.922629,
+    lng: -6.919750,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit ou petite pièce au gardien',
+    stay: 'Stationnement de jour uniquement (Courses / Halte)',
+    ground: 'Goudron / Urbain',
+    petsAllowed: true,
+    description: 'Grand parking urbain situé près du marché et de l’hôpital. Accessible aux grands gabarits (camions/camping-cars). Idéal pour se garer le temps d’une course en journée, mais déconseillé pour la nuit.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Área de Autocaravanas - Puebla de Sanabria',
+    category: 'aire',
+    address: 'Camino Pinar, 49300 Puebla de Sanabria (Zamora), Espagne',
+    lat: 42.050936,
+    lng: -6.626077,
+    type: 'area',
+    icon: '🚐',
+    price: 'À vérifier',
+    stay: 'Stationnement (Visite de la ville)',
+    ground: 'Goudron / Plat',
+    petsAllowed: true,
+    description: 'Beaucoup d’emplacements disponibles. Aucun service sur place, mais très agréable et idéalement situé pour la visite de la ville.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Área Autocaravanas - Olite',
+    category: 'aire',
+    address: '31390 Olite (Navarre), Espagne',
+    lat: 42.48022,
+    lng: -1.647676,
+    type: 'area',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Pernoyage autorisé (48h max)',
+    ground: 'Goudron / Plat',
+    petsAllowed: true,
+    description: 'Aire municipale très spacieuse et bien aménagée, facile d’accès pour tous gabarits. Emplacement calme, idéal pour visiter le Château et le centre historique d’Olite à pied.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Ancien quai de Pomarão - Mértola',
+    category: 'nature',
+    address: '7528-962 Santana de Cambas, Mértola, Portugal',
+    lat: 37.557069,
+    lng: -7.528962,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Ancien quai',
+    petsAllowed: true,
+    description: 'Spot spacieux et ouvert sur un ancien quai de réparation navale. Accès facile. Réseau mobile / internet très faible sur place. Vidange sommaire possible mais pas d\'eau potable disponible.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Alcoutim',
+    category: 'aire',
+    address: 'R. das Portas do Rio, 8970 Alcoutim, Portugal',
+    lat: 37.468076,
+    lng: -7.471046,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Aménagé',
+    petsAllowed: true,
+    description: 'Aire municipale entièrement gratuite et très bien aménagée, offrant une vue magnifique sur le fleuve Guadiana et le château espagnol de Sanlúcar en face. Services complets inclus (eau, vidange et électricité).',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking - Belmonte',
+    category: 'parking',
+    address: 'Belmonte, Portugal',
+    lat: 40.364163,
+    lng: -7.340901,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Lieu de stationnement pratique et bien positionné à Belmonte. Aucun service disponible sur place (ni eau, ni électricité, ni vidange).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Área de Autocaravanas - Vallbona de les Monges',
+    category: 'aire',
+    address: '25268 Vallbona de les Monges, Lleida, Espagne',
+    lat: 41.526884,
+    lng: 1.087143,
+    type: 'area',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Pernoyage autorisé',
+    ground: 'Goudron / Plat',
+    petsAllowed: true,
+    description: 'Vaste espace plat et calme réservé aux camping-cars et bus. Services d’eau et de vidange (eaux grises et noires) entièrement opérationnels.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking Almuñécar - Calle de los Cipreses',
+    category: 'parking',
+    address: 'Calle de los Cipreses, 9, 18697 Almuñécar, Granada, Espagne',
+    lat: 36.732337,
+    lng: -3.712207,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée tolérée',
+    ground: 'Goudron / Plat',
+    petsAllowed: true,
+    description: 'Parking public à plat, accessible et régulièrement utilisé par les camping-cars. Emplacement calme de jour comme de nuit. Aucun service de vidange ni d’eau sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Mehun-sur-Yèvre',
+    category: 'aire',
+    address: 'Quai du Canal, 18500 Mehun-sur-Yèvre, France',
+    lat: 47.143572,
+    lng: 2.210456,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit / Municipal',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de stationnement agréable située le long du canal de Berry. Point GPS positionné sur l\'accès dégagé du Quai du Canal. Possibilité de vidange sur place, pas d\'eau potable.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+ {
+    name: 'Parking du Belvédère - Apremont-sur-Allier',
+    category: 'parking',
+    address: '18150 Apremont-sur-Allier, Cher, France',
+    lat: 46.907796,
+    lng: 3.046100,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée tolérée',
+    ground: 'Stabilisé / Légèrement en pente',
+    petsAllowed: true,
+    description: 'Parking public sans barrière de hauteur, très fréquenté par les camping-cars pour visiter l’un des plus beaux villages de France. Aucun service sur place, cadre calme et verdoyant.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Marmagne',
+    category: 'aire',
+    address: '1 Impasse du Tennis, 18500 Marmagne, France',
+    lat: 47.100467,
+    lng: 2.2842085,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Bitumé / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire municipale de stationnement calme. Services d\'eau potable et de vidange (eaux grises / cassettes) gratuits. Électricité coupée suite à des abus.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking - Étang de Sault / Montluçon',
+    category: 'parking',
+    address: 'Rte de l\'Étang de Sault, 03410 Prémilhat, France',
+    lat: 46.334595,
+    lng: 2.558854,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Aménagé',
+    petsAllowed: true,
+    description: 'Espace impeccable situé à proximité de l\'étang et des aménagements de la commune. Aucun service sur place, stationnement pur.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Châteauroux (Av. Bernardet)',
+    category: 'aire',
+    address: '17 Avenue Daniel Bernardet, 36000 Châteauroux, France',
+    lat: 46.823138,
+    lng: 1.695030,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Stationnement pratique et gratuit avec présence de conteneurs à poubelles. Proche des espaces de verdure et idéal pour rejoindre les rives de l\'Indre, le parc des Cordeliers ou le château Raoul.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire des Monts de Guéret - Saint-Sulpice-le-Guérétois',
+    category: 'aire',
+    address: 'Fontaucher, 23000 Saint-Sulpice-le-Guérétois, France',
+    lat: 46.183741,
+    lng: 1.844515,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Ombragé',
+    petsAllowed: true,
+    description: 'Grand espace vert très vaste et calme. Services sur place. À noter : les aires de jeux pour enfants sont actuellement fermées/condamnées par arrêté municipal.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Vierzon (Rue de la Piscine)',
+    category: 'aire',
+    address: '3 Rue de la Piscine, 18100 Vierzon, France',
+    lat: 47.220259,
+    lng: 2.061478,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit (Stationnement)',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Ombragé',
+    petsAllowed: true,
+    description: 'Aire calme située au bord de l\'eau avec petite plage de fortune à proximité. À 5 minutes à pied du centre-ville. Accès recommandé en s\'engageant par la Rue de la Piscine. Eau payante : 2 € les 100 L.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Aubusson (Rue des Fusillés)',
+    category: 'aire',
+    address: '25-27 D941A / Rue des Fusillés, 23200 Aubusson, France',
+    lat: 45.957075,
+    lng: 2.175197,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné / Légère pente',
+    petsAllowed: true,
+    description: 'Grand parking gratuit à 5 minutes à pied du centre historique et de la Cité de la Tapisserie. Services d\'eau, vidange et électricité gratuits mis à disposition par la commune.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Romorantin-Lanthenay / Marmagne',
+    category: 'aire',
+    address: 'Rte de Marmagne, 41200 Romorantin-Lanthenay, France',
+    lat: 47.337304,
+    lng: 1.664520,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Bitumé / Aménagé',
+    petsAllowed: true,
+    description: 'Parking aménagé et gratuit à la sortie du complexe. Emplacements spacieux et nuitée tolérée/autorisée. Aire de services à disposition.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Saint-Georges-sur-Arnon (Les Soudis)',
+    category: 'aire',
+    address: 'Les Soudis, 36100 Saint-Georges-sur-Arnon, France',
+    lat: 46.998328,
+    lng: 2.100051,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Herbe / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire calme située au bord du plan d\'eau avec aire de jeux pour enfants. Vidange des eaux grises uniquement, pas d\'eau potable ni d\'électricité.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Argenton-sur-Creuse',
+    category: 'aire',
+    address: 'Rue de la Grenouille, 36200 Argenton-sur-Creuse, France',
+    lat: 46.588820,
+    lng: 1.517315,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Grand espace',
+    petsAllowed: true,
+    description: 'Grand espace de stationnement gratuit réservé aux camping-cars, calme, situé à proximité immédiate des rives de la Creuse et du centre-ville.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Cosne-Cours-sur-Loire',
+    category: 'aire',
+    address: '11 Quai du Sanitas, 58200 Cosne-Cours-sur-Loire, France',
+    lat: 47.414095,
+    lng: 2.922373,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Bitumé / Arboré',
+    petsAllowed: true,
+    description: 'Grand parking bitumé et arboré situé juste au bord de la Loire. Endroit assez calme pour une nuit, poubelles à disposition. Pas de services d\'eau ni de vidange.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Nancray',
+    category: 'aire',
+    address: 'Rue du Musée, 25360 Nancray, France',
+    lat: 47.253100,
+    lng: 6.241500,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Magnifique aire d\'accueil calme, mise à disposition gratuitement à proximité du Musée des Maisons Comtoises. Vidange des eaux grises et des cassettes gratuite. Eau potable disponible par jetons en vente au musée.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Gray',
+    category: 'aire',
+    address: 'Rue de la Plage, 70100 Gray, France',
+    lat: 47.452670,
+    lng: 5.602355,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de stationnement gratuite située le long de la Saône, accessible par la rue de la Plage. Vidange des eaux grises disponible, présence d\'eau non garantie.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Villers-Cotterêts',
+    category: 'aire',
+    address: 'Rue Alfred Juneaux, 02600 Villers-Cotterêts, France',
+    lat: 49.260828,
+    lng: 3.086829,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée (72h max)',
+    ground: 'Stabilisé / Ombragé',
+    petsAllowed: true,
+    description: 'Aire municipale gratuite, calme et ombragée avec tables de pique-nique, située le long de la rue Alfred Juneaux, à gauche de la piscine intercommunale et à proximité de la Cité internationale de la langue française. Vidange des eaux usées gratuite sur place. La borne de services (eau potable payante à 3 €) se trouve à environ 100 m, de l\'autre côté de la piscine.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Saint-Georges-du-Rosay',
+    category: 'aire',
+    address: 'Rue de la Mairie, 72110 Saint-Georges-du-Rosay, France',
+    lat: 48.200138,
+    lng: 0.501613,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire municipale très calme au bord d\'un petit étang, pouvant accueillir environ 5 camping-cars. Emplacements avec tables de pique-nique et terrain de boules. Services complets et gratuits sur place.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Bergues',
+    category: 'aire',
+    address: 'Chemin des Fortifications, 59380 Bergues, France',
+    lat: 50.9692,
+    lng: 2.4335,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée (48h max)',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de stationnement municipale gratuite située le long du chemin des Fortifications, offrant une trentaine de places dans un cadre verdoyant et calme à proximité des remparts de Bergues.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking du Lac - Echternach',
+    category: 'parking',
+    address: '109 Route de Luxembourg, 6562 Echternach, Luxembourg',
+    lat: 49.806054,
+    lng: 6.407057,
+    type: 'aire_stationnement',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Jour uniquement (Nuitée interdite)',
+    ground: 'Bitumé / Stabilisé',
+    petsAllowed: true,
+    description: 'Grand parking très accessible, sans barrière de hauteur, idéalement situé pour profiter du lac d\'Echternach (promenades, pistes cyclables, loisirs). Stationnement autorisé en journée, mais nuitée strictement interdite.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Télécabine Pila - Aoste',
+    category: 'parking',
+    address: 'Via Paravera, 1100 Aoste, Vallée d\'Aoste, Italie',
+    lat: 45.734897,
+    lng: 7.299250,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée (stationnement strict)',
+    ground: 'Bitumé / Stabilisé',
+    petsAllowed: true,
+    description: 'Grand parking gratuit situé au départ du télécabine de Pila, sans barrière de hauteur et parfaitement adapté aux camping-cars. Idéal pour passer une nuit au calme et visiter Aoste (centre-ville accessible à pied). Stationnement strict (pas de déballage).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking municipal - Acquasparta',
+    category: 'parking',
+    address: 'Strada Vecchia di Configni, 4, 05021 Acquasparta TR, Italie',
+    lat: 42.692210,
+    lng: 12.542034,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Grand parking municipal calme et gratuit, idéal pour une étape nocturne. Zone de services (eau et vidange) accessible à proximité immédiate sur le même site.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Moulin à huile - Castel Ritaldi (Producteur)',
+    category: 'ferme',
+    address: 'Via Campesgna, 7, 06042 Castel Ritaldi PG, Italie',
+    lat: 42.827883,
+    lng: 12.769562,
+    type: 'ferme',
+    icon: '🚜',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Herbe / Stabilisé',
+    petsAllowed: true,
+    description: 'Superbe accueil au moulin à huile. Propriétaires très aimables, cadre bucolique avec poules en liberté. Stationnement et services gratuits chez le producteur d\'huile d\'olive.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Moulin à huile - Castel Ritaldi (Stationnement)',
+    category: 'ferme',
+    address: 'Via Campesgna, 7, 06042 Castel Ritaldi PG, Italie',
+    lat: 42.827883,
+    lng: 12.769562,
+    type: 'ferme',
+    icon: '🚜',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Herbe / Stabilisé',
+    petsAllowed: true,
+    description: 'Stationnement gratuit chez un producteur d\'huile d\'olive. Endroit très calme, nuitée autorisée avec accès aux services d\'eau et de vidange.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire municipale - Fivizzano',
+    category: 'aire',
+    address: 'Piazza Alcide De Gasperi, 54013 Fivizzano MS, Italie',
+    lat: 44.238901,
+    lng: 10.127814,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire municipale récente, très propre et sécurisée par une barrière (appuyer sur le bouton vert pour ouvrir). Électricité 220V offerte par la mairie. Proche du centre historique et des commerces.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire municipale - Collodi',
+    category: 'aire',
+    address: 'Via Pasquinelli, 57017 Collodi, Pescia PT, Italie',
+    lat: 43.897937,
+    lng: 10.653374,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Bitumé / Gravier',
+    petsAllowed: true,
+    description: 'Aire idéale pour visiter Collodi et le Parc Pinocchio. Stationnement, eau et vidange gratuits. Électricité disponible en option payante (5 €). Emplacements le long de la route ou sur le grand parking en gravier à l\'arrière.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking municipal - Borgomanero',
+    category: 'parking',
+    address: 'Via Giacomo Matteotti, 34, 28021 Borgomanero NO, Italie',
+    lat: 45.694360,
+    lng: 8.456690,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée (48h max)',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Stationnement gratuit près du stade (entrée par la Via G. Matteotti). À 10 minutes à pied du centre-ville. Eau potable et vidange (assainissement) disponibles sur place mais payantes (3 €).',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking de halte - Lisciano Niccone',
+    category: 'parking',
+    address: 'Lisciano Niccone, Province de Pérouse, Italie',
+    lat: 43.249706,
+    lng: 12.145642,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Terre',
+    petsAllowed: true,
+    description: 'Petit parking de halte verdoyant et calme, idéal pour une pause ou une nuit. Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking de liaison - Mantoue',
+    category: 'parking',
+    address: 'Mantova, 46100 Mantoue, Italie',
+    lat: 45.161609,
+    lng: 10.814963,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour / Halte',
+    ground: 'Goudronné / Stabilisé',
+    petsAllowed: true,
+    description: 'Excellent parking gratuit pour visiter Mantoue. Relié au centre par une superbe piste piétonne et cyclable éclairée la nuit (15-20 min à pied) ou via une navette gratuite à proximité. Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+ {
+    name: 'Aire de stationnement - Viareggio / Darsena',
+    category: 'aire',
+    address: 'Via Luigi Salvatori, 55049 Viareggio LU, Italie',
+    lat: 43.856988,
+    lng: 10.248514,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de stationnement gratuite avec une section réservée aux camping-cars située au fond (zone calme). Proche de la mer (environ 10 minutes à pied). Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking bord de mer - Marina di Pisa',
+    category: 'parking',
+    address: 'Piazza Giuseppe Viviani, 56128 Marina di Pisa PI, Italie',
+    lat: 43.674379,
+    lng: 10.272120,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudron / Gravier',
+    petsAllowed: true,
+    description: 'Parking idéalement situé à deux pas de la plage. Zone centrale gratuite (arriver tôt le week-end avant 9h). Attention, les places en périphérie extérieure sont payantes à 6 €/jour. Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking - Lucques',
+    category: 'parking',
+    address: 'Piazzale Don Franco Baroni, 55100 Lucca LU, Italie',
+    lat: 43.851093,
+    lng: 10.500548,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné / Stabilisé',
+    petsAllowed: true,
+    description: 'Grand parking gratuit situé à deux pas du centre historique de Lucques. Places larges adaptées aux camping-cars. Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de stationnement - Livourne',
+    category: 'aire',
+    address: 'Via del Levante, 57124 Livorno LI, Italie',
+    lat: 43.503410,
+    lng: 10.325821,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Aire municipale fonctionnelle et moderne pour une étape courte ou une nuit calme. Borne de vidange et eau propre gratuites sur place. Attention : pas de poubelles sur le site.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking - Marina di Carrara',
+    category: 'parking',
+    address: 'Viale Maestro Maestro, 54033 Carrara MS, Italie',
+    lat: 44.046301,
+    lng: 10.027571,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Pavés / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking gratuit toute l année, calme et sûr. La route adjacente est très peu fréquentée même en journée. Aucun service sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de stationnement - Bagni di Lucca',
+    category: 'aire',
+    address: 'Via Lima, 23, 55022 Bagni di Lucca LU, Italie',
+    lat: 44.009455,
+    lng: 10.569188,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Terre',
+    petsAllowed: true,
+    description: 'Aire de camping-car gratuite au calme, bercée par le murmure de la rivière. Site rustique au potentiel intéressant, mais aux retours contrastés sur l entretien selon les années. Services disponibles sur place.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de stationnement - Gambassi Terme',
+    category: 'aire',
+    address: 'Via Volterrana, 60/A, 50050 Gambassi Terme FI, Italie',
+    lat: 43.541500,
+    lng: 10.955900,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Aire municipale récente et bien aménagée avec 4 emplacements de stationnement. Accueil à l office du tourisme à proximité et magnifiques balades. Électricité offerte sur place. Aucun ombrage (pas d arbres).',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking - Haslach im Kinzigtal',
+    category: 'parking',
+    address: 'Ringstraße 25, 77716 Haslach im Kinzigtal, Allemagne',
+    lat: 48.275648,
+    lng: 8.084559,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné / Pavés',
+    petsAllowed: true,
+    description: 'Parking gratuit (Klosterparkplatz) situé au pied de l ancien couvent des Capucins et à 2 minutes à pied du centre historique à colombages. Très calme pour une étape de nuit. Vidange cassette WC disponible sur place. Aucun autre service.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de stationnement - Leidersbach',
+    category: 'aire',
+    address: 'Parkplatz an der Hofwiese, 63849 Leidersbach, Allemagne',
+    lat: 49.901660,
+    lng: 9.217453,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné / Pavés',
+    petsAllowed: true,
+    description: 'Charmante aire municipale calme et gratuite. Boîte à dons disponible sur place pour soutenir la commune. Borne de services sur place avec eau potable et électricité payantes (à pièces). Vidange gratuite.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de stationnement - Ramstein-Miesenbach',
+    category: 'aire',
+    address: 'Parkplatz am Seewoog, 66877 Ramstein-Miesenbach, Allemagne',
+    lat: 49.458649,
+    lng: 7.564856,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné / Pavés',
+    petsAllowed: true,
+    description: 'Aire de camping-car calme située près du plan d eau Seewoog. Stationnement gratuit (limité à 3 jours). Borne de services sur place avec eau potable et électricité payantes. Vidange gratuite.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de stationnement - Niederstetten',
+    category: 'aire',
+    address: 'Frickentalplatz 1, 97996 Niederstetten, Allemagne',
+    lat: 49.399949,
+    lng: 9.915910,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Pavés / Goudronné',
+    petsAllowed: true,
+    description: 'Aire municipale calme de 6 emplacements réservés aux camping-cars. Stationnement 100 % gratuit. Borne de services sur place avec eau potable et électricité payantes. Vidange gratuite.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de stationnement - Bad Camberg',
+    category: 'aire',
+    address: 'Jahnstraße / Henry-Dunant-Weg, 65520 Bad Camberg, Allemagne',
+    lat: 50.297050,
+    lng: 8.265780,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné / Gravier',
+    petsAllowed: true,
+    description: 'Aire de camping-car calme de 8 emplacements gratuits (P1), située près du centre-ville historique et du parc thermal. Borne de services payante pour eau potable et électricité (paiement carte/PayPal disponible). Vidange gratuite.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de stationnement - Bilzen',
+    category: 'aire',
+    address: 'Lanakerdij 6, 3740 Bilzen, Belgique',
+    lat: 50.869819,
+    lng: 5.522190,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Aire de camping-car municipale avec stationnement gratuit (max 24h). Proche du centre-ville. Borne de services sur place avec eau potable (2 €/5 min) et électricité (1 €/h) payantes. Vidange gratuite.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de stationnement - Lemberg',
+    category: 'aire',
+    address: 'Stellplatz Wohnmobile, Talstraße 1, 66969 Lemberg, Allemagne',
+    lat: 49.172772,
+    lng: 7.647360,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Pavés / Herbe',
+    petsAllowed: true,
+    description: 'Aire calme de 15 emplacements près d un lac et d un parc avec aire de jeux. Départs de balades à vélo et commerces à proximité. Chiens autorisés sur l aire (interdits sur certains sentiers de randonnée). Borne avec eau (1 €) et électricité (4 €). Vidange gratuite.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },  
+  {
+    name: 'Aire de stationnement - Haren (De Lijte)',
+    category: 'aire',
+    address: 'Meerweg 227, 9752 XC Haren, Pays-Bas',
+    lat: 53.163049,
+    lng: 6.579015,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Goudronné / Herbe',
+    petsAllowed: true,
+    description: 'Aire de 6 emplacements gratuits très prisés en fond de parking au bord du lac. Nuitée calme autorisée. Sanitaires (toilettes et douches) et restaurant sur place. Vidange gratuite.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de stationnement - Rechtsupweg',
+    category: 'aire',
+    address: 'Poststraße, 26529 Rechtsupweg, Allemagne',
+    lat: 53.526218,
+    lng: 7.325526,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Gravier / Schotter',
+    petsAllowed: true,
+    description: 'Aire calme d au moins 6 places gratuites dans un quartier résidentiel, près d une aire de jeux et d un terrain de foot. Stationnement et nuitée gratuits. Eau potable et 4 prises électriques disponibles (payantes). Pas d évacuation des eaux grises ou noires.',
+    services: { water: true, electricity: true, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking - Messepark P & R',
+    category: 'parking',
+    address: 'In den Moselauen, 54294 Trier, Allemagne',
+    lat: 49.739077,
+    lng: 6.622274,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Asphalte / Goudron',
+    petsAllowed: true,
+    description: 'Grand parking-relais (P+R) asphalté situé In den Moselauen à Trèves, toléré et très fréquenté pour les camping-cars et vans. Stationnement et nuitée gratuits. Environnement urbain, sans services spécifiques.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire - Løkken Verk',
+    category: 'aire',
+    address: 'Løkken Verk, 7332 Løkken Verk, Norvège',
+    lat: 63.123414,
+    lng: 9.705354,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Gravillonné / Plat',
+    petsAllowed: true,
+    description: 'Aire de stationnement pour camping-cars de 20 places située dans un cadre de verdure, gérée par les bénévoles de l\'association des résidents. Ouverte toute l\'année, à proximité immédiate des commerces, des restaurants, de l\'ancienne mine, du chemin de fer et du musée industriel d\'Orkla.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking Playa de la Sal - Torre la Sal',
+    category: 'parking',
+    address: 'Partida Torre la Sal, 54, 12594 Cabanes, Castellón, Espagne',
+    lat: 40.132754,
+    lng: 0.163831,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Sol naturel',
+    petsAllowed: true,
+    description: 'Un spot coup de cœur très paisible et peu fréquenté, idéal avec des enfants. Situé à proximité immédiate d\'une plage magnifique et doté d\'une aire de jeux à l\'entrée du parking.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aparcament Delta 1',
+    category: 'parking',
+    address: 'Aparcament Delta 1, Espagne',
+    lat: 40.7958207,
+    lng: 0.7017091,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour uniquement (interdiction de passer la nuit)',
+    ground: 'Stabilisé / Sol naturel',
+    petsAllowed: true,
+    description: 'Parking situé face à la mer avec un accès direct à la plage. Stationnement de nuit non autorisé par arrêté municipal (zone protégée du parc naturel du Delta de l\'Èbre).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Delta de l\'Ebre (Amposta)',
+    category: 'parking',
+    address: 'Amposta, 43870, Tarragone, Espagne',
+    lat: 40.658881,
+    lng: 0.675021,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit hors saison',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé / Sol naturel',
+    petsAllowed: true,
+    description: 'Apprécié pour son calme absolu, ce parking situé dans le parc naturel du Delta de l\'Èbre propose des toilettes et un restaurant à proximité.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Pàrquing platja del Trabucador',
+    category: 'parking',
+    address: 'Sendero de los Alfaques, Tarragona, Espagne',
+    lat: 40.634657,
+    lng: 0.747554,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour uniquement (interdiction de passer la nuit)',
+    ground: 'Sable / Sol naturel',
+    petsAllowed: true,
+    description: 'Parking situé sur la spectaculaire flèche de sable du Trabucador, idéal pour un accès direct à la plage en journée. Stationnement de nuit non autorisé par arrêté municipal (zone protégée du parc naturel).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Poble Nou del Delta',
+    category: 'parking',
+    address: 'Poble Nou del Delta, Tarragone, Espagne',
+    lat: 40.644316,
+    lng: 0.689398,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Herbe / Sol naturel',
+    petsAllowed: true,
+    description: 'Apprécié pour son calme absolu, ce parking en herbe situé dans le parc naturel du Delta de l\'Èbre propose des toilettes et un restaurant à proximité.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking Rambla de Tabernas (Jour)',
+    category: 'parking',
+    address: 'N-340a, 04200 Tabernas, Almería, Espagne',
+    lat: 37.021057,
+    lng: -2.435216,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour uniquement',
+    ground: 'Piste / Sol naturel',
+    petsAllowed: true,
+    description: 'Parking de jour situé à proximité de la Rambla de Tabernas et de la N-340a, idéal pour stationner et découvrir les paysages arides ou les accès aux décors de cinéma du désert de Tabernas.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Lignières-Sonneville - Aire et Stationnement',
+    category: 'aire',
+    address: 'Lignières-Sonneville, 16130 Lignières-Ambleville, France',
+    lat: 45.556600,
+    lng: -0.182929,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Idéal pour une nuit',
+    ground: 'Sol herbe / stabilisé (~30 places)',
+    petsAllowed: true,
+    description: 'Endroit magnifique, très calme, propre et verdoyant près du château. Boulangerie proche avec excellentes baguettes. Électricité gratuite (seulement 2 prises disponibles). Présence de poubelles, d\'un éclairage nocturne et d\'une aire de vidange.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Portmán - Parking Bas',
+    category: 'parking',
+    address: 'Aparcamiento Gratuito, 30389 Cartagena, Murcie, Espagne',
+    lat: 37.580835,
+    lng: -0.840796,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit',
+    ground: 'Stabilisé / Gravier',
+    petsAllowed: true,
+    description: 'Grand parking gratuit situé sur la partie basse, idéal pour stationner les camping-cars lorsque la zone est très fréquentée et saturée par les voitures. Espace adapté aux grands gabarits qui ne s\'engagent pas sur les pistes étroites. Zone pratique pour un accès direct sans manœuvres risquées.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Guadix - Stationnement Ferial (Entrée)',
+    category: 'parking',
+    address: 'Zona Ferial, Av. Buenos Aires, 18500 Guadix, Granada, Espagne',
+    lat: 37.304827,
+    lng: -3.132882,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitées autorisées (séjour prolongé possible)',
+    ground: 'Asphalte / Esplanade Zona Ferial',
+    petsAllowed: true,
+    description: 'Grand parking gratuit (Zona Ferial) idéalement situé près du centre pour visiter la ville. Les camping-cars se garent au fond à droite pour être au calme. L\'aire de services (eau et vidange) se trouve à l\'extérieur, le long de l\'avenue. ATTENTION : Marché le samedi (9h-14h).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Cornas - Aire de camping-car Impasse des Iris',
+    category: 'aire',
+    address: '2-6 Impasse des Iris, 07130 Cornas, France',
+    lat: 44.960261,
+    lng: 4.847439,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuit tolérée (48h max)',
+    ground: 'Asphalte / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de camping-car municipale gratuite (environ 5 emplacements) avec services. Belle vue sur les coteaux de vignes et le château de Crussol. Proche des commerces. Eau coupée en période hivernale.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Montvendre - Aire municipale Chemin des Sables',
+    category: 'aire',
+    address: 'Chemin des Sables, 26120 Montvendre, France',
+    lat: 44.872200,
+    lng: 5.025500,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitées autorisées',
+    ground: 'Herbe / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire municipale gratuite proposant 2 zones de stationnement : une zone stabilisée près de la borne et une zone sur herbe au calme. À proximité de Chabeuil et du vieux village. Services eau et vidanges gratuits mis à disposition par la mairie.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Valence - Parking Port de l Épervière',
+    category: 'parking',
+    address: 'Port de l Épervière, 26000 Valence, France',
+    lat: 44.915521,
+    lng: 4.876363,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement (nuit tolérée selon affluence)',
+    ground: 'Asphalte / Rond-point',
+    petsAllowed: true,
+    description: 'Grand parking gratuit situé au niveau du port de plaisance de l Épervière et du club nautique. Pas de barrière de hauteur. Idéal pour une halte de jour, balades le long du Rhône et de la ViaRhôna.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Valence - Parking Parc des Expositions',
+    category: 'parking',
+    address: 'Avenue de la Comète / Chemin des Lônes, 26000 Valence, France',
+    lat: 44.935321,
+    lng: 4.898978,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Très grand parking gratuit sans barrière de hauteur, situé le long de la route devant le Parc des Expositions. Emplacements au format voiture, pratique pour une halte de jour.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Toulouse - Aire Montaudran Lespinet',
+    category: 'aire',
+    address: 'Chemin de Lespinet, 31500 Toulouse, France',
+    lat: 43.587120,
+    lng: 1.490692,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Journée et nuit tolérées',
+    ground: 'Asphalte / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de stationnement gratuite proche de Toulouse, pratique pour la visite de la Halle de la Machine et du musée L Envol des Pionniers. Aucun service.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Volvic - Parking de l ancienne usine',
+    category: 'parking',
+    address: 'Rue des Sources, 63350 Volvic, France',
+    lat: 45.871199,
+    lng: 3.027619,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitées autorisées',
+    ground: 'Stabilisé / Terre',
+    petsAllowed: true,
+    description: 'Parking très calme et ombragé sur le site de l ancienne usine. Accès facile via la Rue des Sources. Idéal pour une nuit au calme.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Riom - Parking de proximité',
+    category: 'parking',
+    address: '63200 Riom, France',
+    lat: 45.887736,
+    lng: 3.110388,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Petit parking de proximité gratuit situé à Riom, idéal pour un arrêt rapide proche du centre-ville. Emplacements au format voiture.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Volvic - Parking Site de la Source',
+    category: 'parking',
+    address: '63350 Volvic, France',
+    lat: 45.870461,
+    lng: 3.030429,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée (visite de la source et Office de Tourisme)',
+    ground: 'Asphalte / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking gratuit situé juste à côté de l Office de Tourisme et de l entrée du site de la source de Volvic. Pratique pour stationner un camping-car en journée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Saint-Victor-sur-Loire - Aire de stationnement',
+    category: 'aire',
+    address: 'Rue de la Plage, 42230 Saint-Étienne, France',
+    lat: 45.448640,
+    lng: 4.256913,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit (électricité payante)',
+    stay: 'Journée et nuit',
+    ground: 'Asphalte / Stabilisé',
+    petsAllowed: true,
+    description: 'Une dizaine de places de stationnement gratuites adaptées aux camping-cars, situées au bord de l eau près du barrage. Eau et vidange gratuites, électricité payante sur la borne Flot Bleu.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Vienne - Stationnement Quai Riondet',
+    category: 'parking',
+    address: 'Quai Riondet, 38200 Vienne, France',
+    lat: 45.520720,
+    lng: 4.867778,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée et nuit tolérée',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Emplacement de stationnement le long du Rhône, idéalement situé à côté d un parc et de l office de tourisme, parfait pour visiter la ville à pied. Stationnement gratuit strictement réservé aux camping-cars.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Saint-Romain-en-Gal - Aire naturelle',
+    category: 'nature',
+    address: 'Route de Rive-de-Gier, 69560 Saint-Romain-en-Gal, France',
+    lat: 45.529852,
+    lng: 4.800853,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Journée et nuit',
+    ground: 'Terre / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire naturelle en pleine nature sans service, offrant un superbe point de vue et un départ direct pour les circuits de randonnée et VTT. Attention : route d\'accès très raide (24 %).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Ville-sous-Anjou - Aire de stationnement',
+    category: 'aire',
+    address: '13 Rue des Écoles, 38150 Ville-sous-Anjou, France',
+    lat: 45.363090,
+    lng: 4.861699,
+    type: 'aire_campingcar',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Journée et nuit',
+    ground: 'Asphalte / Macadam',
+    petsAllowed: true,
+    description: 'Aire municipale calme et très proche du village, avec 6 emplacements délimités et du stationnement complémentaire sur macadam.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Romans-sur-Isère (Parking des Ursulines - Drôme)',
+    category: 'parking',
+    address: 'Quai de l\'Isère, 26100 Romans-sur-Isère, France',
+    lat: 45.0440,
+    lng: 5.0480,
+    type: 'parking',
+    icon: '🅿️',
+    price: '0 € (Gratuit)',
+    stay: 'Proche du bord de l\'eau et du centre historique, stationnement gratuit toléré.',
+    ground: 'Stabilisé',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Saint-Marcellin - Aire de service',
+    category: 'aire',
+    address: 'Bd du Champ de Mars, 38160 Saint-Marcellin, France',
+    lat: 45.153400,
+    lng: 5.320100,
+    type: 'aire_campingcar',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Journée et nuit (attention au jeudi soir)',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Aire de service avec borne et stationnement limité à environ 2 places. Eau coupée en hiver. Attention : marché le vendredi matin, ne pas stationner le jeudi soir.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Saint-Marcellin - Parking du Champ de Mars',
+    category: 'parking',
+    address: 'Parking du Champ de Mars, 38160 Saint-Marcellin, France',
+    lat: 45.154730,
+    lng: 5.318239,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée et nuit (interdit le jeudi soir)',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Grand parking gratuit au centre-ville, idéal pour passer la nuit et accéder aux commerces. Interdiction absolue de stationner la nuit du jeudi au vendredi en raison du marché.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Montauban - Parking des Albarèdes',
+    category: 'parking',
+    address: 'Avenue des Albarèdes, 82000 Montauban, France',
+    lat: 44.022307,
+    lng: 1.339828,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée et nuit',
+    ground: 'Terre / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking des Albarèdes, très tranquille, parfait pour une nuit et proche de la ville. Grand espace de stationnement gratuit.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Águilas / Calabardina - Playa de la Cola',
+    category: 'parking',
+    address: 'Calle de la Cola, 30889 Calabardina, Murcia, Espagne',
+    lat: 37.431525,
+    lng: -1.520209,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée et nuit tolérée',
+    ground: 'Sable / Terre battue',
+    petsAllowed: true,
+    description: 'Grand parking en terre/sable au bord de la Playa de la Cola. Très bel emplacement face à la mer. Toléré pour passer la nuit sans déballage de matériel.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Saintes - Parking du Camping de Courbiac',
+    category: 'parking',
+    address: 'Rue de Courbiac, 17100 Saintes, France',
+    lat: 45.755150,
+    lng: -0.628783,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Autorisé / Toléré plusieurs jours (hors saison)',
+    ground: 'Asphalte / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking situé à côté du camping et du club nautique au bord de la Charente. Très pratique et très tranquille hors saison lorsque le camping est fermé. Possibilité d\'y séjourner plusieurs jours sans problème.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Pulpí - Parking camping-car',
+    category: 'parking',
+    address: 'Pulpí, Almería, Espagne',
+    lat: 37.363873,
+    lng: -1.653905,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée et nuit',
+    ground: 'Stabilisé / Terre',
+    petsAllowed: true,
+    description: 'Grand parking hors route pouvant accueillir des camping-cars de toutes tailles et nationalités. Aucun service sur place. Village et commodités accessibles en environ 10 minutes à pied.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Saint-Florent - Parking Pian del Forno (SPAR)',
+    category: 'parking',
+    address: 'Pian del Forno, 20217 Saint-Florent, France',
+    lat: 42.679575,
+    lng: 9.303379,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit / Payant selon saison',
+    stay: 'Journée uniquement (stationnement court)',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Parking de proximité à côté du supermarché SPAR. Très pratique pour les courses et l\'accès rapide au centre. Emplacement idéal pour un arrêt minute ou la visite du village en journée. Stationnement de nuit interdit aux camping-cars.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Mauges-sur-Loire - Parking du Moulin de l\'Épinay',
+    category: 'parking',
+    address: 'Rue de l\'Èvre, 49410 Mauges-sur-Loire, France',
+    lat: 47.333701,
+    lng: -1.051209,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée et nuit tolérée',
+    ground: 'Stabilisé / Herbe',
+    petsAllowed: true,
+    description: 'Petit parking très calme avec belle vue et tables de pique-nique, idéal pour une pause et visiter le moulin. Parfait pour le déjeuner ou passer la nuit au calme.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Centuri - Parking du Port',
+    category: 'parking',
+    address: 'Porto, 20238 Centuri, Corse',
+    lat: 42.964146,
+    lng: 9.347972,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée (nuit tolérée hors saison)',
+    ground: 'Stabilisé / Asphalte',
+    petsAllowed: true,
+    description: 'Grand parking gratuit sans ombre avec vue extraordinaire sur l\'îlot de Capense, à deux pas du port et des commerces. Stationnement pour fourgons et camping-cars. Nuitée généralement tolérée hors saison. Bornes de recharge électrique et tri à proximité.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Bonifacio - Parking de la Plage de la Tonnara',
+    category: 'parking',
+    address: 'D358, 20169 Bonifacio, Corse',
+    lat: 41.426904,
+    lng: 9.107375,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée (nuit réglementée / risquée)',
+    ground: 'Sable / Terre battue',
+    petsAllowed: true,
+    description: 'Grand parking gratuit à proximité immédiate de la plage de la Tonnara, beaucoup de place. Sol sableux avec quelques trous. Nuitée non officielle et surveillée en période estivale (réglementation littorale stricte).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Porto-Vecchio - Parking Marina / Navettes',
+    category: 'parking',
+    address: '20137 Porto-Vecchio, Corse',
+    lat: 41.587762,
+    lng: 9.288788,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Asphalte / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking gratuit calme à 600 m de la marina et proche du départ de la navette gratuite. Pratique pour visiter Porto-Vecchio en journée. Stationnement de nuit strictement interdit aux camping-cars par arrêté municipal.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Quenza / Bavella - Parking Bocca di Larone',
+    category: 'parking',
+    address: 'D268, 20122 Quenza, Corse',
+    lat: 41.832060,
+    lng: 9.275467,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement (pause / panorama)',
+    ground: 'Terre / Gravier',
+    petsAllowed: true,
+    description: 'Parking belvédère sur la route de Bavella offrant une vue magnifique sur les aiguilles et la vallée. Idéal pour une pause panorama en journée. Randonnée vers la Purcaraccia interdite en autonomie (guide obligatoire). Nuitée interdite (Parc Naturel).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Sagone - Parking Riniccio / Esplanade',
+    category: 'parking',
+    address: 'Chemin de Riniccio, 20160 Vico (Sagone), Corse',
+    lat: 42.114811,
+    lng: 8.698996,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Stabilisé',
+    petsAllowed: true,
+    description: 'Grand parking en terre facile d\'accès, avec une aire de jeux pour enfants située juste au bord de la route. Parfait pour se garer en journée. Nuitée non autorisée (réglementation littorale).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Ogliastro (Albo) - Parking de la Plage de l\'Arinella',
+    category: 'parking',
+    address: 'Plage d\'Albo, 20217 Ogliastro, Corse',
+    lat: 42.810920,
+    lng: 9.335645,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Stationnement gratuit / Services payants (~3€)',
+    stay: 'Journée et nuit autorisées',
+    ground: 'Terre / Stabilisé / Ombragé',
+    petsAllowed: true,
+    description: 'Parking aménagé proche de la plage de galets noirs d\'Albo, idéal pour camping-cars et fourgons. Emplacements ombragés. Borne de services disponible (remplissage et vidange payants). Endroit sympathique et proche du village.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Bastelica - Mararinco (Auberge Scaldasole)',
+    category: 'parking',
+    address: 'Mararinco, 20119 Bastelica, Corse',
+    lat: 42.000788,
+    lng: 9.053351,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée et nuit autorisées',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Parking calme situé le long de la rue Mararinco, juste devant l\'auberge Scaldasole. Idéal pour une étape ou passer la nuit au calme dans le village. Accès facile et restauration sur place.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Maccia/Rogliano - Parking Plage de Tamarone',
+    category: 'parking',
+    address: 'Strada di Tamarone, 20247 Rogliano, Corse',
+    lat: 42.974082,
+    lng: 9.453534,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Sable',
+    petsAllowed: true,
+    description: 'Immense parking offrant un accès direct à la magnifique plage de Tamarone et au sentier des douaniers. Accès par une piste un peu chaotique. Emplacement sans ombre. Nuitée strictly interdite (zone littorale protégée).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Grosseto-Prugna - Parking Plage de Capitello / Porticcio',
+    category: 'parking',
+    address: 'Plage de Capitello, 20166 Grosseto-Prugna, Corse',
+    lat: 41.901164,
+    lng: 8.802023,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Sable',
+    petsAllowed: true,
+    description: 'Parking devant la plage, à 3 min à pied des commerces et restaurants. Accès très escarpé à aborder avec prudence en camping-car. Superbe vue sur le golfe d\'Ajaccio et la tour génoise. Nuitée interdite.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Corte - Parking de l\'Université',
+    category: 'parking',
+    address: 'Descente de la Passerelle, 20250 Corte, Corse',
+    lat: 42.304286,
+    lng: 9.153207,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Goudron',
+    petsAllowed: true,
+    description: 'Grand parking goudronné et spacieux situé au niveau de l\'Université de Corse, facile d\'accès. Pratique pour stationner en journée et visiter Corte. Nuitée non autorisée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Corte - Parking IUT (Belvédère)',
+    category: 'parking',
+    address: 'Avenue du Neuvième Zouaves, 20250 Corte, Corse',
+    lat: 42.304286,
+    lng: 9.153207,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Goudron',
+    petsAllowed: true,
+    description: 'Grand parking en terrasses sur les hauteurs de la ville, offrant un panorama imprenable sur Corte et les reliefs environnants. Balcon panoramique idéal pour faire une pause en journée. Nuitée interdite.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Algajola - Parking de l\'Ancienne Gare',
+    category: 'parking',
+    address: 'Allée de la Gare, 20220 Algajola, Corse',
+    lat: 42.608447,
+    lng: 8.860256,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Goudron / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking de proximité situé juste derrière l\'ancienne gare d\'Algajola, idéal pour un accès direct au village et à la plage. Configuration exiguë en haute saison. Nuitée non autorisée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Propriano - Parking Gratuit',
+    category: 'parking',
+    address: '20110 Propriano, Corse',
+    lat: 41.674745,
+    lng: 8.902620,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Goudron / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking gratuit et facile d\'accès à Propriano, souvent moins encombré et très agréable pour une halte. Parfait pour stationner sans stress et visiter la ville. Nuitée non recommandée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+ {
+    name: 'Propriano - Parking Entrée Nord',
+    category: 'parking',
+    address: 'Route Nationale, 20110 Propriano, Corse',
+    lat: 41.677868,
+    lng: 8.910159,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Goudron / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking facilement accessible en entrée de ville, sans gabarit de hauteur. Accès aisé pour tous les camping-cars et fourgons. Pratique pour une halte en journée. Nuitée non autorisée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Propriano - Parking Plaine du Valinco (Centre-ville)',
+    category: 'parking',
+    address: 'Rue Jean-Paul Pandolfi, 20110 Propriano, Corse',
+    lat: 41.674975,
+    lng: 8.900407,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Non tracé',
+    petsAllowed: true,
+    description: 'Grand espace de stationnement gratuit en plein centre-ville, à deux pas des commerces et de la plage. Aucune barre de hauteur et accès très simple. Terrain de type champ/terre sans marquage au sol (stationnement libre). Utile pour dépanner en journée. Nuitée non autorisée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Propriano - Parking du Port (Place des Corses)',
+    category: 'parking',
+    address: 'Pl. des Corses, 20110 Propriano, Corse',
+    lat: 41.676245,
+    lng: 8.897299,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Jour et nuit (Toléré)',
+    ground: 'Goudron',
+    petsAllowed: true,
+    description: 'Parking du port très pratique à 200 m des embarcadères ferry et proche du centre-ville. Sans barre de hauteur et très facile d\'accès. Superbe vue sur la mer et le coucher de soleil. Nuitée tolérée par la municipalité, idéale pour attendre un départ en ferry le lendemain matin.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Ghisonaccia - Spot Nature Piste du Maquis',
+    category: 'nature',
+    address: 'Piste d accès naturel, 20240 Ghisonaccia, Corse',
+    lat: 41.676200,
+    lng: 8.897300,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Cailloux',
+    petsAllowed: true,
+    description: 'Dégagement naturel et calme en plein maquis, accessible par une piste terreuse. ATTENTION ACCÈS : Piste en terre étroite, cabossée et bordée de branches. Réservé aux vans et fourgons compacts. À proscrire pour les camping-cars profilés ou intégraux. Halte diurne uniquement.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Ghisonaccia - Parking de la Plage',
+    category: 'parking',
+    address: '4747 Route de la Mer, 20240 Ghisonaccia, Corse',
+    lat: 42.004564,
+    lng: 9.457167,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Goudron / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking de la plage de Ghisonaccia situé le long de la Route de la Mer, idéal pour un accès direct au littoral. Accès facile sans barrière de hauteur pour tous les camping-cars. Parfait pour une halte diurne ou une baignade. Nuitée non autorisée (zone littorale).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Sartène - Plage de Morta',
+    category: 'parking',
+    address: 'Plage de Morta, 20100 Sartène, Corse',
+    lat: 41.549048,
+    lng: 8.833009,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Sable dur',
+    petsAllowed: true,
+    description: 'Magnifique site naturel avec plage de sable grossier et de très beaux fonds marins. Point de départ de randonnées. ATTENTION ACCÈS : Piste en terre d\'environ 3 km comportant des nids-de-poule et de la tôle ondulée. Il est impératif de rouler au pas et d\'éviter les véhicules trop bas. Halte diurne uniquement, nuitée interdite.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Sartène - Parking de Roccapina',
+    category: 'parking',
+    address: 'Roccapina, 20100 Sartène, Corse',
+    lat: 41.502835,
+    lng: 8.938546,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Cailloux',
+    petsAllowed: true,
+    description: 'Parking d\'accès pour le site et la célèbre plage de Roccapina, au pied du Lion de Roccapina. ATTENTION ACCÈS : Piste en terre descendante depuis la route principale, ravinée et caillouteuse. Prudence indispensable pour les camping-cars et véhicules bas. Halte diurne uniquement, nuitée interdite.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Sartène - Parking de la Plage de Tizzano',
+    category: 'parking',
+    address: '42 Tizzano, 20100 Sartène, Corse',
+    lat: 41.536404,
+    lng: 8.855648,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Goudron / Stabilisé',
+    petsAllowed: true,
+    description: 'Bon emplacement de parking situé juste à côté de la plage dans le secteur de Tizzano. Accès sans barrière de hauteur, adapté aux camping-cars par la route côtière (prudence en saison estivale en raison de l\'affluence). Halte diurne idéale, nuitée non autorisée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Sartène - Parking Plage de Roccapina',
+    category: 'parking',
+    address: 'Piste de Roccapina, 20100 Sartène, Corse',
+    lat: 41.502835,
+    lng: 8.938546,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Sable / Cailloux',
+    petsAllowed: true,
+    description: 'Site naturel d\'exception offrant un accès à une magnifique plage et des départs de randonnées. ATTENTION ACCÈS : Piste en terre de 2,5 km depuis la T40. Carrossable mais nécessite de rouler au pas. Praticable en camping-car avec grande prudence. Aucun service. Halte diurne uniquement.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Sartène - Parking du site archéologique de Cauria',
+    category: 'parking',
+    address: 'D48A, 20100 Sartène, Corse',
+    lat: 41.535642,
+    lng: 8.916282,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Sous-bois',
+    petsAllowed: true,
+    description: 'Parking ombragé sous les arbres marquant le départ du sentier pédestre vers les sites mégalithiques de Cauria. Accès facile par la D48A. Stationnement gratuit sans barrière de hauteur, attention aux branches basses sous les chênes.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Sartène - Plage et Sentier de Murta Spana',
+    category: 'parking',
+    address: 'Piste de Murta Spana, 20100 Sartène, Corse',
+    lat: 41.547168,
+    lng: 8.827743,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Sable',
+    petsAllowed: true,
+    description: 'Parking au bout du chemin côtier, point de départ de randonnées sur le sentier littoral. ATTENTION ACCÈS : Piste en terre dégradée avec ornières. Réservé aux vans, fourgons et véhicules adaptés. Nuitée non autorisée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Sartène - Parking Bassacciu',
+    category: 'parking',
+    address: 'Rue Prugnolaccio, 20100 Sartène, Corse',
+    lat: 41.650000,
+    lng: 8.970000,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Payant en saison / Gratuit hors saison',
+    stay: 'Journée / Halte visite',
+    ground: 'Goudron / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking de proximité situé à deux pas du centre historique de Sartène. Accès par des rues étroites et pentues (prudence pour les grands camping-cars). Stationnement idéal pour visiter la ville à pied.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Vivario - Parking de la Cascade des Anglais',
+    category: 'parking',
+    address: 'Vizzavona, 20219 Vivario, Corse',
+    lat: 42.112158,
+    lng: 9.112931,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée / Randonnée',
+    ground: 'Goudron / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking facile d\'accès pour le départ de la randonnée de la Cascade des Anglais. Accès très facile par la route principale (RT20). Adapté à tous les camping-cars. Site ombragé très prisé l\'été.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Vivario - Parking de Canaglia (Cascade du Meli)',
+    category: 'parking',
+    address: 'D23, 20219 Vivario, Corse',
+    lat: 42.154639,
+    lng: 9.142764,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée / Randonnée',
+    ground: 'Terre / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking de départ pour la cascade du Meli et le GR20. Accès par la route de montagne D23 (étroite par endroits, prudence pour les grands camping-cars). Stationnement gratuit, nuitée non autorisée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Vivario - Parking Point de Vue / Randonnée',
+    category: 'parking',
+    address: 'RT20, 20219 Vivario, Corse',
+    lat: 42.175015,
+    lng: 9.163998,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Stabilisé',
+    petsAllowed: true,
+    description: 'Emplacement de stationnement gratuit en bord de route offrant un point de vue dégagé sur les montagnes environnantes. Praticable en camping-car sans barrière de hauteur. Halte diurne idéale.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Saint-Cyprien - Parking de la Plage',
+    category: 'parking',
+    address: 'Plage de Saint-Cyprien, 20144 Lecci, Corse',
+    lat: 41.641296,
+    lng: 9.355048,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée uniquement',
+    ground: 'Terre / Sable / Ornières',
+    petsAllowed: true,
+    description: 'Parking gratuit situé près d\'une belle plage. ATTENTION ACCÈS : Chemin en mauvais état avec des ornières. Non recommandé aux véhicules bas ou à grand porte-à-faux. Nuitée non autorisée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Ghisoni - Petit Parking Village',
+    category: 'parking',
+    address: 'Ghisoni, 20227 Ghisoni, Corse',
+    lat: 42.103530,
+    lng: 9.213779,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Halte courte uniquement',
+    ground: 'Goudron / Stabilisé',
+    petsAllowed: true,
+    description: 'Tout petit parking de proximité situé dans la commune de Ghisoni. ATTENTION : Espace très exigu. Déconseillé aux camping-cars et grands fourgons (risque de blocage). Nuitée interdite.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Piana - Grand Parking Gratuit',
+    category: 'parking',
+    address: 'Piana, 20115 Piana, Corse',
+    lat: 42.264573,
+    lng: 8.693127,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée / Visite',
+    ground: 'Terre / Stabilisé (Poussiéreux)',
+    petsAllowed: true,
+    description: 'Grand parking gratuit, très facile d\'accès avec beaucoup de place, offrant un accès rapide au village de Piana. Parfaitement adapté aux camping-cars (pas de barrière de hauteur). Idéal pour visiter le secteur.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Sari-Solenzara - Parking du Port',
+    category: 'parking',
+    address: '7 Strada Di a Baracchina, 20145 Sari-Solenzara, Corse',
+    lat: 41.856917,
+    lng: 9.400525,
+    type: 'parking_jour',
+    icon: '🅿️',
+    price: 'Gratuit (ou Payant selon saison/horodateur)',
+    stay: 'Journée / Pause courte',
+    ground: 'Goudron',
+    petsAllowed: true,
+    description: 'Grand parking situé sur le port de plaisance de Solenzara, très facile d\'accès. Aucune barrière de hauteur. Manœuvres faciles pour tous véhicules. Nuitée non autorisée (se rabattre sur l\'Aire de la Mer).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Águilas - Playa de los Cocederos',
+    category: 'nature',
+    address: '30890 Águilas, Murcie, Espagne',
+    lat: 37.376062,
+    lng: -1.630669,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Journée / Bivouac',
+    ground: 'Terre / Sable',
+    petsAllowed: true,
+    description: 'Superbe coin naturel offrant des criques magnifiques et de très belles balades. Passage d\'un boulanger ambulant pour le pain frais. Zone en terre bien accessible aux vans et camping-cars. Respecter impérativement les lieux : ne rien sortir (ni cale, ni store, ni mobilier extérieur) pour préserver l\'accès au spot. Águilas est proche (facile à vélo électrique).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Águilas - Playa del Arroz',
+    category: 'nature',
+    address: '30880 Águilas, Murcie, Espagne',
+    lat: 37.428998,
+    lng: -1.525732,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Journée / Bivouac',
+    ground: 'Terre / Sable',
+    petsAllowed: true,
+    description: 'Spot de stationnement en bord de mer. Moins pittoresque que la Playa de los Cocederos. Attention particulière requise : zone signalée pour des risques de vol (vélo et deux-roues). Ne rien sortir (pas de matériel extérieur, stationnement strict) et sécuriser ses biens.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Águilas - Plage autorisée aux chiens (Aparcamiento)',
+    category: 'nature',
+    address: '30889 Águilas, Murcie, Espagne',
+    lat: 37.428892,
+    lng: -1.525404,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Journée / Bivouac',
+    ground: 'Terre / Sable',
+    petsAllowed: true,
+    description: 'Zone de stationnement à proximité immédiate de l\'une des rares plages de la commune où les chiens sont officiellement autorisés sur le sable. Idéal pour les voyageurs avec un animal. Respecter les lieux et stationner sans rien déballer à l\'extérieur pour préserver l\'accès au site.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Águilas - Cala Mijo',
+    category: 'nature',
+    address: '30890 Águilas, Murcie, Espagne',
+    lat: 37.384307,
+    lng: -1.614239,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Journée (vigilance pour la nuit)',
+    ground: 'Terre',
+    petsAllowed: true,
+    description: 'Superbe petite crique naturelle aux eaux claires et propres. Accès par un court chemin de terre. Très calme le matin, un peu plus fréquenté l\'après-midi. Aucun équipement sur place. Présence constatée de véhicules, mais la réglementation sur la nuitée en zone naturelle protégée reste stricte : prudence et discrétion de mise, ne rien sortir.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Almenara - Parking Plage de Casablanca',
+    category: 'parking',
+    address: 'Barrio-Mar, 12590 Casablanca, Castellón, Espagne',
+    lat: 39.746057,
+    lng: -0.173441,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Journée / Nuitée tolérée',
+    ground: 'Bitume / Stabilisé',
+    petsAllowed: true,
+    description: 'Grand parking végétalisé/côtier très fréquenté par les camping-cars et les vans, situé à proximité immédiate de la plage. Espace de stationnement large et très apprécié pour y passer la nuit. Rester discret.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de Bernex',
+    category: 'aire',
+    address: 'Route de l\'Ugine, 74500 Bernex',
+    lat: 46.357806,
+    lng: 6.683962,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Stationnement gratuit / Services payants',
+    stay: 'Stationnement jour et nuit autorisé',
+    ground: 'Terre battue / Stabilisé',
+    petsAllowed: true,
+    description: 'Terrain très tranquille en montagne. Borne Flot Bleu à disposition (services payants).',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Camping-Car de L\'Églantine',
+    category: 'aire',
+    address: 'L\'Églantine',
+    lat: 46.538024,
+    lng: 6.139729,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire très agréable avec services gratuits (eau et égouts). Proche de la rivière, des commerces et du musée.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-cars de Bourg-en-Bresse',
+    category: 'aire',
+    address: 'Rue du Pré Neuf, 01000 Bourg-en-Bresse',
+    lat: 46.209003,
+    lng: 5.240293,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire proche du centre-ville, endroit calme la nuit. Borne de service et emplacements pratiques.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-cars de La Chapelle-de-Guinchay',
+    category: 'aire',
+    address: 'Rte de Juliénas, 71570 La Chapelle-de-Guinchay',
+    lat: 46.210135,
+    lng: 4.767641,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire très agréable et spacieuse en périphérie de la ville, éclairée et sous vidéosurveillance. Services fournis (sauf électricité).',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking du Musée des Maisons Comtoises',
+    category: 'parking',
+    address: 'Rue du Musée, 25360 Nancray',
+    lat: 47.239514,
+    lng: 6.184697,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Stationnement gratuit / Eau payante par jeton',
+    stay: 'Stationnement jour et nuit autorisé',
+    ground: 'Grande prairie / Terrain en pente',
+    petsAllowed: true,
+    description: 'Grand parking en herbe sur terrain en pente près du musée. Borne de service avec eau payante par jeton disponible au musée (attention, ouverture saisonnière du musée).',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-cars de Dudelange',
+    category: 'aire',
+    address: 'Rue Reiteschkopp, 3590 Dudelange, Luxembourg',
+    lat: 49.471393,
+    lng: 6.078487,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit (Stationnement et services)',
+    stay: 'Stationnement limité à 48h maximum',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de 8 places gratuite à proximité du centre-ville, des commerces, restaurants et transports. Inscription obligatoire via le QR code sur le panneau près des services (nom et e-mail requis).',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-cars de Rodemack',
+    category: 'aire',
+    address: 'Route de Thionville (D57), 57570 Rodemack',
+    lat: 49.466402,
+    lng: 6.231945,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Non pavé / Terre et herbe',
+    petsAllowed: true,
+    description: 'Immense aire gratuite au-dessus du village médiéval classé. Nuit au calme. Électricité disponible sur la borne. Eau coupée pendant les mois les plus froids. Attention : très peu ou pas de réseau mobile.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-cars de Koerich',
+    category: 'aire',
+    address: 'Chemin de la Source, 8383 Koerich, Luxembourg',
+    lat: 49.670696,
+    lng: 5.942454,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Stationnement gratuit / Eau et électricité payantes par monnayeur',
+    stay: 'Nuitée autorisée',
+    ground: 'Sol pavé / Emplacements stables avec végétation',
+    petsAllowed: true,
+    description: 'Un environnement verdoyant et très calme abritant 4 emplacements parfaitement stabilisés sur pavés, séparés par de légères haies végétales pour plus d’intimité. Le site propose de grandes tables de pique-nique et un accès direct au patrimoine local (château féodal, église et sentiers de randonnée en forêt). Borne de services avec monnayeur anti-gaspillage pour l’eau et le courant. Route bordante très peu fréquentée.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-cars de Boulaide',
+    category: 'aire',
+    address: 'Rue de l\'Étang, 9640 Boulaide, Luxembourg',
+    lat: 49.885668,
+    lng: 5.808378,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Stationnement gratuit / Services payants (Eau 1€/100L, Électricité 0,50€/kWh)',
+    stay: 'Nuitée autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Cadre très agréable et ultra-calme à l’écart du village, avec circulation quasi inexistante. 4 emplacements balisés près d\'une aire de jeux et de départs de randonnées pédestres et VTT. Toilettes publiques à 50 m. Ouvert toute l\'année. Services payants : 1 € les 100L d\'eau et 0,50 € le kWh d\'électricité.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-cars de Namur',
+    category: 'aire',
+    address: 'Rue des Souchets, 5000 Namur, Belgique',
+    lat: 50.467772,
+    lng: 4.850257,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Stationnement gratuit / Services payants',
+    stay: 'Nuitée autorisée',
+    ground: 'Légèrement en pente (cales nécessaires)',
+    petsAllowed: true,
+    description: 'Emplacement pour environ 5 camping-cars, légèrement en pente mais gérable avec des cales. À quelques pas du centre de la jolie ville universitaire de Namur (accessible en 15 minutes par le chemin de halage ou en saison via la navette fluviale "La Namourette" à 0,50 € par arrêt). Grand marché hebdomadaire le samedi. Grande poubelle sur place. Borne Flot Bleu globale (eau et vidange) entièrement payante (7,50 € pour 20 minutes).',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Kelmis',
+    category: 'aire',
+    address: 'Galmeipl. / Schützenstraße, 4720 Kelmis, Belgique',
+    lat: 50.718036,
+    lng: 6.008453,
+    type: 'aire_campingcar',
+    icon: '🚐',
+    price: 'Stationnement gratuit / Services payants (1€ / 2 kWh, 1€ eau)',
+    stay: '24h max',
+    ground: 'Stabilisé / Pavé',
+    petsAllowed: true,
+    description: 'Aire gratuite de 7 emplacements située dans le village, autorisée pour 24h. À proximité immédiate d’un parc avec aire de jeux, terrain de basket et table de ping-pong. Toilettes publiques gratuites sur place. Petite poubelle et conteneurs à verre sur le parking adjacent. Services payants : 1 € pour 2 kWh d’électricité et 1 € pour l’eau potable. Station de vidange disponible uniquement pour les cassettes WC (pas de grille pour vidange des eaux grises).',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Gîte Équestre Le Ranch du Bel Air',
+    category: 'ferme',
+    address: 'Labretonie, 47350',
+    lat: 44.501297,
+    lng: 0.400474,
+    type: 'ferme',
+    icon: '🚜',
+    price: '1 € / pers. (Stationnement) | Forfait services 6 € / nuit',
+    stay: 'Stationnement jour et nuit',
+    ground: 'Herbe / Sol naturel',
+    petsAllowed: true,
+    description: 'Accueil sur une structure équestre entourée de collines et 400 ha de forêt. Présence de nombreux animaux (chevaux, poneys, cochons, volailles, chiens, chats). Animaux obligatoirement tenus en laisse. Services lave-linge et sanitaires sur place.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Château du Payre',
+    category: 'ferme',
+    address: '69 Route du Château d\'Eau, 33410 Cardan',
+    lat: 44.677053,
+    lng: -0.324098,
+    type: 'vignoble',
+    icon: '🚜',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour uniquement / 5 places',
+    ground: 'Sol stabilisé / Herbe',
+    petsAllowed: true,
+    description: 'Vignoble familial de 40 hectares situé à quelques kilomètres au sud de Bordeaux. Visite du domaine, découverte des chais et dégustation de vins.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Clos Maine Gravereau (EARL Paillet et Fils)',
+    category: 'ferme',
+    address: '96 Routurier, 33920 Saint-Vivien-de-Blaye',
+    lat: 45.102475,
+    lng: -0.524295,
+    type: 'ferme',
+    icon: '🚜',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé (5 places)',
+    ground: 'Enrobé ou pelouse',
+    petsAllowed: true,
+    description: 'Vignoble familial. Visite du chai, dégustation de vins. Accès gratuit eau, électricité et vidanges (eaux usées et cassettes).',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'La Ferme Fromagère de Suscinio (Tomme de Rhuys)',
+    category: 'ferme',
+    address: 'Rte Duchesse Isabeau d’Écosse, 56370 Sarzeau',
+    lat: 47.515680,
+    lng: -2.718441,
+    type: 'ferme',
+    icon: '🚜',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé (20 places)',
+    ground: 'Herbe / Pelouse',
+    petsAllowed: true,
+    description: 'Fabrication de la Tomme de Rhuys. Parking jour et nuit gratuit, restaurant sur place, commande de pain et viennoiseries possible. Proche du château de Suscinio.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'EARL Marion (Chantier Ostréicole)',
+    category: 'ferme',
+    address: '80 Rue du Po, 56340 Carnac',
+    lat: 47.57502,
+    lng: -3.07590,
+    type: 'ferme',
+    icon: '🚜',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé (5 places)',
+    ground: 'Terre battue / Graviers',
+    petsAllowed: true,
+    description: 'Ferme ostréicole (huîtres, moules, coques). Vente et dégustation sur place avec vue sur mer. Réservation téléphonique conseillée.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Vignoble Vacy (Charlotte & Yohann Welvaert)',
+    category: 'ferme',
+    address: 'Lieu-dit Vacy (près de St-Lambert-du-Lattay), 49750 Chanzeaux',
+    lat: 47.278572,
+    lng: -0.685733,
+    type: 'ferme',
+    icon: '🚜',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé (5 places)',
+    ground: 'Terre battue / Herbe',
+    petsAllowed: true,
+    description: 'Exploitation viticole familiale près de Saint-Lambert-du-Lattay. Dégustation de vins dAnjou sur place, circuits à pied et à vélo dans les vignes.',
+    services: { water: true, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'L\'Autruche de Laurette',
+    category: 'ferme',
+    address: 'Rue de Coup de Vague, 17137 Marsilly',
+    lat: 46.232606,
+    lng: -1.136759,
+    type: 'ferme',
+    icon: '🚜',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé (10 places)',
+    ground: 'Herbe / Terre stabilisée',
+    petsAllowed: true,
+    description: 'Parking en face de la ferme pédagogique. Visite de la ferme, vente de produits locaux, dégustation sur réservation en été. À 5 minutes de la mer.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Gaec Le Chapeau Rouge',
+    category: 'ferme',
+    address: 'Rue du Chapeau Rouge, 85370 Mouilleron-en-Pareds (Le Langon)',
+    lat: 46.434690,
+    lng: -0.960150,
+    type: 'ferme',
+    icon: '🚜',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé (5 places)',
+    ground: 'Gravier / Terre stabilisée',
+    petsAllowed: true,
+    description: 'Accueil chaleureux par les éleveurs. Vente de viande bovine de race partenaise et produits fermiers locaux. Visite de la ferme et des vaches.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Ferme / Vignoble (La Brée-les-Bains)',
+    category: 'ferme',
+    address: 'La Brée-les-Bains, 17840',
+    lat: 46.003180,
+    lng: -1.360050,
+    type: 'ferme',
+    icon: '🚜',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé',
+    ground: 'Sol stabilisé / Accès parking',
+    petsAllowed: true,
+    description: 'Emplacement de stationnement validé à La Brée-les-Bains, situé à proximité des zones agricoles et du littoral.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Vignoble Guérinaud',
+    category: 'ferme',
+    address: 'Mazerolles, 17800',
+    lat: 45.549092,
+    lng: -0.581680,
+    type: 'ferme',
+    icon: '🚜',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé',
+    ground: 'Cour stabilisée / Accès domaine',
+    petsAllowed: true,
+    description: 'Accueil chaleureux au cœur du vignoble. Dégustation de produits et stationnement au calme.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Étang de Bonnes',
+    category: 'nature',
+    address: 'Route de Châtellerault (D749), 86300 Bonnes, France',
+    lat: 46.6117,
+    lng: 0.5989,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Herbe / Plat / Arboré',
+    petsAllowed: true,
+    description: 'Grand espace naturel plat et arboré au bord d\'un étang de pêche communal. Aucun aménagement spécifique camping-car. Accès direct depuis la D749 (accès interdit aux caravanes). Emplacement idéal pour une halte au calme en pleine nature.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Étang Les Gours',
+    category: 'nature',
+    address: 'Route de l\'Etang de Point Folle, 16140 Les Gours, France',
+    lat: 45.954489,
+    lng: -0.075245,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Herbe / Plat / Arboré',
+    petsAllowed: true,
+    description: 'Grand étang de pêche arboré et plat, accessible depuis la Route de l\'Etang de Point Folle. Aucun service dédié aux camping-cars. Espace calme en pleine nature.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Espace de loisirs La Rivière',
+    category: 'nature',
+    address: 'Rue de l\'Ebeaupin, 79360 Granzay-Gript, France',
+    lat: 46.230652,
+    lng: -0.499314,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Gravillons / Plat',
+    petsAllowed: true,
+    description: 'Grand parking gravillonné plat d\'une dizaine de places, situé près de l\'espace de loisirs et d\'une rivière. Équipé d\'une aire de jeux pour enfants, de sanitaires, d\'eau potable et de poubelles.',
+    services: { water: true, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Canal d\'Andilly / Les Écluses',
+    category: 'nature',
+    address: 'Secteur des Écluses, 17230 Andilly, France',
+    lat: 46.232481,
+    lng: -1.050709,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Plat / Herbe / Stabilisé',
+    petsAllowed: true,
+    description: 'Emplacements calmes le long du canal et en cul-de-sac près des écluses. Voie peu passante, idéal pour la pêche, les balades à vélo le long de l\'eau et le kayak. Capacité d\'environ 10 véhicules.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking des Carrelets',
+    category: 'nature',
+    address: 'Secteur des Carrelets, 17450 Saint-Laurent-de-la-Prée, France',
+    lat: 45.961105,
+    lng: -1.044938,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée hors saison',
+    ground: 'Stabilisé / Plat',
+    petsAllowed: true,
+    description: 'Spot en pleine nature près des carrelets de pêche, totalement isolé et calme hors saison. Accès adapté aux grands gabarits jusqu\'à 5,5 tonnes. Aucun service.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Spot Nature Fort Lupin',
+    category: 'nature',
+    address: 'Chemin du Fort, 17780 Saint-Nazaire-sur-Charente, France',
+    lat: 45.958430,
+    lng: -1.027428,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée',
+    ground: 'Herbe / Terre / Ombragé',
+    petsAllowed: true,
+    description: 'Spot en face des tables de pique-nique, à deux pas du Fort Lupin (visitable de juillet à septembre, les jeudi et dimanche matin). Accès aux carrelets de pêche par un sentier sous les canons. Extension herbeuse un peu plus loin, plus grande et abritée du vent sous les pins.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Pont Suspendu de Saint-Hippolyte',
+    category: 'nature',
+    address: 'Avenue du Pont Suspendu, 17430 Saint-Hippolyte, France',
+    lat: 45.939608,
+    lng: -0.886130,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Stationnement diurne recommandé (nuitée délicate)',
+    ground: 'Stabilisé / Espace restreint',
+    petsAllowed: true,
+    description: 'Petit espace sous le pont avec un point de vue exceptionnel sur la Charente et l\'architecture du pont suspendu et de ses arcades. Capacité très limitée (environ 4 véhicules). Idéal pour une halte, prudence pour la nuit.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Canal de la Sèvre Niortaise / Charron',
+    category: 'nature',
+    address: 'Route du Brault, 17230 Charron, France',
+    lat: 46.316806,
+    lng: -1.071199,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée et très calme',
+    ground: 'Stabilisé / Plat / Herbeux',
+    petsAllowed: true,
+    description: 'Endroit très calme le long des canaux de la Sèvre Niortaise. Belle balade en perspective. Accès facile depuis la D9 via la route du Brault. Route limitée à 3,5 tonnes, à peine à 30 minutes de La Rochelle.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Canal de Pomère / Bellegarde',
+    category: 'nature',
+    address: 'Route de Bellegarde, 85770 L\'Île-d\'Elle, France',
+    lat: 46.321051,
+    lng: -0.951981,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée et paisible',
+    ground: 'Herbe / Terre / Ombragé',
+    petsAllowed: true,
+    description: 'Emplacement calme au bord du canal sous les arbres. Tables de pique-nique et poubelles sur place. Idéal pour un dodo nature paisible le long de l\'eau.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Halte Nature D12 / Villesèque',
+    category: 'nature',
+    address: 'D12, 46090 Villesèque, France',
+    lat: 44.396741,
+    lng: 1.313809,
+    type: 'nature',
+    icon: '🌙',
+    price: 'Gratuit',
+    stay: 'Stationnement de jour et nuit',
+    ground: 'Terre / Gravier / Herbe',
+    petsAllowed: true,
+    description: 'Grand espace en bord de route peu fréquentée (D12) au cœur de la nature. Emplacement très accessible pour tous les gabarits avec une belle capacité d\'accueil. Départ direct sur des chemins de randonnée pédestre et pistes cyclables.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking de l\'Aire de Pique-Nique du Marais',
+    category: 'parking',
+    address: 'Impasse des Chenevières, Marais Poitevin, France',
+    lat: 46.275747,
+    lng: -0.719980,
+    type: 'parking_nuit_toleree',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuitée possible (stationnement discret)',
+    ground: 'Stabilisé / Herbeux / Plat',
+    petsAllowed: true,
+    description: 'Grand parking calme de 10 à 15 places situé à l\'entrée d\'un marais verdoyant, idéal pour les balades sur la voie verte et la proximité du parc ornithologique. Nombreuses tables de pique-nique à disposition. Aucun service de camping-car.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Àrea d\'Autocaravanes l\'Aldea',
+    category: 'Aire de camping-car',
+    address: 'Carrer de l\'Ebre, 117, 43896 L\'Aldea, Tarragona, Espagne',
+    lat: 40.749308,
+    lng: 0.628267,
+    type: 'aire',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuit autorisée / Calme',
+    ground: 'Stabilisé / Bord de piste cyclable',
+    petsAllowed: true,
+    description: 'Bel emplacement mis à disposition par la municipalité, très bien agencé. Situé à côté d\'une piste cyclable bordée d\'oliviers. Nuits autorisées. Services entièrement gratuits (eau et vidanges).',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Malestroit',
+    category: 'Aire de camping-car',
+    address: '6021 Rue Édouard Entremont, 56140 Malestroit, France',
+    lat: 47.808881,
+    lng: -2.376014,
+    type: 'aire',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuit autorisée / Ouvert toute l\'année',
+    ground: 'Stabilisé / Propre',
+    petsAllowed: true,
+    description: 'Aire de services municipale très bien située et propre, idéale pour visiter le village. Nuits autorisées. Services et stationnement 100% gratuits.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Yecla',
+    category: 'Aire de camping-car',
+    address: 'Estación de Autobuses, 30510 Yecla, Murcia, Espagne',
+    lat: 38.868292,
+    lng: -1.105646,
+    type: 'aire',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuit autorisée (72h max)',
+    ground: 'En pente légère (cales nécessaires)',
+    petsAllowed: true,
+    description: 'Aire située en plein centre entre les deux gares (limite 72 heures max). Quartier calme, un peu plus fréquenté en août. Stationnement gratuit avec nuit autorisée. Emplacements légèrement en pente (prévoir des cales). Services d\'eau et de vidange gratuits.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Pontchâteau',
+    category: 'Aire de camping-car',
+    address: 'Allée du Brivet, 44160 Pontchâteau, France',
+    lat: 47.440573,
+    lng: -2.089747,
+    type: 'aire',
+    icon: '🚐',
+    price: 'Stationnement et vidange gratuits / Eau payante',
+    stay: 'Nuit autorisée (48h max)',
+    ground: 'Stabilisé / Ombragé au bord du Brivet',
+    petsAllowed: true,
+    description: 'Grande aire de stationnement municipale très agréable au bord de l\'eau, proche du centre-ville, d\'un parc et d\'un parcours de santé. Nuits autorisées (limité à 48h). Proximité de la ligne ferroviaire. Vidange gratuite, recharge en eau payante.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking - Station OLA Energy Jemâa-Shaim',
+    category: 'Parking',
+    address: 'Km 2, Route de Safi, Jemâa-Shaim, Maroc',
+    lat: 32.332436,
+    lng: -8.855988,
+    type: 'parking',
+    icon: '🅿️',
+    price: '20 DH (~2 €)',
+    stay: 'Nuit autorisée (5 places max)',
+    ground: 'Stabilisé / Espaces abrités à l\'arrière',
+    petsAllowed: true,
+    description: 'Stationnement à l\'arrière du bâtiment de la station-service OLA Energy (20 dirhams la nuit). Bon accueil, 2 espaces abrités et emplacements libres (5 places au total). Hauteur limitée à 3,30 m.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking - Station-service Ouarzazate',
+    category: 'Parking',
+    address: 'Ouarzazate, 45000, Maroc',
+    lat: 30.939328,
+    lng: -6.977600,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuit autorisée (3 places max)',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Station-service à Ouarzazate proposant quelques emplacements (3 places). Stationnement et services gratuits (bornes électriques et douches signalées).',
+    services: { water: true, electricity: true, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking - Station Service Samir Azilal',
+    category: 'Parking',
+    address: 'R304, Azilal, Maroc',
+    lat: 31.980534,
+    lng: -6.566223,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Participation libre',
+    stay: 'Nuit autorisée',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Station Service Samir sur la R304. Possibilité de stationner et de vider cassettes WC et eaux grises (laisser une pièce pour le service). Fontaine d\'eau potable signalée plus loin vers le lac.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Parking - Av. do Porto de Areia',
+    category: 'Parking',
+    address: 'Av. do Porto de Areia, Peniche, Portugal',
+    lat: 39.359110,
+    lng: -9.373076,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuit autorisée',
+    ground: 'Asphalte / Stabilisé',
+    petsAllowed: true,
+    description: 'Parking spacieux et idéalement situé à Peniche, à deux pas de la plage et du centre-ville. Parfait pour stationner et passer la nuit en camping-car ou fourgon aménagé, à proximité des commerces et des départs de balades.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking - Supermarché Coop Orbetello',
+    category: 'Parking',
+    address: '58015 Orbetello, Grosseto, Italie',
+    lat: 42.448759,
+    lng: 11.231570,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit',
+    stay: 'Nuit autorisée (~12 places max)',
+    ground: 'Asphalte / Plat',
+    petsAllowed: true,
+    description: 'Parking réservé aux camping-cars, plat, calme et bien éclairé près du supermarché Coop. Sentiment de sécurité apprécié. Piste cyclable à proximité directe. Seul spot gratuit du secteur.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Parking - Spot Kite Orbetello',
+    category: 'Parking',
+    address: 'Strada Provinciale della Giannella, 174, 58015 Orbetello GR, Italie',
+    lat: 42.471162,
+    lng: 11.187248,
+    type: 'parking',
+    icon: '🅿️',
+    price: 'Gratuit hors saison',
+    stay: 'Nuit autorisée',
+    ground: 'Terrain plat / Ombragé',
+    petsAllowed: true,
+    description: 'Terrain plat avec de l\'ombre, situé à proximité immédiate de la plage et du site de kite. Proche de la route mais dans un bon esprit vanlifer. Gratuit hors saison.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - Biard',
+    category: 'aire',
+    address: '86580 Biard, Vienne, France',
+    lat: 46.577200,
+    lng: 0.308500,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Stationnement jour et nuit autorisé',
+    ground: 'Stabilisé / Enrobé',
+    petsAllowed: true,
+    description: 'Aire de camping-car agréable et calme située à proximité de Poitiers. Emplacements stables, cadre verdoyant avec un accès facile aux services et aux chemins de promenade le long de la rivière.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car - La Rivière-Saint-Sauveur',
+    category: 'Aire de camping-car',
+    address: 'Chemin du Banc, 14600 La Rivière-Saint-Sauveur, France',
+    lat: 49.409430,
+    lng: 0.268546,
+    type: 'aire',
+    icon: '🚐',
+    price: 'Stationnement gratuit / Eau payante (5 € / 150 L)',
+    stay: 'Nuit autorisée (~20 emplacements)',
+    ground: 'Stabilisé / Bien délimité',
+    petsAllowed: true,
+    description: 'Belle aire de camping-car communale gratuite comprenant environ 20 emplacements bien délimités. Bruit de route présent mais supportable. Service d\'eau payant par jeton dans les commerces du village (5 € pour 150 L), vidanges gratuites.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  }
+  ];
+
+const forbiddenKeywords = ["nuit interdite", "interdiction de stationner la nuit", "barrière", "hauteur", "gabarit", "payant", "journée"];
+let seenCoords = new Set();
+
+let filteredSpots = rawSpots.filter(spot => {
+  const isFree = spot.type === 'free' || (spot.price || "").toLowerCase().includes('gratuit');
+  const stayText = (spot.stay || "").toLowerCase();
+  const nameText = (spot.name || "").toLowerCase();
+  const addressText = (spot.address || "").toLowerCase();
+
+  const isForbidden = forbiddenKeywords.some(keyword => 
+    stayText.includes(keyword) || nameText.includes(keyword) || addressText.includes(keyword)
+  );
+
+  const coordKey = `${spot.lat.toFixed(4)},${spot.lng.toFixed(4)}`;
+  const isDuplicate = seenCoords.has(coordKey);
+  if (!isDuplicate) seenCoords.add(coordKey);
+
+  return isFree && !isForbidden && !isDuplicate;
+});
+
+// --- LISTE COMPLÈTE DES POINTS D'EAU & SERVICES ---
+const rawWaterPoints = [
+{
+    name: 'Léhon / Dinan - Aire de Vidange',
+    category: 'Vidange',
+    address: 'Route de la Brancherie, Léhon, 22100 Dinan, France',
+    lat: 48.442201,
+    lng: -2.042019,
+    type: 'waste',
+    icon: '🚰',
+    price: 'Services payants / Stationnement gratuit',
+    stay: 'Vidange eaux grises / noires',
+    ground: 'Bitume',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux grises et noires. Services payants, stationnement gratuit.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Área de servicios - Almoguera',
+    category: 'eau',
+    address: 'C. Fuenvellida, 5, 19115 Almoguera, Guadalajara, Espagne',
+    lat: 40.293664,
+    lng: -2.977216,
+    type: 'point_eau',
+    icon: '💧',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'En pente / Stabilisé',
+    petsAllowed: true,
+    description: 'Point d\'accès à l\'eau potable mis à disposition gratuitement par la mairie. Situé sur l\'aire en pente (cales conseillées). Accès recommandé en contournant le village par la chapelle pour les grands véhicules.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Marboué - Aire de Vidange',
+    category: 'vidange',
+    address: '22 Rue du Croc Marbot, 28200 Marboué, France',
+    lat: 48.112664,
+    lng: 1.328632,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: '0 € (Gratuit)',
+    stay: 'Vidange eaux grises / noires',
+    ground: 'Bitume / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de vidange gratuite pour eaux grises et noires.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zaragoza - Aire de Vidange',
+    category: 'vidange',
+    address: 'Calle de Luciano Gracia, 50018 Zaragoza, Espagne',
+    lat: 41.682845,
+    lng: -0.890250,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: '0 € (Gratuit)',
+    stay: 'Vidange eaux grises / noires',
+    ground: 'Bitume / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de vidange gratuite pour eaux grises et noires.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Malansac - Aire de Vidange',
+    category: 'vidange',
+    address: '1 Rue Saint-Fiacre, 56220 Malansac, France',
+    lat: 47.6781,
+    lng: -2.2997,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: '0 € (Gratuit)',
+    stay: 'Vidange eaux grises / noires',
+    ground: 'Bitume / Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de vidange gratuite pour eaux grises et noires.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Le Guerno - Aire de Vidange',
+    category: 'vidange',
+    address: '9 Rue des Oiseaux, 56190 Le Guerno, France',
+    lat: 47.582894,
+    lng: -2.406358,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: '0 € (Gratuit)',
+    stay: 'Vidange eaux grises / noires',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de vidange gratuite pour eaux grises et noires.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Miranda do Corvo - Aire de Vidange',
+    category: 'vidange',
+    address: 'Rua do Poço, Miranda do Corvo, Portugal',
+    lat: 40.087730,
+    lng: -8.332485,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: '0 € (Gratuit)',
+    stay: 'Vidange eaux grises / noires',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Aire de vidange gratuite pour eaux grises et noires.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Réminiac - Aire de Vidange',
+    category: 'vidange',
+    address: '56140 Réminiac, France',
+    lat: 47.859631,
+    lng: -2.236565,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: '0 € (Gratuit)',
+    stay: 'Vidange eaux grises / noires',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de remplissage et de vidange. Le bouchon de vidange de la cassette se trouve sous le robinet.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Le Louroux-Béconnais - Zone de Vidange',
+    category: 'vidange',
+    address: '49370 Val d\'Erdre-Auxence (Le Louroux-Béconnais), France',
+    lat: 47.539788,
+    lng: -0.871583,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services / Passage',
+    ground: 'Goudron',
+    petsAllowed: true,
+    description: 'Espace de vidange (eaux grises et noires) situé au Louroux-Béconnais à proximité du plan d\'eau.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Vidange - Saint-Genest-Lerpt',
+    category: 'vidange',
+    address: 'Rue de la Plage, 42230 Saint-Genest-Lerpt, France',
+    lat: 45.448093,
+    lng: 4.256079,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service ponctuel',
+    ground: 'Bitume / Parking',
+    petsAllowed: true,
+    description: 'Zone de vidange avec robinet d\'eau s\'écoulant dans un carré bleu.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire Camping-Car - Biar (Vidange)',
+    category: 'vidange',
+    address: 'Biar, 03410, Province d\'Alicante, Espagne',
+    lat: 38.629761,
+    lng: -0.768876,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Vidange eaux grises et noires',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux usées sur l\'aire de Biar.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zone de vidange - Almoguera',
+    category: 'vidange',
+    address: '84 C. Fuenvellida, 19115 Almoguera, Castille-La Manche, Espagne',
+    lat: 40.293286,
+    lng: -2.977381,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide (Libre accès)',
+    ground: 'Asphalte / Béton',
+    petsAllowed: true,
+    description: 'Plateforme de vidange complète sur l\'aire communale. Permet la vidange des eaux usées (eaux grises) au sol et l\'évacuation/rinçage des cassettes WC (eaux noires).',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zone de vidange - Guadalajara',
+    category: 'vidange',
+    address: 'Avenida del Mirador del Balconcillo, 19002 Guadalajara, Espagne',
+    lat: 40.624612,
+    lng: -3.168997,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide (Libre accès)',
+    ground: 'Asphalte / Béton',
+    petsAllowed: true,
+    description: 'Zone de vidange ergonomique et très fonctionnelle pour les eaux grises et noires sur l\'aire gratuite de Guadalajara.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire communale - Guadalajara',
+    category: 'aire',
+    address: 'Avenida del Mirador del Balconcillo, 19002 Guadalajara, Espagne',
+    lat: 40.624612,
+    lng: -3.168997,
+    type: 'aire_stationnement',
+    icon: '🚐',
+    price: 'Gratuit',
+    stay: 'Nuit autorisée (Bruyante / Proche autoroute)',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Aire municipale gratuite de 8 emplacements. Bande de service ergonomique et fonctionnelle, bonne pression pour l\'eau et vidanges faciles. Emplacement idéal pour les services mais bruyant pour la nuit en raison de la proximité immédiate de l\'autoroute.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zone de vidange - Cariñena',
+    category: 'vidange',
+    address: 'C. del Carmen, 50400 Cariñena, Zaragoza, Espagne',
+    lat: 41.338082,
+    lng: -1.230325,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide (Libre accès)',
+    ground: 'Asphalte / Béton',
+    petsAllowed: true,
+    description: 'Zone de vidange gratuite et facile d\'accès pour les eaux grises et noires (cassette WC).',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zone de vidange - Chauvigny (Étang)',
+    category: 'vidange',
+    address: 'Route de Poitiers, 86300 Chauvigny, Vienne, France',
+    lat: 46.493702,
+    lng: 0.753647,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide (Hors vendredi matin)',
+    ground: 'Asphalte / Béton',
+    petsAllowed: true,
+    description: 'Plateforme de vidange gratuite pour les eaux grises et noires (cassette WC).',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Mora de Rubielos',
+    category: 'vidange',
+    address: 'Calle Dr. Gómez Ferrer, 36, 44400 Mora de Rubielos, Teruel, Espagne',
+    lat: 40.254002,
+    lng: -0.750091,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: '0 € (Gratuit)',
+    stay: 'Accès libre',
+    ground: 'Bitume / Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange gratuite pour eaux grises et eaux noires sur l\'aire municipale de Mora de Rubielos.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zone de vidange - Aire de Huesca',
+    category: 'vidange',
+    address: '72 Calle San Jorge, 22004 Huesca, Aragon, Espagne',
+    lat: 42.194875,
+    lng: -0.412025,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès service uniquement',
+    ground: 'Bitume / Stabilisé',
+    petsAllowed: true,
+    description: 'Plateforme de vidange gratuite pour les eaux grises et les cassettes WC sur l\'aire municipale de Huesca.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zone de vidange et eau - Área de Astorga',
+    category: 'vidange',
+    address: 'Astorga, León, Espagne',
+    lat: 42.451530,
+    lng: -6.065698,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Station de vidange et point d\'eau sur l\'aire municipale d\'Astorga.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zone de vidange - Plage de la Paracou',
+    category: 'vidange',
+    address: 'Prom. Georges Pernoud, 85100 Les Sables-d\'Olonne, France',
+    lat: 46.503155,
+    lng: -1.809414,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Station de vidange des eaux grises et noires sur le site de la Paracou.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zone de vidange - Prinquiau',
+    category: 'vidange',
+    address: '15 Rue du Champoulain, 44260 Prinquiau, France',
+    lat: 47.366962,
+    lng: -2.012281,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Station de vidange des eaux grises et noires sur l\'aire de Prinquiau.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zone de vidange - Saint-Gervais-les-Bains',
+    category: 'vidange',
+    address: 'Le Mont-Blanc, 74170 Saint-Gervais-les-Bains, France',
+    lat: 45.888879,
+    lng: 6.712850,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Station de vidange des eaux grises et noires gratuite sur l\'aire de Saint-Gervais-les-Bains.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zone de vidange - Trasmoz',
+    category: 'vidange',
+    address: 'Trasmoz, 50583, Saragosse, Espagne',
+    lat: 41.836154,
+    lng: -1.728765,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Station de vidange des eaux grises et noires gratuite à Trasmoz.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Olite',
+    category: 'vidange',
+    address: '31390 Olite (Navarre), Espagne',
+    lat: 42.480224,
+    lng: -1.647676,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Goudron',
+    petsAllowed: false,
+    description: 'Plateforme de vidange des eaux grises et des eaux noires (cassette) sur l\'aire d\'Olite.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Alcoutim',
+    category: 'vidange',
+    address: 'R. das Portas do Rio, 8970 Alcoutim, Portugal',
+    lat: 37.468076,
+    lng: -7.471046,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle aménagée',
+    petsAllowed: true,
+    description: 'Dalle de vidange gratuite pour les eaux grises et cassette WC (eaux noires) sur l\'aire d\'Alcoutim.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Vallbona de les Monges',
+    category: 'vidange',
+    address: '25268 Vallbona de les Monges, Lleida, Espagne',
+    lat: 41.526884,
+    lng: 1.087143,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Goudron',
+    petsAllowed: false,
+    description: 'Plateforme de vidange des eaux grises et noires (remise en service) sur l’aire de Vallbona de les Monges.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Mehun-sur-Yèvre',
+    category: 'vidange',
+    address: 'Quai du Canal, 18500 Mehun-sur-Yèvre, France',
+    lat: 47.143572,
+    lng: 2.210456,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Accès goudronné',
+    petsAllowed: true,
+    description: 'Point de vidange pour les eaux grises et les cassettes WC. Pas de service d\'eau potable disponible sur cette installation.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de camping-car Mareuil-sur-Lay - Borne de services',
+    category: 'vidange',
+    address: 'Place des Halles, 85320 Mareuil-sur-Lay-Dissais, France',
+    lat: 46.536370,
+    lng: -1.223777,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Payant (Eau : ~2€/10min - Électricité : ~3€/4h)',
+    stay: 'Service rapide',
+    ground: 'Bitume',
+    petsAllowed: true,
+    description: 'Borne de services technique située sur l\'aire. Eau payante (~2 € pour 10 minutes), électricité payante (~3 € pour 4 heures). Vidange des eaux grises et des cassettes WC accessible.',
+    services: { water: true, electricity: true, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire d\'Aulnay - Borne de services & Vidange',
+    category: 'vidange',
+    address: '17470 Aulnay, France',
+    lat: 46.048169,
+    lng: -0.351102,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Borne de services artisanale/municipale offrant l\'eau potable gratuite ainsi que la vidange gratuite des eaux grises et des cassettes WC.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de services de Léhon - Borne & Eau',
+    category: 'vidange',
+    address: 'Léhon, 22100 Dinan, France',
+    lat: 48.442184,
+    lng: -2.042099,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Borne de services et point d\'eau entièrement gratuits situés sur l\'aire de Léhon. Pratique pour le ravitaillement et les vidanges.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Marboué - Vidanges & Eau',
+    category: 'vidange',
+    address: '28200 Marboué, France',
+    lat: 48.112618,
+    lng: 1.328578,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Payant (eau) / Gratuit (vidanges)',
+    stay: 'Service rapide',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Borne municipale proposant la vidange gratuite des eaux grises et des cassettes WC, avec un point d\'eau potable payant.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Saint-Denis-Lanneray - Vidanges',
+    category: 'vidange',
+    address: '28200 Saint-Denis-Lanneray, France',
+    lat: 48.066919,
+    lng: 1.289156,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Payant (eau) / Gratuit (vidanges)',
+    stay: 'Service rapide',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Borne de services permettant la vidange gratuite des eaux grises et des cassettes WC.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Saragosse - Vidanges & Borne',
+    category: 'vidange',
+    address: 'Calle de Luciano Gracia, 50018 Zaragoza, Espagne',
+    lat: 41.682942,
+    lng: -0.890243,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Bitume',
+    petsAllowed: true,
+    description: 'Aire de vidange municipale gratuite pour eaux grises et cassettes WC.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Combrée - Vidanges',
+    category: 'vidange',
+    address: '117 rue de Bretagne, Combrée, 49520 Ombrée d\'Anjou, France',
+    lat: 47.713448,
+    lng: -0.998944,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit (vidanges)',
+    stay: 'Service rapide',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Borne de services permettant la vidange gratuite des eaux grises et des cassettes WC pour les camping-cars.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Combrée - Point d\'eau potable',
+    category: 'eau',
+    address: '117 rue de Bretagne, Combrée, 49520 Ombrée d\'Anjou, France',
+    lat: 47.713448,
+    lng: -0.998944,
+    type: 'point_eau',
+    icon: '💧',
+    price: 'Gratuit / Payant',
+    stay: 'Service rapide',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Point d\'eau potable disponible sur la borne de services de Combrée.',
+    services: { water: true, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Aire de Marolles-les-Braults - Vidanges & Eau',
+    category: 'vidange',
+    address: '7 La Touche, 72260 Marolles-les-Braults, France',
+    lat: 48.257371,
+    lng: 0.316871,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: '2 € (eau) / Gratuit (vidanges)',
+    stay: 'Service rapide',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Borne de services pour la vidange des eaux grises et des cassettes WC. Point d\'eau potable disponible pour 2 €.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Thoard (La Chaunasse) - Vidanges',
+    category: 'vidange',
+    address: 'La Chaunasse, 04380 Thoard, France',
+    lat: 44.153494,
+    lng: 6.149998,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone dédiée à la vidange gratuite des eaux grises et des cassettes WC pour les camping-cars.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Cormeilles - Borne de Vidange',
+    category: 'vidange',
+    address: '2 Av. de Chepstow, 27260 Cormeilles, France',
+    lat: 49.248955,
+    lng: 0.374088,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit (Vidanges)',
+    stay: 'Service rapide',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone dédiée aux vidanges des eaux grises et de la cassette WC pour les camping-cars (accès libre et gratuit).',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire d\'Esquelbecq - Borne de Vidange Eaux Grises',
+    category: 'vidange',
+    address: 'Esquelbecq, 59470 Esquelbecq, France',
+    lat: 50.890194,
+    lng: 2.432289,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit (Vidange)',
+    stay: 'Service rapide',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone dédiée à la vidange des eaux grises (sur grille) et de la cassette WC pour les camping-cars (accès libre et gratuit).',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Área de servicios - Borne de Vidange Almoguera',
+    category: 'vidange',
+    address: 'C. Fuenvellida, 5, 19115 Almoguera, Guadalajara, Espagne',
+    lat: 40.293664,
+    lng: -2.977216,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'En pente / Stabilisé',
+    petsAllowed: true,
+    description: 'Zone dédiée à la vidange gratuite des eaux grises et des cassettes WC. Attention à la déclivité du terrain lors des manœuvres. Il est conseillé d\'éviter le centre du village en passant par la chapelle.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Matha - Borne de Vidange',
+    category: 'vidange',
+    address: '3 Av. Paul Monmoine, 17160 Matha, France',
+    lat: 45.866281,
+    lng: -0.322246,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange gratuite pour les eaux grises et les cassettes WC.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange et robinet - Val-de-Cognac',
+    category: 'vidange',
+    address: '1 Allée des Coquelicots, 16370 Val-de-Cognac (Cherves-Richemont), France',
+    lat: 45.740337,
+    lng: -0.355970,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Accès goudronné / Dalle de vidange',
+    petsAllowed: true,
+    description: 'Borne de service avec dalle de vidange et point d\'eau (robinet). Gratuit. Attention : l\'eau est coupée pour cause de gel de novembre à mi-avril.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Astorga (Plaza de Toros)',
+    category: 'vidange',
+    address: '114 Carretera Sanabria, 24700 Astorga, León, Espagne',
+    lat: 42.452123,
+    lng: -6.065427,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle béton / Stabilisé',
+    petsAllowed: true,
+    description: 'Dalle de vidange pour eaux grises et réceptacle eaux noires (WC). Gratuit et accessible facilement sur l\'aire municipale.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Trasmoz',
+    category: 'vidange',
+    address: '50583 Trasmoz, Saragosse, Espagne',
+    lat: 41.827624,
+    lng: -1.720211,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle béton / Stabilisé',
+    petsAllowed: true,
+    description: 'Dalle de vidange gratuite pour l\'évacuation des eaux grises et le nettoyage des cassettes d\'eaux noires (WC) sur l\'aire municipale.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Zone de vidange - Pomarão',
+    category: 'vidange',
+    address: '7528-962 Santana de Cambas, Mértola, Portugal',
+    lat: 37.557069,
+    lng: -7.528962,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Béton / Rustique',
+    petsAllowed: true,
+    description: 'Point de vidange rudimentaire pour les eaux grises et les cassettes WC. Installation basique et sommaire, à utiliser en dépannage. Pas d\'eau potable pour le rincage ou le plein.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Marmagne',
+    category: 'vidange',
+    address: '1 Impasse du Tennis, 18500 Marmagne, France',
+    lat: 47.100467,
+    lng: 2.284208,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle aménagée',
+    petsAllowed: true,
+    description: 'Dalle de vidange gratuite pour les eaux grises et les cassettes WC (eaux noires) située sur l\'aire municipale de Marmagne.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Châteauroux',
+    category: 'vidange',
+    address: '17 Avenue Daniel Bernardet, 36000 Châteauroux, France',
+    lat: 46.823138,
+    lng: 1.695030,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit / Municipal',
+    stay: 'Service uniquement',
+    ground: 'Dalle aménagée',
+    petsAllowed: true,
+    description: 'Dalle de vidange pour les eaux grises et les cassettes WC située sur l\'aire de l\'avenue Daniel Bernardet.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Monts de Guéret',
+    category: 'vidange',
+    address: 'Fontaucher, 23000 Saint-Sulpice-le-Guérétois, France',
+    lat: 46.183741,
+    lng: 1.844515,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle aménagée',
+    petsAllowed: true,
+    description: 'Zone de vidange pour eaux grises et cassettes WC située sur l\'aire des Monts de Guéret.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Vierzon',
+    category: 'vidange',
+    address: '3 Rue de la Piscine, 18100 Vierzon, France',
+    lat: 47.220259,
+    lng: 2.061478,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle aménagée',
+    petsAllowed: true,
+    description: 'Vidange des eaux grises et des cassettes WC disponible gratuitement.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Aubusson',
+    category: 'vidange',
+    address: '25-27 D941A / Rue des Fusillés, 23200 Aubusson, France',
+    lat: 45.957075,
+    lng: 2.175197,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle aménagée',
+    petsAllowed: true,
+    description: 'Aire de vidange pour eaux grises et noires gratuite. Prévoir un tuyau souple selon les cas pour l\'évacuation.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Romorantin-Lanthenay / Marmagne',
+    category: 'vidange',
+    address: 'Rte de Marmagne, 41200 Romorantin-Lanthenay, France',
+    lat: 47.337304,
+    lng: 1.664520,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle aménagée',
+    petsAllowed: true,
+    description: 'Aire de vidange gratuite pour les eaux grises et les cassettes WC.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Issoudun (Rte de Reuilly)',
+    category: 'vidange',
+    address: '72 Rte de Reuilly, 36100 Issoudun, France',
+    lat: 46.963815,
+    lng: 1.989799,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement (stationnement nuit interdit)',
+    ground: 'Dalle aménagée',
+    petsAllowed: true,
+    description: 'Aire de vidange gratuite pour les eaux grises et les cassettes WC. Passage technique uniquement.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Saint-Georges-sur-Arnon (Les Soudis)',
+    category: 'vidange',
+    address: 'Les Soudis, 36100 Saint-Georges-sur-Arnon, France',
+    lat: 46.998328,
+    lng: 2.100051,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle d\'accès',
+    petsAllowed: true,
+    description: 'Plateforme de vidange gratuite pour les eaux grises uniquement (pas de vidange cassette ni de réapprovisionnement en eau).',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Nancray',
+    category: 'vidange',
+    address: 'Rue du Musée, 25360 Nancray, France',
+    lat: 47.253100,
+    lng: 6.241500,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit (eau payante par jeton)',
+    stay: 'Service uniquement',
+    ground: 'Dalle d\'accès',
+    petsAllowed: true,
+    description: 'Plateforme de vidange gratuite pour les eaux grises et les cassettes. Ravitaillement en eau possible via des jetons en vente au Musée des Maisons Comtoises.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Gray',
+    category: 'vidange',
+    address: 'Rue de la Plage, 70100 Gray, France',
+    lat: 47.452670,
+    lng: 5.602355,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle d\'accès',
+    petsAllowed: true,
+    description: 'Plateforme de vidange pour les eaux grises accessible depuis la rue de la Plage.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Villers-Cotterêts',
+    category: 'vidange',
+    address: 'Rue Alfred Juneaux, 02600 Villers-Cotterêts, France',
+    lat: 49.260828,
+    lng: 3.086829,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit (eau payante à la borne)',
+    stay: 'Service uniquement',
+    ground: 'Dalle d\'accès',
+    petsAllowed: true,
+    description: 'Plateforme de vidange située à environ 100 m de l\'aire de stationnement, de l\'autre côté de la piscine intercommunale. Vidange des eaux usées et cassettes gratuite ; ravitaillement en eau potable payant via borne (3 €).',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de services - Saint-Georges-du-Rosay',
+    category: 'vidange',
+    address: 'Rue de la Mairie, 72110 Saint-Georges-du-Rosay, France',
+    lat: 48.200138,
+    lng: 0.501613,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle d\'accès',
+    petsAllowed: true,
+    description: 'Borne de services municipale gratuite comprenant la vidange des eaux usées/cassettes ainsi que le ravitaillement en eau potable.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Bergues',
+    category: 'vidange',
+    address: 'Chemin des Fortifications, 59380 Bergues, France',
+    lat: 50.969200,
+    lng: 2.433500,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Dalle d\'accès',
+    petsAllowed: true,
+    description: 'Plateforme municipale de vidange des eaux usées (eaux grises et cassettes WC) et poubelles, accessible gratuitement sur le site.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Acquasparta',
+    category: 'vidange',
+    address: 'Strada Vecchia di Configni, 4, 05021 Acquasparta TR, Italie',
+    lat: 42.692210,
+    lng: 12.542034,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Goudron / Béton',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux usées et cassettes noires gratuite sur le parking municipal d\'Acquasparta.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Castel Ritaldi',
+    category: 'vidange',
+    address: 'Via Campesgna, 7, 06042 Castel Ritaldi PG, Italie',
+    lat: 42.827883,
+    lng: 12.769562,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Goudron / Béton',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux usées gratuite sur le site du moulin à huile.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Fivizzano',
+    category: 'vidange',
+    address: 'Piazza Alcide De Gasperi, 54013 Fivizzano MS, Italie',
+    lat: 44.238901,
+    lng: 10.127814,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Goudron / Béton',
+    petsAllowed: true,
+    description: 'Plateforme de vidange des eaux usées et cassettes noires gratuite sur l\'aire municipale de Fivizzano.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Collodi',
+    category: 'vidange',
+    address: 'Via Pasquinelli, 57017 Collodi, Pescia PT, Italie',
+    lat: 43.897937,
+    lng: 10.653374,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Goudron',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux usées et cassettes gratuites sur l\'aire municipale de Collodi.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Livourne',
+    category: 'vidange',
+    address: 'Via del Levante, 57124 Livorno LI, Italie',
+    lat: 43.503410,
+    lng: 10.325821,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Plateforme de vidange gratuite pour eaux usées (grises) et cassettes WC (noires).',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Bagni di Lucca',
+    category: 'vidange',
+    address: 'Via Lima, 23, 55022 Bagni di Lucca LU, Italie',
+    lat: 44.009455,
+    lng: 10.569188,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Borne de vidange pour les eaux usées et les cassettes WC sur l\'aire de la Via Lima.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Gambassi Terme',
+    category: 'vidange',
+    address: 'Via Volterrana, 60/A, 50050 Gambassi Terme FI, Italie',
+    lat: 43.541500,
+    lng: 10.955900,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Plateforme de vidange collective gratuite pour eaux grises et noires.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Leidersbach',
+    category: 'vidange',
+    address: 'Parkplatz an der Hofwiese, 63849 Leidersbach, Allemagne',
+    lat: 49.901660,
+    lng: 9.217453,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Zone de vidange gratuite pour eaux usées et cassettes WC sur l\'aire de la Hofwiese.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Ramstein-Miesenbach',
+    category: 'vidange',
+    address: 'Parkplatz am Seewoog, 66877 Ramstein-Miesenbach, Allemagne',
+    lat: 49.458649,
+    lng: 7.564856,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Zone de vidange gratuite pour eaux grises et cassettes WC près du Seewoog.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Niederstetten',
+    category: 'vidange',
+    address: 'Frickentalplatz 1, 97996 Niederstetten, Allemagne',
+    lat: 49.399949,
+    lng: 9.915910,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Zone de vidange gratuite pour eaux usées et cassettes WC sur l\'aire du Frickentalplatz.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Bad Camberg',
+    category: 'vidange',
+    address: 'Jahnstraße / Henry-Dunant-Weg, 65520 Bad Camberg, Allemagne',
+    lat: 50.297050,
+    lng: 8.265780,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Zone de vidange gratuite pour eaux grises et cassette WC sur le P1.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Bilzen',
+    category: 'vidange',
+    address: 'Lanakerdij 6, 3740 Bilzen, Belgique',
+    lat: 50.869819,
+    lng: 5.522190,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Zone de vidange gratuite pour eaux usées et cassettes WC sur l\'aire de Lanakerdij.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Haren (De Lijte)',
+    category: 'vidange',
+    address: 'Meerweg 227, 9752 XC Haren, Pays-Bas',
+    lat: 53.163049,
+    lng: 6.579015,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Trappe au sol pour la vidange gratuite des eaux grises et cassettes WC.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Løkken Verk',
+    category: 'vidange',
+    address: 'Løkken Verk, 7332 Løkken Verk, Norvège',
+    lat: 63.123414,
+    lng: 9.705354,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Point de vidange pour camping-cars situé sur l\'aire de Løkken Verk, accès libre et gratuit.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Guadix - Vidange & Services',
+    category: 'vidange',
+    address: 'Área Autocaravana Guadix, Av. Buenos Aires, 18500 Guadix, Granada, Espagne',
+    lat: 37.303820,
+    lng: -3.133638,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Bord de route / Asphalte',
+    petsAllowed: true,
+    description: 'Point de vidange (eaux grises et noires) et prise d\'eau propre situé à l\'extérieur du grand parking de la Zona Ferial, le long de l\'avenue.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Cornas - Point Vidange',
+    category: 'vidange',
+    address: '2-6 Impasse des Iris, 07130 Cornas, France',
+    lat: 44.960261,
+    lng: 4.847439,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Asphalte / Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange pour les eaux grises et les cassettes WC (eaux noires) sur l\'aire de camping-car. Grille de sol et vide-cassette en accès libre.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Montvendre - Point Vidange',
+    category: 'vidange',
+    address: 'Chemin des Sables, 26120 Montvendre, France',
+    lat: 44.872200,
+    lng: 5.025500,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Plateforme de vidange des eaux grises et noires située sur l\'aire municipale.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Lemberg',
+    category: 'vidange',
+    address: 'Stellplatz Wohnmobile, Talstraße 1, 66969 Lemberg, Allemagne',
+    lat: 49.172772,
+    lng: 7.647360,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Pavés / Goudronné',
+    petsAllowed: true,
+    description: 'Zone de vidange gratuite pour eaux usées et cassettes WC sur l aire de la Talstraße.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+ {
+    name: 'Saint-Victor-sur-Loire - Zone de vidange',
+    category: 'vidange',
+    address: 'Rue de la Plage, 42230 Saint-Étienne, France',
+    lat: 45.448640,
+    lng: 4.256913,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Station de vidange libre d\'accès dédiée à l\'évacuation des eaux grises et noires, située à proximité de l\'aire de stationnement.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Ville-sous-Anjou - Zone de vidange',
+    category: 'vidange',
+    address: '13 Rue des Écoles, 38150 Ville-sous-Anjou, France',
+    lat: 45.363090,
+    lng: 4.861699,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Plateforme de vidange des eaux grises et noires gratuite en libre accès sur le parking municipal.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Saint-Jean-en-Royans - Zone de vidange',
+    category: 'vidange',
+    address: '7 Av. Albert Chaloin, 26190 Saint-Jean-en-Royans, France',
+    lat: 45.020054,
+    lng: 5.290481,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Plateforme de vidange gratuite pour eaux grises et eaux noires. Conteneurs de poubelles avec tri sélectif à disposition.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Saint-Marcellin - Zone de vidange',
+    category: 'vidange',
+    address: 'Bd du Champ de Mars, 38160 Saint-Marcellin, France',
+    lat: 45.153400,
+    lng: 5.320100,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Plateforme de vidange gratuite pour eaux grises et cassette noire, accessible toute l\'année à proximité du marché du vendredi.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Bernex',
+    category: 'vidange',
+    address: 'Route de l\'Ugine, 74500 Bernex, France',
+    lat: 46.357806,
+    lng: 6.683962,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Payant (Borne Flot Bleu)',
+    stay: 'Accès ponctuel',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Station de vidange des eaux grises et noires associée à la borne Flot Bleu.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Bourg-en-Bresse',
+    category: 'vidange',
+    address: 'Allée Loys Van Boghem, 01000 Bourg-en-Bresse, France',
+    lat: 46.209003,
+    lng: 5.240293,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux grises et noires associée à l\'aire.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - La Chapelle-de-Guinchay',
+    category: 'vidange',
+    address: 'Rte de Juliénas, 71570 La Chapelle-de-Guinchay, France',
+    lat: 46.210135,
+    lng: 4.767641,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux grises et noires gratuite associée à l\'aire.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Nancray',
+    category: 'vidange',
+    address: 'Rue du Musée, 25360 Nancray, France',
+    lat: 47.239514,
+    lng: 6.184697,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit (Vidange / Eau payante par jeton)',
+    stay: 'Accès ponctuel',
+    ground: 'Grande prairie / Terrain en pente',
+    petsAllowed: true,
+    description: 'Zone de vidange associée au parking du musée. Eau payante par jeton disponible au musée (ouverture saisonnière).',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Dudelange',
+    category: 'vidange',
+    address: 'Rue de Schifflange, 3590 Dudelange, Luxembourg',
+    lat: 49.471393,
+    lng: 6.078487,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux grises et noires gratuite associée à l\'aire.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Rodemack',
+    category: 'vidange',
+    address: 'Route de Thionville (D57), 57570 Rodemack, France',
+    lat: 49.466402,
+    lng: 6.231945,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Non pavé',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux grises et noires gratuite.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Koerich',
+    category: 'vidange',
+    address: 'Chemin de la Source, 8383 Koerich, Luxembourg',
+    lat: 49.670696,
+    lng: 5.942454,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Sol pavé',
+    petsAllowed: true,
+    description: 'Espace de vidange pour eaux grises et eaux noires entièrement accessible et gratuit, situé sur le sol pavé à l\'entrée de l\'aire municipale.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Boulaide',
+    category: 'vidange',
+    address: 'Rue de l\'Étang, 9640 Boulaide, Luxembourg',
+    lat: 49.885668,
+    lng: 5.808378,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux grises et noires accessible sur l\'aire municipale.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Vidange - Connerré',
+    category: 'vidange',
+    address: '4 Place Jean Jaurès / Rue de la Gare, 72160 Connerré, France',
+    lat: 48.062201,
+    name: 'Aire de vidange - Haren (De Lijte)',
+    category: 'vidange',
+    address: 'Meerweg 227, 9752 XC Haren, Pays-Bas',
+    lat: 53.163049,
+    lng: 6.579015,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Goudronné',
+    petsAllowed: true,
+    description: 'Trappe au sol pour la vidange gratuite des eaux grises et cassettes WC.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Borne de vidange - Løkken Verk',
+    category: 'vidange',
+    address: 'Løkken Verk, 7332 Løkken Verk, Norvège',
+    lat: 63.123414,
+    lng: 9.705354,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Point de vidange pour camping-cars situé sur l\'aire de Løkken Verk, accès libre et gratuit.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Guadix - Vidange & Services',
+    category: 'vidange',
+    address: 'Área Autocaravana Guadix, Av. Buenos Aires, 18500 Guadix, Granada, Espagne',
+    lat: 37.303820,
+    lng: -3.133638,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Bord de route / Asphalte',
+    petsAllowed: true,
+    description: 'Point de vidange (eaux grises et noires) et prise d\'eau propre situé à l\'extérieur du grand parking de la Zona Ferial, le long de l\'avenue.',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Cornas - Point Vidange',
+    category: 'vidange',
+    address: '2-6 Impasse des Iris, 07130 Cornas, France',
+    lat: 44.960261,
+    lng: 4.847439,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Asphalte / Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange pour les eaux grises et les cassettes WC (eaux noires) sur l\'aire de camping-car. Grille de sol et vide-cassette en accès libre.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Montvendre - Point Vidange',
+    category: 'vidange',
+    address: 'Chemin des Sables, 26120 Montvendre, France',
+    lat: 44.872200,
+    lng: 5.025500,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service uniquement',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Plateforme de vidange des eaux grises et noires située sur l\'aire municipale.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Lemberg',
+    category: 'vidange',
+    address: 'Stellplatz Wohnmobile, Talstraße 1, 66969 Lemberg, Allemagne',
+    lat: 49.172772,
+    lng: 7.647360,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Services uniquement',
+    ground: 'Pavés / Goudronné',
+    petsAllowed: true,
+    description: 'Zone de vidange gratuite pour eaux usées et cassettes WC sur l\'aire de la Talstraße.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Saint-Victor-sur-Loire - Zone de vidange',
+    category: 'vidange',
+    address: 'Rue de la Plage, 42230 Saint-Étienne, France',
+    lat: 45.448640,
+    lng: 4.256913,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Station de vidange libre d\'accès dédiée à l\'évacuation des eaux grises et noires, située à proximité de l\'aire de stationnement.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Ville-sous-Anjou - Zone de vidange',
+    category: 'vidange',
+    address: '13 Rue des Écoles, 38150 Ville-sous-Anjou, France',
+    lat: 45.363090,
+    lng: 4.861699,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Plateforme de vidange des eaux grises et noires gratuite en libre accès sur le parking municipal.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Saint-Jean-en-Royans - Zone de vidange',
+    category: 'vidange',
+    address: '7 Av. Albert Chaloin, 26190 Saint-Jean-en-Royans, France',
+    lat: 45.020054,
+    lng: 5.290481,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Plateforme de vidange gratuite pour eaux grises et eaux noires. Conteneurs de poubelles avec tri sélectif à disposition.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Saint-Marcellin - Zone de vidange',
+    category: 'vidange',
+    address: 'Bd du Champ de Mars, 38160 Saint-Marcellin, France',
+    lat: 45.153400,
+    lng: 5.320100,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Service rapide',
+    ground: 'Asphalte',
+    petsAllowed: true,
+    description: 'Plateforme de vidange gratuite pour eaux grises et cassette noire, accessible toute l\'année à proximité du marché du vendredi.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Bernex',
+    category: 'vidange',
+    address: 'Route de l\'Ugine, 74500 Bernex, France',
+    lat: 46.357806,
+    lng: 6.683962,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Payant (Borne Flot Bleu)',
+    stay: 'Accès ponctuel',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Station de vidange des eaux grises et noires associée à la borne Flot Bleu.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Bourg-en-Bresse',
+    category: 'vidange',
+    address: 'Allée Loys Van Boghem, 01000 Bourg-en-Bresse, France',
+    lat: 46.209003,
+    lng: 5.240293,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux grises et noires associée à l\'aire.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - La Chapelle-de-Guinchay',
+    category: 'vidange',
+    address: 'Rte de Juliénas, 71570 La Chapelle-de-Guinchay, France',
+    lat: 46.210135,
+    lng: 4.767641,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux grises et noires gratuite associée à l\'aire.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Nancray',
+    category: 'vidange',
+    address: 'Rue du Musée, 25360 Nancray, France',
+    lat: 47.239514,
+    lng: 6.184697,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit (Vidange / Eau payante par jeton)',
+    stay: 'Accès ponctuel',
+    ground: 'Grande prairie / Terrain en pente',
+    petsAllowed: true,
+    description: 'Zone de vidange associée au parking du musée. Eau payante par jeton disponible au musée (ouverture saisonnière).',
+    services: { water: true, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Dudelange',
+    category: 'vidange',
+    address: 'Rue de Schifflange, 3590 Dudelange, Luxembourg',
+    lat: 49.471393,
+    lng: 6.078487,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux grises et noires gratuite associée à l\'aire.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Rodemack',
+    category: 'vidange',
+    address: 'Route de Thionville (D57), 57570 Rodemack, France',
+    lat: 49.466402,
+    lng: 6.231945,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Non pavé',
+    petsAllowed: true,
+	 description: 'Zone de vidange des eaux grises et noires gratuite.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Koerich',
+    category: 'vidange',
+    address: 'Chemin de la Source, 8383 Koerich, Luxembourg',
+    lat: 49.670696,
+    lng: 5.942454,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Sol pavé',
+    petsAllowed: true,
+    description: 'Espace de vidange pour eaux grises et eaux noires entièrement accessible et gratuit, situé sur le sol pavé à l\'entrée de l\'aire municipale.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de vidange - Boulaide',
+    category: 'vidange',
+    address: 'Rue de l\'Étang, 9640 Boulaide, Luxembourg',
+    lat: 49.885668,
+    lng: 5.808378,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès ponctuel',
+    ground: 'Stabilisé',
+    petsAllowed: true,
+    description: 'Zone de vidange des eaux grises et noires accessible sur l\'aire municipale.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+  {
+    name: 'Aire de Vidange - Connerré',
+    category: 'vidange',
+    address: '4 Place Jean Jaurès / Rue de la Gare, 72160 Connerré, France',
+    lat: 48.062201,
+    lng: 0.493230,
+    type: 'borne_vidange',
+    icon: '🚰',
+    price: 'Gratuit',
+    stay: 'Accès libre 24h/24, toute l\'année',
+    ground: 'Bitume',
+    petsAllowed: true,
+    description: 'Plateforme de vidange gratuite pour eaux usées (eaux grises) et réceptacle pour cassette WC (eaux noires). Située au fond du parking municipal.',
+    services: { water: false, electricity: false, waste: true },
+    photo: ''
+  },
+ {
+    name: "Aire de Vidange - Spay",
+    category: "vidange",
+    address: "10 Rue d'Arnage, 72700 Spay, France",
+    lat: 47.920264,
+    lng: 0.155245,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre 24h/24, toute l'année",
+    ground: "Bitume",
+    petsAllowed: true,
+    description: "Zone de vidange des eaux usées (grises) et de rinçage/vidange des cassettes WC. Accès facile pour grand gabarit. Présence de conteneurs à poubelles à proximité.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Saint-Urbain",
+    category: "vidange",
+    address: "Rue du Stade, 85230 Saint-Urbain, France",
+    lat: 46.831293,
+    lng: -2.129888,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre 24h/24",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Plateforme de vidange des eaux grises et rince-cassette WC très bien aménagés pour simplifier la corvée. Emplacement vaste et manœuvres aisées.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Savenay (Hyper U)",
+    category: "vidange",
+    address: "Parc Commercial de La Colleraye, 44260 Savenay, France",
+    lat: 47.374114,
+    lng: -1.937668,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre en journée (3 à 4 places max)",
+    ground: "Bitume",
+    petsAllowed: true,
+    description: "Plateforme de vidange gratuite des eaux grises et noires près de la station-service U. Espace restreint pour 3 à 4 véhicules, réservé aux haltes diurnes.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Parcé-sur-Sarthe",
+    category: "vidange",
+    address: "Allée Marcel Pagnol, 72300 Parcé-sur-Sarthe, France",
+    lat: 47.844463,
+    lng: -0.203259,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Zone de vidange gratuite pour les eaux grises et la cassette WC, située sur l'aire de camping-car ombragée de l'allée Marcel Pagnol.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Camping Municipal de l'Hippodrome",
+    category: "vidange",
+    address: "Camping Municipal de l'Hippodrome, 72300 Sablé-sur-Sarthe, France",
+    lat: 47.831473,
+    lng: -0.331828,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Vidange gratuite / Eau payante",
+    stay: "Halte technique uniquement (pas de stationnement)",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Point de service situé à l'entrée du camping municipal de l'Hippodrome. Vidange des eaux grises et des cassettes WC gratuite. Ravitaillement en eau potable payant.",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Espace Saint-Fiacre",
+    category: "vidange",
+    address: "Quai du Docteur Lefèvre, 53200 Château-Gontier-sur-Mayenne, France",
+    lat: 47.824435,
+    lng: -0.701706,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Point de service et de vidange gratuit (eaux grises et cassette WC) situé derrière l'espace Saint-Fiacre, à côté de l'aire de camping-car.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Base de Loisirs de La Rincerie",
+    category: "vidange",
+    address: "Base de Loisirs de La Rincerie, 53800 La Selle-Craonnaise, France",
+    lat: 47.864994,
+    lng: -1.068124,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Vidange gratuite / Ravitaillement payant",
+    stay: "Accès libre",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Borne de service de la base de loisirs de La Rincerie. Permet la vidange des eaux grises et noires. Ravitaillement en eau et électricité via borne (2 € les 100L).",
+    services: { water: true, electricity: true, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Place du Port Segré",
+    category: "vidange",
+    address: "Place du Port, 49500 Segré-en-Anjou Bleu, France",
+    lat: 47.686096,
+    lng: -0.866471,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Zone de vidange gratuite pour les eaux grises et la cassette WC située sur la Place du Port.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Camperplaats Amposta",
+    category: "vidange",
+    address: "Passeig del Canal Marítim, 43870 Amposta, Espagne",
+    lat: 40.705049,
+    lng: 0.586104,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Zone de vidange gratuite pour les eaux grises et la cassette WC sur l'aire d'Amposta, avec conteneurs poubelles à proximité.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Camper Area L'Encanyissada",
+    category: "vidange",
+    address: "Partida L'Encanyissada, 43870 Amposta, Espagne",
+    lat: 40.659260,
+    lng: 0.675349,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Accès aire",
+    stay: "Accès libre",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Zone de vidange des eaux grises et de la cassette WC associée à l'aire de L'Encanyissada.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Àrea d'Autocaravanes l'Aldea",
+    category: "vidange",
+    address: "Carrer de l'Ebre, 117, 43896 L'Aldea, Tarragona, Espagne",
+    lat: 40.749308,
+    lng: 0.628267,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Zone de vidange gratuite pour les eaux grises et la cassette WC mise en place par la municipalité de l'Aldea.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Malestroit",
+    category: "vidange",
+    address: "6021 Rue Édouard Entremont, 56140 Malestroit, France",
+    lat: 47.808881,
+    lng: -2.376014,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Zone de vidange gratuite pour les eaux grises et la cassette WC mise à disposition par la municipalité.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Yecla",
+    category: "vidange",
+    address: "Estación de Autobuses, 30510 Yecla, Murcia, Espagne",
+    lat: 38.868292,
+    lng: -1.105646,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Zone de vidange gratuite pour les eaux grises sur l'aire de la station d'autobus de Yecla.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Pontchâteau",
+    category: "vidange",
+    address: "Allée du Brivet, 44160 Pontchâteau, France",
+    lat: 47.440573,
+    lng: -2.089747,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Plateforme de vidange gratuite pour les eaux grises et les cassettes WC située sur l'aire de l'Allée du Brivet.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - Station Service Samir Azilal",
+    category: "vidange",
+    address: "R304, Azilal, Maroc",
+    lat: 31.980534,
+    lng: -6.566223,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Participation libre",
+    stay: "Accès libre",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Vidange des eaux grises et vidange cassette WC disponibles à la station-service. Merci de laisser une pièce au personnel.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Vidange - La Rivière-Saint-Sauveur",
+    category: "vidange",
+    address: "Chemin du Banc, 14600 La Rivière-Saint-Sauveur, France",
+    lat: 49.409430,
+    lng: 0.268546,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès libre",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Vidange des eaux grises et de la cassette WC gratuite et accessible sans restriction horaire. Eau propre payante par jeton à récupérer dans les commerces du village.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Marboué - Point d'Eau",
+    category: "eau",
+    address: "22 Rue du Croc Marbot, 28200 Marboué, France",
+    lat: 48.112664,
+    lng: 1.328632,
+    type: "point_eau",
+    icon: "💧",
+    price: "0 € (Gratuit)",
+    stay: "Ravitaillement eau",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Point d'approvisionnement en eau potable.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Zaragoza - Point d'Eau",
+    category: "eau",
+    address: "Calle de Luciano Gracia, 50018 Zaragoza, Espagne",
+    lat: 41.682845,
+    lng: -0.890250,
+    type: "point_eau",
+    icon: "💧",
+    price: "0 € (Gratuit)",
+    stay: "Ravitaillement eau",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Point d'approvisionnement en eau potable.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Malansac - Point d'Eau",
+    category: "eau",
+    address: "1 Rue Saint-Fiacre, 56220 Malansac, France",
+    lat: 47.678100,
+    lng: -2.299700,
+    type: "point_eau",
+    icon: "💧",
+    price: "0 € (Gratuit)",
+    stay: "Ravitaillement eau",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Point d'approvisionnement en eau potable.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+ {
+    name: "Le Guerno - Point d'Eau",
+    category: "eau",
+    address: "9 Rue des Oiseaux, 56190 Le Guerno, France",
+    lat: 47.582894,
+    lng: -2.406358,
+    type: "point_eau",
+    icon: "💧",
+    price: "0 € (Gratuit)",
+    stay: "Ravitaillement eau",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'approvisionnement en eau potable.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Miranda do Corvo - Point d'Eau & Électricité",
+    category: "eau",
+    address: "Rua do Poço, Miranda do Corvo, Portugal",
+    lat: 40.087730,
+    lng: -8.332485,
+    type: "point_eau",
+    icon: "💧",
+    price: "0 € (Gratuit)",
+    stay: "Ravitaillement eau et électricité",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point de ravitaillement en eau et électricité disponible.",
+    services: { water: true, electricity: true, waste: false },
+    photo: ""
+  },
+  {
+    name: "Réminiac - Point d'Eau",
+    category: "eau",
+    address: "56140 Réminiac, France",
+    lat: 47.859631,
+    lng: -2.236565,
+    type: "point_eau",
+    icon: "💧",
+    price: "0 € (Gratuit)",
+    stay: "Ravitaillement eau",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'approvisionnement en eau potable.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Le Louroux-Béconnais - Aire du Plan d'eau",
+    category: "aire",
+    address: "49370 Val d'Erdre-Auxence (Le Louroux-Béconnais), France",
+    lat: 47.543497,
+    lng: -0.864717,
+    type: "aire_stationnement",
+    icon: "🚐",
+    price: "Gratuit",
+    stay: "Nuit & Services (6-7 places)",
+    ground: "Goudron / Plat",
+    petsAllowed: true,
+    description: "Aire municipale gratuite (6 à 7 places) au bord d'un plan d'eau avec parc, jeux pour enfants et WC. Emplacements goudronnés et plats, proches du centre-bourg. Équipée pour l'eau potable et les vidanges.",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Eau Propre et Électricité - Saint-Genest-Lerpt",
+    category: "eau",
+    address: "Rue de la Plage, 42230 Saint-Genest-Lerpt, France",
+    lat: 45.448093,
+    lng: 4.256079,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service ponctuel",
+    ground: "Bitume / Parking",
+    petsAllowed: true,
+    description: "Point d'eau propre et électricité disponibles sur l'aire de camping-car.",
+    services: { water: true, electricity: true, waste: false },
+    photo: ""
+  },
+  {
+    name: "Aire Camping-Car - Biar (Eau & Électricité)",
+    category: "eau",
+    address: "Biar, 03410, Province d'Alicante, Espagne",
+    lat: 38.629761,
+    lng: -0.768876,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Ravitaillement en eau et électricité",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau et électricité disponibles sur l'aire de Biar.",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Point d'eau et électricité - Almoguera",
+    category: "eau",
+    address: "84 C. Fuenvellida, 19115 Almoguera, Castille-La Manche, Espagne",
+    lat: 40.293286,
+    lng: -2.977381,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service ponctuel",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point de réapprovisionnement en eau potable et électricité situé sur l'aire communale d'Almoguera. Accessible aux camping-cars et fourgons.",
+    services: { water: true, electricity: true, waste: true },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Guadalajara",
+    category: "eau",
+    address: "Avenida del Mirador del Balconcillo, 19002 Guadalajara, Espagne",
+    lat: 40.624612,
+    lng: -3.168997,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service ponctuel",
+    ground: "Asphalte",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit avec une bonne pression sur la bande de service de l'aire de Guadalajara.",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Cariñena",
+    category: "eau",
+    address: "C. del Carmen, 50400 Cariñena, Zaragoza, Espagne",
+    lat: 41.338082,
+    lng: -1.230325,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service ponctuel",
+    ground: "Asphalte",
+    petsAllowed: true,
+    description: "Borne d'eau potable gratuite sur l'aire municipale de Cariñena.",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Chauvigny (Étang)",
+    category: "eau",
+    address: "Route de Poitiers, 86300 Chauvigny, Vienne, France",
+    lat: 46.493702,
+    lng: 0.753647,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service ponctuel",
+    ground: "Asphalte",
+    petsAllowed: true,
+    description: "Point d'eau potable disponible gratuitement sur l'aire près de l'étang.",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Mora de Rubielos",
+    category: "eau",
+    address: "Calle Dr. Gómez Ferrer, 36, 44400 Mora de Rubielos, Teruel, Espagne",
+    lat: 40.254002,
+    lng: -0.750091,
+    type: "point_eau",
+    icon: "💧",
+    price: "0 € (Gratuit)",
+    stay: "Accès libre",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Point d'approvisionnement en eau potable gratuit sur l'aire municipale de Mora de Rubielos.",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Aire de Huesca",
+    category: "eau",
+    address: "72 Calle San Jorge, 22004 Huesca, Aragon, Espagne",
+    lat: 42.194875,
+    lng: -0.412025,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Accès service uniquement",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Borne de remplissage d'eau potable gratuite située sur l'aire municipale de Huesca.",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Aire de Fénery",
+    category: "eau",
+    address: "Rue de la Gare, 79450 Fénery, Deux-Sèvres, France",
+    lat: 46.686177,
+    lng: -0.362731,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Accès service uniquement",
+    ground: "Stabilisé / Herbe",
+    petsAllowed: true,
+    description: "Borne de remplissage d'eau potable accessible sur la halte de la Voie Verte à Fénery.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Área de Astorga",
+    category: "eau",
+    address: "Astorga, León, Espagne",
+    lat: 42.451530,
+    lng: -6.065698,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau potable disponible sur l'aire municipale d'Astorga.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Plage de la Paracou",
+    category: "eau",
+    address: "Prom. Georges Pernoud, 85100 Les Sables-d'Olonne, France",
+    lat: 46.503155,
+    lng: -1.809414,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau potable disponible sur le site de la Paracou.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Prinquiau",
+    category: "eau",
+    address: "15 Rue du Champoulain, 44260 Prinquiau, France",
+    lat: 47.366962,
+    lng: -2.012281,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit sur l'aire de Prinquiau.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Olite",
+    category: "eau",
+    address: "31390 Olite, Navarre, Espagne",
+    lat: 42.480224,
+    lng: -1.647676,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service rapide",
+    ground: "Goudron",
+    petsAllowed: false,
+    description: "Point d'eau potable disponible sur l'aire d'Olite.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Point d'eau (Nord) - Olite",
+    category: "eau",
+    address: "31390 Olite, Navarre, Espagne",
+    lat: 42.480378,
+    lng: -1.647159,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service rapide",
+    ground: "Goudron",
+    petsAllowed: false,
+    description: "Point d'eau potable complémentaire disponible sur l'aire d'Olite.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Alcoutim",
+    category: "eau",
+    address: "R. das Portas do Rio, 8970 Alcoutim, Portugal",
+    lat: 37.468076,
+    lng: -7.471046,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Accès goudronné / Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit situé sur l'aire municipale d'Alcoutim pour effectuer le plein facilement.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+ {
+    name: "Point d'eau - Vallbona de les Monges",
+    category: "eau",
+    address: "25268 Vallbona de les Monges, Lleida, Espagne",
+    lat: 41.526884,
+    lng: 1.087143,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service rapide",
+    ground: "Goudron",
+    petsAllowed: false,
+    description: "Point d'eau potable opérationnel sur l'aire de Vallbona de les Monges.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Aire municipale - Aulnay",
+    category: "aire",
+    address: "17470 Aulnay, France",
+    lat: 46.048169,
+    lng: -0.351102,
+    type: "aire_stationnement",
+    icon: "🚐",
+    price: "Gratuit",
+    stay: "Nuitée autorisée",
+    ground: "Stabilisé / Herbe",
+    petsAllowed: true,
+    description: "Aire municipale très agréable et verdoyante. Stationnement, eau et vidanges entièrement gratuits. Pas de barrière de hauteur, accès facile.",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de Léhon - Point d'eau potable",
+    category: "eau",
+    address: "Léhon, 22100 Dinan, France",
+    lat: 48.442184,
+    lng: -2.042099,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service rapide",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit situé sur l'aire. Attention : eau actuellement coupée par arrêté municipal (sécheresse). Vérifier l'ouverture de la vanne sur place.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Aire de Saragosse - Point d'eau potable",
+    category: "eau",
+    address: "Calle de Luciano Gracia, 50018 Zaragoza, Espagne",
+    lat: 41.682942,
+    lng: -0.890243,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service rapide",
+    ground: "Bitume",
+    petsAllowed: true,
+    description: "Robinet d'eau potable gratuit disponible sur l'aire de services de Saragosse.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Aire de Thoard (La Chaunasse) - Point d'eau",
+    category: "eau",
+    address: "La Chaunasse, 04380 Thoard, France",
+    lat: 44.153494,
+    lng: 6.149998,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit (sous réserve)",
+    stay: "Service rapide",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau disponible sur l'aire, avec une restriction potentielle (coupure possible ou accès restreint selon les saisons, à vérifier sur place).",
+    services: { water: true, electricity: true, waste: false },
+    photo: ""
+  },
+  {
+    name: "Aire de Matha - Point d'Eau Potable",
+    category: "eau",
+    address: "3 Av. Paul Monmoine, 17160 Matha, France",
+    lat: 45.866281,
+    lng: -0.322246,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service rapide",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Accès à l'eau potable entièrement gratuit mis à disposition par la commune sur l'aire.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau & Dalle de vidange - Val-de-Cognac",
+    category: "borne_vidange",
+    address: "1 Allée des Coquelicots, 16370 Val-de-Cognac (Cherves-Richemont), France",
+    lat: 45.740337,
+    lng: -0.355970,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Accès goudronné / Dalle de vidange",
+    petsAllowed: true,
+    description: "Point d'eau potable et dalle de vidange (eaux grises et noires) gratuits et faciles d'accès. Attention : l'eau potable est coupée hors gel de novembre à mi-avril. La dalle de vidange reste accessible toute l'année.",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Astorga (Plaza de Toros)",
+    category: "eau",
+    address: "114 Carretera Sanabria, 24700 Astorga, León, Espagne",
+    lat: 42.452123,
+    lng: -6.065427,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Accès libre / Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit sur l'aire municipale d'Astorga. Attention : le second robinet (dédié au rinçage des cassettes WC) est fréquemment cassé ou hors service.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Palencia",
+    category: "eau",
+    address: "34005 Palencia, Province de Palencia, Espagne",
+    lat: 42.003253,
+    lng: -4.534559,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Accès goudronné",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit situé sur l'aire municipale de Palencia, pratique pour faire le plein avant de visiter la ville et ses environs.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Trasmoz",
+    category: "eau",
+    address: "50583 Trasmoz, Saragosse, Espagne",
+    lat: 41.827624,
+    lng: -1.720211,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Accès libre / Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit sur l'aire municipale de Trasmoz. Accessible sans barrière pour faire le plein facilement.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Marmagne",
+    category: "eau",
+    address: "1 Impasse du Tennis, 18500 Marmagne, France",
+    lat: 47.100467,
+    lng: 2.284208,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Accès bitumé",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit disponible sur l'aire municipale de Marmagne pour effectuer le remplissage.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Châteauroux",
+    category: "eau",
+    address: "17 Avenue Daniel Bernardet, 36000 Châteauroux, France",
+    lat: 46.823138,
+    lng: 1.695030,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit / Municipal",
+    stay: "Service uniquement",
+    ground: "Accès bitumé",
+    petsAllowed: true,
+    description: "Point d'eau potable disponible sur l'aménagement de l'avenue Daniel Bernardet.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Monts de Guéret",
+    category: "eau",
+    address: "Fontaucher, 23000 Saint-Sulpice-le-Guérétois, France",
+    lat: 46.183741,
+    lng: 1.844515,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Accès bitumé",
+    petsAllowed: true,
+    description: "Point d'eau potable disponible sur l'aire de services des Monts de Guéret.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau & Électricité - Aubusson",
+    category: "eau",
+    address: "25-27 D941A / Rue des Fusillés, 23200 Aubusson, France",
+    lat: 45.957075,
+    lng: 2.175197,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Accès bitumé",
+    petsAllowed: true,
+    description: "Point d'eau potable et prises électriques en accès libre et gratuit sur la même borne.",
+    services: { water: true, electricity: true, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Romorantin-Lanthenay / Marmagne",
+    category: "eau",
+    address: "Rte de Marmagne, 41200 Romorantin-Lanthenay, France",
+    lat: 47.337304,
+    lng: 1.664520,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Accès bitumé",
+    petsAllowed: true,
+    description: "Point d'eau potable en accès libre et gratuit situé à la sortie du parking.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Issoudun (Rte de Reuilly)",
+    category: "eau",
+    address: "72 Rte de Reuilly, 36100 Issoudun, France",
+    lat: 46.963815,
+    lng: 1.989799,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement (stationnement nuit interdit)",
+    ground: "Accès bitumé",
+    petsAllowed: true,
+    description: "Point de réapprovisionnement en eau potable gratuit. Réservé aux services, stationnement non autorisé sur place.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Saint-Georges-du-Rosay",
+    category: "eau",
+    address: "Rue de la Mairie, 72110 Saint-Georges-du-Rosay, France",
+    lat: 48.200138,
+    lng: 0.501613,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point de ravitaillement en eau potable mis à disposition gratuitement par la municipalité près de l'aire de stationnement.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Acquasparta",
+    category: "eau",
+    address: "Strada Vecchia di Configni, 4, 05021 Acquasparta TR, Italie",
+    lat: 42.692210,
+    lng: 12.542034,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Bitume",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit situé sur le parking municipal d'Acquasparta.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Castel Ritaldi",
+    category: "eau",
+    address: "Via Campesgna, 7, 06042 Castel Ritaldi PG, Italie",
+    lat: 42.827883,
+    lng: 12.769562,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit mis à disposition par les propriétaires du moulin à huile.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Point d'eau et Électricité - Fivizzano",
+    category: "eau",
+    address: "Piazza Alcide De Gasperi, 54013 Fivizzano MS, Italie",
+    lat: 44.238901,
+    lng: 10.127814,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Bitume",
+    petsAllowed: true,
+    description: "Borne d'eau potable et branchement électrique 220V gratuits situés sur l'aire municipale de Fivizzano.",
+    services: { water: true, electricity: true, waste: false },
+    photo: ""
+  },
+  {
+    name: "Point d'eau - Collodi",
+    category: "eau",
+    address: "Via Pasquinelli, 57017 Collodi, Pescia PT, Italie",
+    lat: 43.897937,
+    lng: 10.653374,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Goudron",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit situé sur l'aire municipale de Collodi.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Point d'eau potable - Livourne",
+    category: "eau",
+    address: "Via del Levante, 57124 Livorno LI, Italie",
+    lat: 43.503410,
+    lng: 10.325821,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Services uniquement",
+    ground: "Goudronné",
+    petsAllowed: true,
+    description: "Point d'eau potable gratuit mis à disposition par la municipalité.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Point d'eau potable - Bagni di Lucca",
+    category: "eau",
+    address: "Via Lima, 23, 55022 Bagni di Lucca LU, Italie",
+    lat: 44.009455,
+    lng: 10.569188,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Services uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau potable disponible sur l'aire de services de Bagni di Lucca.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne eau et électricité - Løkken Verk",
+    category: "eau",
+    address: "Løkken Verk, 7332 Løkken Verk, Norvège",
+    lat: 63.123414,
+    lng: 9.705354,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Borne de service fournissant de l'eau et de l'électricité, gérée par les bénévoles de l'association des résidents.",
+    services: { water: true, electricity: true, waste: false },
+    photo: ""
+  },
+  {
+    name: "Lignières-Sonneville - Eau & Électricité",
+    category: "eau",
+    address: "Lignières-Sonneville, 16130 Lignières-Ambleville, France",
+    lat: 45.556600,
+    lng: -0.182929,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Accès à l'eau propre et à l'électricité gratuit. Attention : seulement 2 prises électriques disponibles sur la borne.",
+    services: { water: true, electricity: true, waste: false },
+    photo: ""
+  },
+  {
+    name: "Lignières-Sonneville - Aire de Vidange",
+    category: "vidange",
+    address: "Lignières-Sonneville, 16130 Lignières-Ambleville, France",
+    lat: 45.556600,
+    lng: -0.182929,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Zone de services municipale pour la vidange des eaux grises et des eaux noires (cassette WC). Présence de poubelles et éclairage nocturne à proximité.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Guadix - Aire de services",
+    category: "vidange",
+    address: "Área Autocaravana Guadix, Av. Buenos Aires, 18500 Guadix, Granada, Espagne",
+    lat: 37.303820,
+    lng: -3.133638,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Bord de route / Asphalte",
+    petsAllowed: true,
+    description: "Borne d'eau et zone de vidange (eaux grises et noires) situées à l'extérieur du grand parking principal, le long de l'avenue.",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Cornas - Point Eau",
+    category: "eau",
+    address: "2-6 Impasse des Iris, 07130 Cornas, France",
+    lat: 44.960261,
+    lng: 4.847439,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Asphalte / Stabilisé",
+    petsAllowed: true,
+    description: "Borne de remplissage en eau potable située sur l'aire de camping-car. Accès libre et gratuit (coupée en hiver en cas de gel).",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Montvendre - Point Eau",
+    category: "eau",
+    address: "Chemin des Sables, 26120 Montvendre, France",
+    lat: 44.872200,
+    lng: 5.025500,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point de remplissage en eau potable gratuit en accès libre sur l'aire municipale de Montvendre.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Saint-Victor-sur-Loire - Borne Eau et Électricité",
+    category: "eau",
+    address: "Rue de la Plage, 42230 Saint-Étienne, France",
+    lat: 45.448640,
+    lng: 4.256913,
+    type: "point_eau",
+    icon: "💧",
+    price: "Eau gratuite / Électricité payante",
+    stay: "Service rapide",
+    ground: "Asphalte",
+    petsAllowed: true,
+    description: "Borne Flot Bleu fournissant de l'eau propre gratuite. Électricité payante sur bornes dédiées.",
+    services: { water: true, electricity: true, waste: false },
+    photo: ""
+  },
+  {
+    name: "Ville-sous-Anjou - Point d'eau",
+    category: "eau",
+    address: "13 Rue des Écoles, 38150 Ville-sous-Anjou, France",
+    lat: 45.363090,
+    lng: 4.861699,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service rapide",
+    ground: "Asphalte",
+    petsAllowed: true,
+    description: "Borne d'eau propre gratuite mise à disposition par la commune sur l'aire de service municipale.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Saint-Jean-en-Royans - Point d'eau",
+    category: "eau",
+    address: "7 Av. Albert Chaloin, 26190 Saint-Jean-en-Royans, France",
+    lat: 45.020054,
+    lng: 5.290481,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service rapide",
+    ground: "Asphalte",
+    petsAllowed: true,
+    description: "Borne d'eau potable gratuite mise à disposition par la commune sur l'aire de service municipale.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Saint-Marcellin - Point d'eau",
+    category: "eau",
+    address: "Bd du Champ de Mars, 38160 Saint-Marcellin, France",
+    lat: 45.153400,
+    lng: 5.320100,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service rapide",
+    ground: "Asphalte",
+    petsAllowed: true,
+    description: "Borne d'eau potable gratuite municipale. Attention : eau hors service pendant la période hivernale (hors gel).",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Bernex",
+    category: "eau",
+    address: "Route de l'Ugine, 74500 Bernex, France",
+    lat: 46.357806,
+    lng: 6.683962,
+    type: "point_eau",
+    icon: "💧",
+    price: "Payant (Borne Flot Bleu)",
+    stay: "Accès ponctuel",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau potable disponible sur la borne Flot Bleu de la station.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - Bourg-en-Bresse",
+    category: "eau",
+    address: "Allée Loys Van Boghem, 01000 Bourg-en-Bresse, France",
+    lat: 46.209003,
+    lng: 5.240293,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Accès ponctuel",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau disponible sur l'aire municipale.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Borne d'eau - La Chapelle-de-Guinchay",
+    category: "eau",
+    address: "Rte de Juliénas, 71570 La Chapelle-de-Guinchay, France",
+    lat: 46.210135,
+    lng: 4.767641,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Accès ponctuel",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Point d'eau gratuit disponible sur l'aire municipale.",
+    services: { water: true, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Área de servicios - Almoguera",
+    category: "eau",
+    address: "C. Fuenvellida, 5, 19115 Almoguera, Guadalajara, Espagne",
+    lat: 40.293664,
+    lng: -2.977216,
+    type: "point_eau",
+    icon: "💧",
+    price: "Gratuit",
+    stay: "Service rapide",
+    ground: "En pente / Stabilisé",
+    petsAllowed: true,
+    description: "Point d'accès à l'eau potable mis à disposition gratuitement par la mairie. Situé sur l'aire en pente (cales conseillées). Accès recommandé en contournant le village par la chapelle pour les grands véhicules.",
+    services: { water: true, electricity: true, waste: true },
+    photo: ""
+  },
+  {
+    name: "Marboué - Aire de Vidange",
+    category: "vidange",
+    address: "22 Rue du Croc Marbot, 28200 Marboué, France",
+    lat: 48.112664,
+    lng: 1.328632,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "0 € (Gratuit)",
+    stay: "Vidange eaux grises / noires",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Aire de vidange gratuite pour eaux grises et noires.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Zaragoza - Aire de Vidange",
+    category: "vidange",
+    address: "Calle de Luciano Gracia, 50018 Zaragoza, Espagne",
+    lat: 41.682845,
+    lng: -0.890250,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "0 € (Gratuit)",
+    stay: "Vidange eaux grises / noires",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Aire de vidange gratuite pour eaux grises et noires.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Malansac - Aire de Vidange",
+    category: "vidange",
+    address: "1 Rue Saint-Fiacre, 56220 Malansac, France",
+    lat: 47.6781,
+    lng: -2.2997,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "0 € (Gratuit)",
+    stay: "Vidange eaux grises / noires",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Aire de vidange gratuite pour eaux grises et noires.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Le Guerno - Aire de Vidange",
+    category: "vidange",
+    address: "9 Rue des Oiseaux, 56190 Le Guerno, France",
+    lat: 47.582894,
+    lng: -2.406358,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "0 € (Gratuit)",
+    stay: "Vidange eaux grises / noires",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Aire de vidange gratuite pour eaux grises et noires.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Miranda do Corvo - Aire de Vidange",
+    category: "vidange",
+    address: "Rua do Poço, Miranda do Corvo, Portugal",
+    lat: 40.087730,
+    lng: -8.332485,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "0 € (Gratuit)",
+    stay: "Vidange eaux grises / noires",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Aire de vidange gratuite pour eaux grises et noires.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Réminiac - Aire de Vidange",
+    category: "vidange",
+    address: "56140 Réminiac, France",
+    lat: 47.859631,
+    lng: -2.236565,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "0 € (Gratuit)",
+    stay: "Vidange eaux grises / noires",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Zone de remplissage et de vidange. Le bouchon de vidange de la cassette se trouve sous le robinet.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Le Louroux-Béconnais - Zone de Vidange",
+    category: "vidange",
+    address: "49370 Val d'Erdre-Auxence (Le Louroux-Béconnais), France",
+    lat: 47.539788,
+    lng: -0.871583,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Services / Passage",
+    ground: "Goudron",
+    petsAllowed: true,
+    description: "Espace de vidange (eaux grises et noires) situé au Louroux-Béconnais à proximité du plan d'eau.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Vidange - Saint-Genest-Lerpt",
+    category: "vidange",
+    address: "Rue de la Plage, 42230 Saint-Genest-Lerpt, France",
+    lat: 45.448093,
+    lng: 4.256079,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service ponctuel",
+    ground: "Bitume / Parking",
+    petsAllowed: true,
+    description: "Zone de vidange avec robinet d'eau s'écoulant dans un carré bleu.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Zone de vidange - Almoguera",
+    category: "vidange",
+    address: "84 C. Fuenvellida, 19115 Almoguera, Castille-La Manche, Espagne",
+    lat: 40.293286,
+    lng: -2.977381,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service rapide (Libre accès)",
+    ground: "Asphalte / Béton",
+    petsAllowed: true,
+    description: "Plateforme de vidange complète sur l'aire communale. Permet la vidange des eaux usées (eaux grises) au sol et l'évacuation/rinçage des cassettes WC (eaux noires).",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Zone de vidange - Guadalajara",
+    category: "vidange",
+    address: "Avenida del Mirador del Balconcillo, 19002 Guadalajara, Espagne",
+    lat: 40.624612,
+    lng: -3.168997,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service rapide (Libre accès)",
+    ground: "Asphalte / Béton",
+    petsAllowed: true,
+    description: "Zone de vidange ergonomique et très fonctionnelle pour les eaux grises et noires sur l'aire gratuite de Guadalajara.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+ {
+    name: "Aire communale - Guadalajara",
+    category: "aire",
+    address: "Avenida del Mirador del Balconcillo, 19002 Guadalajara, Espagne",
+    lat: 40.624612,
+    lng: -3.168997,
+    type: "aire_stationnement",
+    icon: "🚐",
+    price: "Gratuit",
+    stay: "Nuit autorisée (Bruyante / Proche autoroute)",
+    ground: "Asphalte",
+    petsAllowed: true,
+    description: "Aire municipale gratuite de 8 emplacements. Bande de service ergonomique et fonctionnelle, bonne pression pour l'eau et vidanges faciles. Emplacement idéal pour les services mais bruyant pour la nuit en raison de la proximité immédiate de l'autoroute.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Zone de vidange - Cariñena",
+    category: "vidange",
+    address: "C. del Carmen, 50400 Cariñena, Zaragoza, Espagne",
+    lat: 41.338082,
+    lng: -1.230325,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service rapide (Libre accès)",
+    ground: "Asphalte / Béton",
+    petsAllowed: true,
+    description: "Zone de vidange gratuite et facile d'accès pour les eaux grises et noires (cassette WC).",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Zone de vidange - Chauvigny (Étang)",
+    category: "vidange",
+    address: "Route de Poitiers, 86300 Chauvigny, Vienne, France",
+    lat: 46.493702,
+    lng: 0.753647,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service rapide (Hors vendredi matin)",
+    ground: "Asphalte / Béton",
+    petsAllowed: true,
+    description: "Plateforme de vidange gratuite pour les eaux grises et noires (cassette WC).",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de vidange - Mora de Rubielos",
+    category: "vidange",
+    address: "Calle Dr. Gómez Ferrer, 36, 44400 Mora de Rubielos, Teruel, Espagne",
+    lat: 40.254002,
+    lng: -0.750091,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "0 € (Gratuit)",
+    stay: "Accès libre",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Zone de vidange gratuite pour eaux grises et eaux noires sur l'aire municipale de Mora de Rubielos.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Zone de vidange - Aire de Huesca",
+    category: "vidange",
+    address: "72 Calle San Jorge, 22004 Huesca, Aragon, Espagne",
+    lat: 42.194875,
+    lng: -0.412025,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Accès service uniquement",
+    ground: "Bitume / Stabilisé",
+    petsAllowed: true,
+    description: "Plateforme de vidange gratuite pour les eaux grises et les cassettes WC sur l'aire municipale de Huesca.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Zone de vidange et eau - Área de Astorga",
+    category: "vidange",
+    address: "Astorga, León, Espagne",
+    lat: 42.451530,
+    lng: -6.065698,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Station de vidange et point d'eau sur l'aire municipale d'Astorga.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Zone de vidange - Plage de la Paracou",
+    category: "vidange",
+    address: "Prom. Georges Pernoud, 85100 Les Sables-d'Olonne, France",
+    lat: 46.503155,
+    lng: -1.809414,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Station de vidange des eaux grises et noires sur le site de la Paracou.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Zone de vidange - Prinquiau",
+    category: "vidange",
+    address: "15 Rue du Champoulain, 44260 Prinquiau, France",
+    lat: 47.366962,
+    lng: -2.012281,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Station de vidange des eaux grises et noires sur l'aire de Prinquiau.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Zone de vidange - Saint-Gervais-les-Bains",
+    category: "vidange",
+    address: "Le Mont-Blanc, 74170 Saint-Gervais-les-Bains, France",
+    lat: 45.888879,
+    lng: 6.712850,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Station de vidange des eaux grises et noires gratuite sur l'aire de Saint-Gervais-les-Bains.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Zone de vidange - Trasmoz",
+    category: "vidange",
+    address: "Trasmoz, 50583, Saragosse, Espagne",
+    lat: 41.836154,
+    lng: -1.728765,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Stabilisé",
+    petsAllowed: true,
+    description: "Station de vidange des eaux grises et noires gratuite à Trasmoz.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de vidange - Olite",
+    category: "vidange",
+    address: "31390 Olite (Navarre), Espagne",
+    lat: 42.480224,
+    lng: -1.647676,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service rapide",
+    ground: "Goudron",
+    petsAllowed: false,
+    description: "Plateforme de vidange des eaux grises et des eaux noires (cassette) sur l'aire d'Olite.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Borne de vidange - Alcoutim",
+    category: "vidange",
+    address: "R. das Portas do Rio, 8970 Alcoutim, Portugal",
+    lat: 37.468076,
+    lng: -7.471046,
+    type: "borne_vidange",
+    icon: "🚰",
+    price: "Gratuit",
+    stay: "Service uniquement",
+    ground: "Dalle aménagée",
+    petsAllowed: true,
+    description: "Dalle de vidange gratuite pour les eaux grises et cassette WC (eaux noires) sur l'aire d'Alcoutim.",
+    services: { water: false, electricity: false, waste: true },
+    photo: ""
+  }
+  ];
+  // --- AUTRES CATÉGORIES DE POINTS ---
+const rawNaturePoints = [
+  { name: "Spot nature en forêt", category: "nature", icon: "🌙", lat: 48.1234, lng: -0.2345, address: "Lisière de forêt", price: "Gratuit", stay: "48h max", photo: "" }
+];
+
+const rawFarmPoints = [
+  { name: "Ferme du Bio-Logis", category: "farm", icon: "🚜", lat: 47.9876, lng: -0.1234, address: "Campagne", price: "Gratuit (achat conseillé)", stay: "24h", photo: "" }
+];
+
+const rawFuelPoints = [
+  { name: "Station GPL & Carburant", category: "fuel", icon: "⛽", lat: 48.0500, lng: -0.1500, address: "Zone artisanale", price: "Tarif station", stay: "Passage", photo: "" }
+];
+
+const rawDrainPoints = [
+  { name: "Aire de vidange", category: "drain", icon: "🚰", lat: 48.0800, lng: -0.1100, address: "Aire municipale", price: "Gratuit", stay: "1h", photo: "" }
+];
+
+let filteredWaterPoints = rawWaterPoints.filter(spot => {
+  const isFree = spot.price.toLowerCase().includes('gratuit');
+  const stayText = (spot.stay || "").toLowerCase();
+  const nameText = spot.name.toLowerCase();
+  const addressText = (spot.address || "").toLowerCase();
+
+  const isForbidden = forbiddenKeywords.some(keyword => 
+    stayText.includes(keyword) || nameText.includes(keyword) || addressText.includes(keyword)
+  );
+
+  const coordKey = `${spot.lat.toFixed(4)},${spot.lng.toFixed(4)}`;
+  const isDuplicate = seenCoords.has(coordKey);
+  if (!isDuplicate) seenCoords.add(coordKey);
+
+  return isFree && !isForbidden && !isDuplicate;
+});
+
+const typeIcons = { 
+  free: '🚐', 
+  parking: '🅿️', 
+  'Dodo sauvage': '🏕️', 
+  wild: '🏕️', 
+  nature: '🌙', 
+  farm: '🚜', 
+  fuel: '⛽', 
+  carburant: '⛽', 
+  water: '💧', 
+  eau: '💧', 
+  drain: '🚰', 
+  vidange: '🚰' 
+};
+
+// 1. Tes fiches de voyage validées
+const nomadSyncSpots = [
+  {
+    name: "Ghisonaccia - Spot Nature Piste du Maquis",
+    category: "nature",
+    address: "Piste d'accès naturel, 20240 Ghisonaccia, Corse",
+    lat: 41.676200,
+    lng: 8.897300,
+    type: "nature",
+    icon: "🌙",
+    price: "Gratuit",
+    stay: "Journée uniquement",
+    ground: "Terre / Cailloux",
+    petsAllowed: true,
+    description: "Dégagement naturel et calme en plein maquis, accessible par une piste terreuse. ATTENTION ACCÈS : Piste en terre étroite, cabossée et bordée de branches. Réservé aux vans et fourgons compacts. À proscrire pour les camping-cars profilés ou intégraux. Halte diurne uniquement.",
+    services: { water: false, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Plage des Cuisiniers - Stationnement camping-cars",
+    category: "aire",
+    address: "Plage des Cuisiniers, France",
+    lat: 16.325000,
+    lng: -61.531000,
+    type: "aire_campingcar",
+    icon: "🚐",
+    price: "Gratuit",
+    stay: "Journée et nuit",
+    ground: "Sable / Terre",
+    petsAllowed: true,
+    description: "Stationnement en bord de plage réservé ou largement occupé par les camping-cars, sans aucun service sur place.",
+    services: { water: false, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Plage du Riz - Stationnement camping-cars",
+    category: "aire",
+    address: "Plage du Riz, France",
+    lat: 16.071000,
+    lng: -61.748000,
+    type: "aire_campingcar",
+    icon: "🚐",
+    price: "Gratuit",
+    stay: "Journée et nuit",
+    ground: "Sable / Stabilisé",
+    petsAllowed: true,
+    description: "Emplacement de stationnement en bord de plage fréquenté par les camping-cars. Aucun service disponible.",
+    services: { water: false, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Águilas - Playa de los Cocederos",
+    category: "nature",
+    address: "30890 Águilas, Murcie, Espagne",
+    lat: 37.376062,
+    lng: -1.630669,
+    type: "nature",
+    icon: "🌙",
+    price: "Gratuit",
+    stay: "Journée / Bivouac",
+    ground: "Terre / Sable",
+    petsAllowed: true,
+    description: "Superbe coin naturel offrant des criques magnifiques et de très belles balades. Passage d'un boulanger ambulant pour le pain frais. Zone en terre bien accessible aux vans et camping-cars. Respecter impérativement les lieux : ne rien sortir (ni cale, ni store, ni mobilier extérieur) pour préserver l'accès au spot. Águilas est proche (facile à vélo électrique).",
+    services: { water: false, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Águilas - Playa del Arroz",
+    category: "nature",
+    address: "30880 Águilas, Murcie, Espagne",
+    lat: 37.428998,
+    lng: -1.525732,
+    type: "nature",
+    icon: "🌙",
+    price: "Gratuit",
+    stay: "Journée / Bivouac",
+    ground: "Terre / Sable",
+    petsAllowed: true,
+    description: "Spot de stationnement en bord de mer. Moins pittoresque que la Playa de los Cocederos. Attention particulière requise : zone signalée pour des risques de vol (vélo et deux-roues). Ne rien sortir (pas de matériel extérieur, stationnement strict) et sécuriser ses biens.",
+    services: { water: false, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Águilas - Plage autorisée aux chiens (Aparcamiento)",
+    category: "nature",
+    address: "30889 Águilas, Murcie, Espagne",
+    lat: 37.428892,
+    lng: -1.525404,
+    type: "nature",
+    icon: "🌙",
+    price: "Gratuit",
+    stay: "Journée / Bivouac",
+    ground: "Terre / Sable",
+    petsAllowed: true,
+    description: "Zone de stationnement à proximité immédiate de l'une des rares plages de la commune où les chiens sont officiellement autorisés sur le sable. Idéal pour les voyageurs avec un animal. Respecter les lieux et stationner sans rien déballer à l'extérieur pour préserver l'accès au site.",
+    services: { water: false, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Águilas - Cala Mijo",
+    category: "nature",
+    address: "30890 Águilas, Murcie, Espagne",
+    lat: 37.384307,
+    lng: -1.614239,
+    type: "nature",
+    icon: "🌙",
+    price: "Gratuit",
+    stay: "Journée (vigilance pour la nuit)",
+    ground: "Terre",
+    petsAllowed: true,
+    description: "Superbe petite crique naturelle aux eaux claires et propres. Accès par un court chemin de terre. Très calme le matin, un peu plus fréquenté l'après-midi. Aucun équipement sur place. Présence constatée de véhicules, mais la réglementation sur la nuitée en zone naturelle protégée reste stricte : prudence et discrétion de mise, ne rien sortir.",
+    services: { water: false, electricity: false, waste: false },
+    photo: ""
+  },
+  {
+    name: "Parking du Musée des Maisons Comtoises",
+    category: "aire",
+    address: "Rue du Musée, 25360 Nancray",
+    lat: 47.239514,
+    lng: 6.184697,
+    type: "aire_campingcar",
+    icon: "🚐",
+    price: "Stationnement gratuit / Eau payante par jeton",
+    stay: "Stationnement jour et nuit autorisé",
+    ground: "Grande prairie / Terrain en pente",
+    petsAllowed: true,
+    description: "Grand parking en herbe sur terrain en pente près du musée. Borne de service avec eau payante par jeton disponible au musée (attention, ouverture saisonnière du musée).",
+    services: { water: true, electricity: false, waste: true },
+    photo: ""
+  },
+  {
+    name: "Aire de camping-car - Kelmis",
+    category: "aire",
+    address: "Galmeipl. / Schützenstraße, 4720 Kelmis, Belgique",
+    lat: 50.718036,
+    lng: 6.008453,
+    type: "aire_campingcar",
+    icon: "🚐",
+    price: "Stationnement gratuit / Services payants (1€ / 2 kWh, 1€ eau)",
+    stay: "24h max",
+    ground: "Stabilisé / Pavé",
+    petsAllowed: true,
+    description: "Aire gratuite de 7 emplacements située dans le village, autorisée pour 24h. À proximité immédiate d’un parc avec aire de jeux, terrain de basket et table de ping-pong. Toilettes publiques gratuites sur place. Petite poubelle et conteneurs à verre sur le parking adjacent. Services payants : 1 € pour 2 kWh d’électricité et 1 € pour l’eau potable. Station de vidange disponible uniquement pour les cassettes WC (pas de grille pour vidange des eaux grises).",
+    services: { water: true, electricity: true, waste: true },
+    photo: ""
+  }
+];
+
+// 2. Fonction d'affichage des pastilles reliée à ton markersGroup
+function renderNomadSyncSpots() {
+  if (!markersGroup) return;
+  markersGroup.clearLayers();
+
+  nomadSyncSpots.forEach(spot => {
+    let markerColor = '#D4621A';
+    if (spot.category === 'nature') markerColor = '#2A1A0E';
+    if (spot.category === 'parking') markerColor = '#555555';
+
+    const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${spot.icon}</div>`;
+    
+    const customIcon = L.divIcon({
+      className: 'nomadsync-custom-marker',
+      html: markerHtml,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    });
+// Ta boucle qui parcourt chaque spot
+mesSpots.forEach(spot => {
+    
+    // 1. La création du marqueur (bien à l'intérieur de la boucle)
+    const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
+
+    // 2. Le bloc de pop-up nettoyé juste après
+    marker.bindPopup(`
+      <div style="font-family: sans-serif; max-width: 240px;">
+        <h4 style="margin: 0 0 5px 0; color: #2A1A0E;">${spot.name || 'Lieu'}</h4>
+        <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${cat}</span><br>
+        <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
+        <p style="margin: 3px 0; font-size: 12px;"><strong>Tarif :</strong> ${spot.price || 'Gratuit'}</p>
+        <p style="margin: 3px 0; font-size: 12px;"><strong>Durée :</strong> ${spot.stay || 'N/A'}</p>
+        ${spot.exchange ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Échange :</strong> ${spot.exchange}</p>` : ''}
+        ${spot.electricity ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Électricité :</strong> ${spot.electricity}</p>` : ''}
+        ${typeof photoHtml !== 'undefined' && photoHtml ? photoHtml + '<br>' : ''}
+        <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+          <a href="${gmapsUrl}" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>
+          <a href="${wazeUrl}" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>
+        </div>
+      </div>
+    `);
+
+    // 3. L'ajout au groupe de la carte
+    markersGroup.addLayer(marker);
+
+});
+// --- Fonction unique de rendu des spots (nettoyée du doublon) ---
+function renderSpots() {
+    if (!map || !markersGroup) return;
+    markersGroup.clearLayers();
+
+    let sourceSpots = [];
+    if (typeof rawSpots !== 'undefined' && Array.isArray(rawSpots)) {
+        sourceSpots = sourceSpots.concat(rawSpots);
+    }
+    if (typeof rawWaterPoints !== 'undefined' && Array.isArray(rawWaterPoints)) {
+        let waterTagged = rawWaterPoints.map(p => ({ ...p, _isWaterSource: true }));
+        sourceSpots = sourceSpots.concat(waterTagged);
+    }
+
+    sourceSpots.forEach(spot => {
+        if (!spot || typeof spot.lat === 'undefined') return;
+
+        let cat = getNormalizedCategory(spot);
+
+        if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
+            let cur = currentCategory.toLowerCase();
+            let match = false;
+
+            if (cur.includes('eau') || cur.includes('water')) {
+                match = (cat === 'eau');
+            } else if (cur.includes('vidange')) {
+                match = (cat === 'vidange');
+            } else if (cur.includes('nature')) {
+                match = (cat === 'nature');
+            } else if (cur.includes('ferme')) {
+                match = (cat === 'ferme');
+            } else if (cur.includes('carburant')) {
+                match = (cat === 'carburant');
+            } else if (cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
+                match = (cat === 'sauvage');
+            } else if (cur.includes('gratuit') || cur.includes('free')) {
+                let isFree = (spot.type === 'free' || !spot.price || spot.price === '' || spot.price.toLowerCase().includes('0') || spot.price.toLowerCase().includes('gratuit'));
+                match = isFree && (cat !== 'carburant');
+            } else if (cur.includes('parking')) {
+                match = (cat === 'parking');
+            } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
+                match = (cat === 'aire');
+            } else {
+                match = cat.includes(cur);
+            }
+            
+            if (!match) return;
+        }
+
+        let bgColor = '#e74c3c'; 
+        let defaultIcon = '🚐';
+
+        if (cat === 'eau') { 
+            bgColor = '#3498db'; 
+            defaultIcon = '💧'; 
+        } 
+        else if (cat === 'vidange') { 
+            bgColor = '#8e44ad'; 
+            defaultIcon = '🚰'; 
+        } 
+        else if (cat === 'nature') { 
+            bgColor = '#2c3e50'; 
+            defaultIcon = '🌙'; 
+        } 
+        else if (cat === 'ferme') { 
+            bgColor = '#27ae60'; 
+            defaultIcon = '🚜'; 
+        } 
+        else if (cat === 'carburant') { 
+            bgColor = '#e67e22'; 
+            defaultIcon = '⛽'; 
+        } 
+        else if (cat === 'sauvage') { 
+            bgColor = '#D4621A'; 
+            defaultIcon = '🏕️'; 
+        } 
+        else if (cat === 'parking') { 
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🅿️'; 
+        } 
+        else if (cat === 'aire') { 
+            bgColor = '#e74c3c'; 
+            defaultIcon = '🚐'; 
+        }
+
+        const customIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
+        let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
+
+        let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
+        let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
+
+function getNormalizedCategory(spot) {
+    if (!spot) return 'aire';
+    if (spot._isWaterSource) return 'eau';
+
+    let type = (spot.type || spot.category || spot.kind || '').toString().toLowerCase();
+    let name = (spot.name || spot.title || '').toString().toLowerCase();
+    let desc = (spot.description || spot.comment || '').toString().toLowerCase();
+    let tags = (spot.tags || '').toString().toLowerCase();
+    let combined = type + ' ' + name + ' ' + desc + ' ' + tags;
+
+    if (type.includes('fuel') || type.includes('carburant') || name.includes('station-service')) return 'carburant';
+    
+    // Fermes
+    if (type.includes('ferme') || combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('grappe') || combined.includes('fermier')) {
+        return 'ferme';
+    }
+
+    // Vidanges
+    if (type.includes('vidange') || type.includes('service') || combined.includes('vidange') || combined.includes('eaux usées') || combined.includes('eaux usees') || combined.includes('grise') || combined.includes('noire') || combined.includes('flot bleu') || combined.includes('borne')) {
+        return 'vidange';
+    }
+
+    // Sauvage
+    if (type.includes('sauvage') || type.includes('wild') || type.includes('bivouac') || combined.includes('bivouac') || combined.includes('dodo')) {
+        return 'sauvage';
+    }
+
+    // Eau
+    if (type.includes('water') || combined.includes('robinet') || combined.includes('potable') || /\beau\b/.test(combined)) {
+        return 'eau';
+    }
+
+    // Nature
+    if (type.includes('nature') || combined.includes('foret') || combined.includes('lac') || combined.includes('riviere') || combined.includes('montagne')) {
+        return 'nature';
+    }
+
+    // Parking
+    if (type.includes('parking') || type.includes('stationnement') || name.includes('parking')) {
+        return 'parking';
+    }
+
+    return 'aire';
+}
+
+function toggleFilter(type) {
+    currentCategory = type;
+    renderSpots();
+}
+
+function toggleAddSpotForm() {
+    const form = document.getElementById('add-spot-form');
+    form.style.display = form.style.display === 'block' ? 'none' : 'block';
+}
+
+function handleAddNewSpot(e) {
+    e.preventDefault();
+    const name = document.getElementById('newSpotName').value;
+    const address = document.getElementById('newSpotAddress').value;
+    const type = document.getElementById('newSpotType').value;
+    const photoInput = document.getElementById('newSpotPhoto');
+
+    let photoUrl = '';
+    if (photoInput.files && photoInput.files[0]) {
+      photoUrl = URL.createObjectURL(photoInput.files[0]);
+    }
+
+    const center = map ? map.getCenter() : { lat: 46.6, lng: 1.88 };
+    const newSpot = {
+      name: name,
+      address: address,
+      lat: center.lat + (Math.random() - 0.5) * 0.05,
+      lng: center.lng + (Math.random() - 0.5) * 0.05,
+      type: type,
+      icon: typeIcons[type] || '📍',
+      price: type === 'fuel' ? 'Tarif Temps Réel' : '0 € (Gratuit)',
+      stay: '24h / Indiqué sur place',
+      photo: photoUrl
+    };
+
+    spots.push(newSpot);
+    
+    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+    customSpots.push(newSpot);
+    localStorage.setItem('nomadsync_custom_spots', JSON.stringify(customSpots));
+
+    renderSpots();
+    document.getElementById('add-spot-form').style.display = 'none';
+    e.target.reset();
+    alert("✅ Votre spot a été ajouté et sauvegardé avec succès !");
+}
+
+function exportSpotsJSON() {
+    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+    if (customSpots.length === 0) {
+      alert("Aucun spot personnalisé enregistré pour l'instant.");
+      return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(customSpots, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "mes_spots_nomadsync.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
+
+function toggleVipModal() {
+    const modal = document.getElementById('vip-modal');
+    modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+}
+
+function toggleQrModal() {
+    const modal = document.getElementById('qr-modal');
+    const isOpening = modal.style.display !== 'block';
+    modal.style.display = isOpening ? 'block' : 'none';
+    
+    if (isOpening) {
+      const currentUrl = window.location.href;
+      document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}`;
+    }
+}
+
+function handleVipLogin(e) {
+    e.preventDefault();
+    const msg = document.getElementById('loginMessage');
+    msg.style.display = 'block';
+    msg.innerText = '✅ Connexion VIP réussie ! Bienvenue dans NomadSync.';
+}
+
+function toggleTheme() {
+    const html = document.documentElement;
+    const btn = document.getElementById('themeBtn');
+    if (html.getAttribute('data-theme') === 'terracotta') {
+      html.setAttribute('data-theme', 'nuit');
+      btn.innerText = '☀️ Mode Jour';
+      localStorage.setItem('nomadsync_theme', 'nuit');
+    } else {
+      html.setAttribute('data-theme', 'terracotta');
+      btn.innerText = '🌙 Mode Nuit';
+      localStorage.setItem('nomadsync_theme', 'terracotta');
+    }
+}
+
+function toggleOffline() {
+    isOffline = !isOffline;
+    const btn = document.getElementById('offlineBtn');
+    if (isOffline) {
+      btn.classList.add('active');
+      btn.innerText = '🔴 Hors Ligne';
+    } else {
+      btn.classList.remove('active');
+      btn.innerText = '🟢 En Ligne';
+    }
+}
+
+function updateFuelPrice() {
+    const type = document.getElementById('specFuelType').value;
+    if (type === 'gazole') {
+      document.getElementById('specPrice').value = '1.72';
+    } else {
+      document.getElementById('specPrice').value = '1.81';
+    }
+}
+
+function updateVehicleSpec() {
+    const val = document.getElementById('vehicleSelect').value;
+    if (val === 'van') {
+      document.getElementById('specH').value = '2.90';
+      document.getElementById('specL').value = '6.50';
+      document.getElementById('specW').value = '2.20';
+      document.getElementById('specP').value = '3.5';
+      document.getElementById('specFuelType').value = 'gazole';
+      document.getElementById('specConso').value = '10.5';
+    } else if (val === 'cc') {
+      document.getElementById('specH').value = '3.20';
+      document.getElementById('specL').value = '7.40';
+      document.getElementById('specW').value = '2.35';
+      document.getElementById('specP').value = '4.5';
+      document.getElementById('specFuelType').value = 'gazole';
+      document.getElementById('specConso').value = '12.5';
+    } else {
+      document.getElementById('specH').value = '2.40';
+      document.getElementById('specL').value = '5.40';
+      document.getElementById('specW').value = '2.05';
+      document.getElementById('specP').value = '3.3';
+      document.getElementById('specFuelType').value = 'sp95';
+      document.getElementById('specConso').value = '8.5';
+    }
+    updateFuelPrice();
+}
+
+async function handleSearchBtn() {
+    const query = document.getElementById('searchInput').value;
+    if (!query) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        map.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 11);
+      } else {
+        alert("Lieu non trouvé. Essayez de rajouter le code postal ou le pays.");
+      }
+    } catch (err) {
+      alert("Recherche indisponible.");
+    }
+}
+function handleSearch(e) {
+    if(e.key === 'Enter') handleSearchBtn();
+  }
+
+function switchTab(tab) {
+    const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
+    const targetElement = document.getElementById(targetId);
+    
+    // On cible la carte par son ID 'map' ou par sa classe si besoin
+    const mapContainer = document.getElementById('map') || document.querySelector('.map-container');
+
+    // 1. Si l'onglet cliqué est DÉJÀ ouvert, on ferme tout
+    if (targetElement && targetElement.style.display === 'block') {
+        document.getElementById('panel-itineraire').style.display = 'none';
+        document.getElementById('view-jauges').style.display = 'none';
+        document.getElementById('view-securite').style.display = 'none';
+        
+        // On réaffiche la carte par défaut quand tout se ferme
+        if (mapContainer) mapContainer.style.display = 'block';
+
+        // On remet tous les boutons en transparent
+        ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
+            const b = document.getElementById(id);
+            if (b) {
+                b.classList.remove('active');
+                b.style.background = 'transparent';
+                b.style.color = '#555';
+            }
+        });
+
+        setTimeout(() => { if (typeof map !== 'undefined' && map) map.invalidateSize(); }, 200);
+        return;
+    }
+	
+	   // 2. Sinon, on cache tous les panneaux
+    document.getElementById('panel-itineraire').style.display = 'none';
+    document.getElementById('view-jauges').style.display = 'none';
+    document.getElementById('view-securite').style.display = 'none';
+
+    // 3. On réinitialise tous les boutons en transparent
+    ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) {
+            b.classList.remove('active');
+            b.style.background = 'transparent';
+            b.style.color = '#555';
+        }
+    });
+
+    // 4. On ouvre le panneau demandé et on gère l'affichage de la carte
+    if (tab === 'itineraire') {
+        document.getElementById('panel-itineraire').style.display = 'block';
+        if (mapContainer) mapContainer.style.display = 'block'; // La carte reste visible
+        const btn = document.getElementById('tab-route');
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#D4621A';
+            btn.style.color = 'white';
+        }
+    } else if (tab === 'jauges') {
+        document.getElementById('view-jauges').style.display = 'block';
+        if (mapContainer) mapContainer.style.display = 'none'; // On masque la carte
+        const btn = document.getElementById('tab-gauges');
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#D4621A';
+            btn.style.color = 'white';
+        }
+    } else if (tab === 'securite') {
+        document.getElementById('view-securite').style.display = 'block';
+        if (mapContainer) mapContainer.style.display = 'none'; // On masque la carte
+        const btn = document.getElementById('tab-security');
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#D4621A';
+            btn.style.color = 'white';
+        }
+    }
+
+    // --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
+  async function calculateAndDrawRoute() {
+    const startText = document.getElementById('startInput').value;
+    const destText = document.getElementById('destInput').value;
+    const resultDiv = document.getElementById('route-result');
+    
+    if (!startText || !destText) {
+      alert("Veuillez renseigner un départ et une arrivée.");
+      return;
+    }
+
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = "⏳ Calcul de l'itinéraire en cours...";
+
+    try {
+      const startRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startText)}`);
+      const startData = await startRes.json();
+      if (!startData.length) throw new Error("Départ introuvable.");
+
+      const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destText)}`);
+      const destData = await destRes.json();
+      if (!destData.length) throw new Error("Arrivée introuvable.");
+
+      const startCoord = [parseFloat(startData[0].lon), parseFloat(startData[0].lat)];
+      const destCoord = [parseFloat(destData[0].lon), parseFloat(destData[0].lat)];
+
+      const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${startCoord[0]},${startCoord[1]};${destCoord[0]},${destCoord[1]}?overview=full&geometries=geojson`);
+      const routeData = await routeRes.json();
+
+      if (!routeData.routes || !routeData.routes.length) throw new Error("Impossible de calculer la route.");
+
+      const route = routeData.routes[0];
+      const distanceKm = (route.distance / 1000).toFixed(1);
+      const durationMin = Math.round(route.duration / 60);
+      const hours = Math.floor(durationMin / 60);
+      const mins = durationMin % 60;
+      const timeStr = hours > 0 ? `${hours}h${mins > 0 ? mins + 'min' : ''}` : `${mins} min`;
+
+      const conso = parseFloat(document.getElementById('specConso').value);
+      const priceL = parseFloat(document.getElementById('specPrice').value);
+      const cost = ((distanceKm * conso / 100) * priceL).toFixed(2);
+
+      resultDiv.innerHTML = `<b>📊 Itinéraire réel tracé :</b><br>
+        • Distance : <b>${distanceKm} km</b> | Durée estimée : <b>${timeStr}</b><br>
+        • Coût carburant estimé : <b>~${cost} €</b><br>
+        • Gabarit pris en compte (Hauteur ${document.getElementById('specH').value}m).`;
+
+      // Traçage de la ligne sur la carte (intégré proprement dans le try)
+      if (routeLine) {
+        map.removeLayer(routeLine);
+      }
+      const latLngs = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+      routeLine = L.polyline(latLngs, { color: '#D4621A', weight: 5, opacity: 0.8 }).addTo(map);
+      map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+
+    } catch (err) {
+      resultDiv.innerHTML = `❌ Erreur : ${err.message}`;
+    }
+  }
+
+// --- MÉTÉO / VENT FORT (Données réelles Open-Meteo) ---
+async function checkMeteoAlert() {
+  const status = document.getElementById('meteo-status');
+  if (!status) return;
+
+  status.style.color = "#6b7280";
+  status.innerHTML = "⏳ Récupération de la météo locale...";
+
+  if (!navigator.geolocation) {
+    status.style.color = "#ef4444";
+    status.innerHTML = "❌ Géolocalisation non supportée par votre navigateur.";
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      try {
+        const response = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_gusts_10m`
+        );
+        const data = await response.json();
+
+        const windSpeed = Math.round(data.current.wind_speed_10m);
+        const windGusts = Math.round(data.current.wind_gusts_10m);
+
+        if (windGusts > 40 || windSpeed > 35) {
+          status.style.color = "#ef4444";
+          status.innerHTML = `🔴 ATTENTION Rafales à ${windGusts} km/h (vent ${windSpeed} km/h) - Fermez impérativement les lanterneaux !`;
+        } else if (windGusts > 25 || windSpeed > 20) {
+          status.style.color = "#f59e0b";
+          status.innerHTML = `🟡 Vent modéré (${windSpeed} km/h, rafales ${windGusts} km/h) - Prudence sur les stores.`;
+        } else {
+          status.style.color = "#10b981";
+          status.innerHTML = `🟢 Vent faible (${windSpeed} km/h, rafales ${windGusts} km/h) - Lanterneaux autorisés.`;
+        }
+      } catch (error) {
+        status.style.color = "#ef4444";
+        status.innerHTML = "❌ Impossible de récupérer la météo en direct.";
+      }
+    },
+    (error) => {
+      status.style.color = "#ef4444";
+      status.innerHTML = "⚠️ Veuillez activer le GPS pour la météo locale.";
+    }
+  );
+}
+
+  // --- SUIVI BUDGET CARBURANT ---
+  function addFuelExpense(e) {
+    e.preventDefault();
+    const date = document.getElementById('fuelDate').value;
+    const litres = parseFloat(document.getElementById('fuelLitres').value);
+    const cost = parseFloat(document.getElementById('fuelCost').value);
+
+    const expenses = JSON.parse(localStorage.getItem('nomadsync_fuel_expenses') || '[]');
+    expenses.push({ date, litres, cost });
+    localStorage.setItem('nomadsync_fuel_expenses', JSON.stringify(expenses));
+
+    renderFuelExpenses();
+    e.target.reset();
+  }
+
+  function renderFuelExpenses() {
+    const expenses = JSON.parse(localStorage.getItem('nomadsync_fuel_expenses') || '[]');
+    const listDiv = document.getElementById('fuelHistoryList');
+    let totalCost = 0;
+    let totalLitres = 0;
+
+    if (expenses.length === 0) {
+      listDiv.innerHTML = "Aucun plein enregistré pour l'instant.";
+      document.getElementById('totalFuelCost').innerText = "0.00 €";
+      document.getElementById('totalFuelLitres').innerText = "0";
+      return;
+    }
+
+    let html = "";
+    expenses.forEach((item, index) => {
+      totalCost += item.cost;
+      totalLitres += item.litres;
+      html += `• ${item.date} : <b>${item.litres} L</b> pour <b>${item.cost.toFixed(2)} €</b><br>`;
+    });
+
+    listDiv.innerHTML = html;
+    document.getElementById('totalFuelCost').innerText = totalCost.toFixed(2) + " €";
+    document.getElementById('totalFuelLitres').innerText = totalLitres.toFixed(1);
+  }
+
+  // --- GESTION DES JAUGES & STOCKAGE LOCAL ---
+  function updateGauge(type, val, suffix) {
+    document.getElementById(`val-${type}`).innerText = val + suffix;
+    document.getElementById(`fill-${type}`).style.width = val + '%';
+    localStorage.setItem(`nomadsync_gauge_${type}`, val);
+  }
+
+  let bubbleX = 40, bubbleY = 40;
+  function moveBubble(dx, dy) {
+    bubbleX = Math.max(10, Math.min(70, bubbleX + dx));
+    bubbleY = Math.max(10, Math.min(70, bubbleY + dy));
+    const inner = document.getElementById('bubblePos');
+    inner.style.left = bubbleX + 'px';
+    inner.style.top = bubbleY + 'px';
+    
+    const text = document.getElementById('bubbleText');
+    if (bubbleX === 40 && bubbleY === 40) {
+      text.innerText = "Véhicule parfaitement horizontal";
+      inner.style.background = "#10b981";
+      inner.style.boxShadow = "0 0 10px #10b981";
+    } else {
+      text.innerText = "Attention : Véhicule penché (ajuster les cales)";
+      inner.style.background = "#ef4444";
+      inner.style.boxShadow = "0 0 10px #ef4444";
+    }
+    localStorage.setItem('nomadsync_bubble_x', bubbleX);
+    localStorage.setItem('nomadsync_bubble_y', bubbleY);
+  }
+
+  function resetBubble() {
+    bubbleX = 40;
+    bubbleY = 40;
+    moveBubble(0, 0);
+  }
+
+ // --- CHECKLIST / PENSE-BÊTE ---
+  function saveChecklist() {
+    const checks = ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'];
+    checks.forEach(id => {
+      const checked = document.getElementById(id).checked;
+      localStorage.setItem(`nomadsync_${id}`, checked);
+    });
+  } // <--- C'est cette accolade qui manquait cruellement ici !
+
+function loadSavedData() {
+    const savedTheme = localStorage.getItem('nomadsync_theme');
+    if (savedTheme === 'nuit') {
+        document.documentElement.setAttribute('data-theme', 'nuit');
+        document.getElementById('themeBtn').innerText = '☀️ Mode Jour';
+    }
+
+    ['bat', 'eau', 'usee', 'gaz'].forEach(type => {
+      const savedVal = localStorage.getItem(`nomadsync_gauge_${type}`);
+      if (savedVal !== null) {
+        document.getElementById(`range-${type}`).value = savedVal;
+        const suffix = type === 'bat' ? '% (12.8V)' : '%';
+        updateGauge(type, savedVal, suffix);
+      }
+    });
+
+    const savedX = localStorage.getItem('nomadsync_bubble_x');
+    const savedY = localStorage.getItem('nomadsync_bubble_y');
+    if (savedX !== null && savedY !== null) {
+      bubbleX = parseInt(savedX);
+      bubbleY = parseInt(savedY);
+      const inner = document.getElementById('bubblePos');
+      inner.style.left = bubbleX + 'px';
+      inner.style.top = bubbleY + 'px';
+    }
+
+    ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'].forEach(id => {
+      const val = localStorage.getItem(`nomadsync_${id}`);
+      if (val === 'true') {
+        document.getElementById(id).checked = true;
+      }
+    });
+
+    renderFuelExpenses();
+}
+// <-- Ici la fonction loadSavedData() se ferme proprement
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .catch(err => console.log('Service Worker non enregistré', err));
+    });
+}
+
+// ==========================================
+// TABLEAU GLOBAL DES SPOTS (TOUT À LA FIN)
+// ==========================================
+const spots = [
+  ...filteredSpots,
+  ...filteredWaterPoints,
+  ...rawNaturePoints,
+  ...rawFarmPoints,
+  ...rawFuelPoints,
+  ...rawDrainPoints
+];
+
+const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+spots.push(...customSpots);
+
+ window.onload = function() {
+    initMap();
+    loadSavedData();
+};
+
+const translations = {
+    fr: {
+        title: "NomadSync",
+        subtitle: "Navigation Nomade",
+        banner: "🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 | 🏕️ Aires & Dodos 100% Gratuits",
+        tab2: "🗺️ Itinéraire",
+        tab3: "🚐 Jauges & Van",
+        tab4: "🛡️ Infos & Sécurité"
+    },
+    en: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        banner: "🌤️ Weather France & Europe: Favorable conditions 🚐 | ⛽ Diesel & Gas Stations 95 | 🏕️ 100% Free Spots",
+        tab2: "🗺️ Route",
+        tab3: "🚐 Gauges & Van",
+        tab4: "🛡️ Info & Security"
+    },
+    es: {
+        title: "NomadSync",
+        subtitle: "Navegación Nómada",
+        banner: "🌤️ Clima Francia y Europa: Condiciones favorables 🚐 | ⛽ Gasolineras 🏕️ Áreas gratuitas",
+        tab2: "🗺️ Ruta",
+        tab3: "🚐 Niveles y Furgo",
+        tab4: "🛡️ Info y Seguridad"
+    },
+    de: {
+        title: "NomadSync",
+        subtitle: "Nomaden-Navigation",
+        banner: "🌤️ Wetter Frankreich & Europa: Günstige Bedingungen 🚐 | ⛽ Tankstellen 🏕️ Kostenlose Stellplätze",
+        tab2: "🗺️ Route",
+        tab3: "🚐 Füllstände & Van",
+        tab4: "🛡️ Infos & Sicherheit"
+    }
+};
+  // Fonction pour récupérer la météo selon la position du véhicule
+    function chargerMeteo(lat, lng) {
+      console.log("📍 Coordonnées reçues :", lat, lng);
+      
+      const currentMonthYear = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date());
+
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
+        .then(response => {
+          console.log("🌐 Réponse de l'API Open-Meteo reçue");
+          return response.json();
+        })
+        .then(data => {
+          console.log("📊 Données météo brutes :", data);
+          const temp = Math.round(data.current_weather.temperature);
+          const windSpeed = Math.round(data.current_weather.windspeed);
+          
+          let alertHtml = "";
+          if (windSpeed > 50) {
+            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🔴 <strong>ATTENTION</strong> Rafales à ${windSpeed} km/h (${temp}°C) - Fermez impérativement les lanterneaux !`;
+          } else if (windSpeed > 25) {
+            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟡 Vent modéré (${windSpeed} km/h, ${temp}°C) - Prudence sur les stores.`;
+          } else {
+            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟢 Calme (${windSpeed} km/h, ${temp}°C) - Conditions favorables.`;
+          }
+
+          const weatherWidget = document.querySelector('.weather-current-text');
+          if(weatherWidget) {
+            weatherWidget.innerHTML = alertHtml;
+            console.log("✅ Affichage météo mis à jour avec succès !");
+          } else {
+            console.log("⚠️ Élément '.weather-current-text' introuvable dans le HTML.");
+          }
+        })
+        .catch(err => console.log("❌ Erreur lors de l'appel météo :", err));
+    }
+
+    // Utilisation de la géolocalisation du téléphone
+    if (navigator.geolocation) {
+      console.log("🛰️ Demande de géolocalisation en cours...");
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          chargerMeteo(position.coords.latitude, position.coords.longitude);
+        },
+        error => {
+          console.log("❌ Erreur de géolocalisation :", error.message);
+        }
+      );
+    } else {
+      console.log("❌ La géolocalisation n'est pas supportée par ce navigateur.");
+    }
+	
+	 function changeLanguage(lang) {
+        const t = window.translations ? window.translations[lang] : null;
+        if (t) {
+            document.title = t.title;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.innerHTML = t[key];
+                }
+            });
+        }
+        localStorage.setItem('nomadsync_lang', lang);
+        console.log("Langue active :", lang);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('nomadsync_lang');
+        if (savedLang) {
+            const select = document.getElementById('langSelect');
+            if (select) select.value = savedLang;
+            changeLanguage(savedLang);
+        }
+
+        if (typeof verifierStatut === 'function') {
+            verifierStatut();
