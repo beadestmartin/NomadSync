@@ -7640,7 +7640,7 @@ const spots = [
 customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
 spots.push(...customSpots);
 
- window.onload = function() {
+window.onload = function() {
     initMap();
     loadSavedData();
 };
@@ -7680,25 +7680,28 @@ const translations = {
     }
 };
 
-// Fonction pour initialiser la carte (évite l'erreur "initMap is not defined")
 function initMap() {
-    console.log("🗺️ Initialisation de la carte en cours...");
-    // Le code de ta carte viendra s'insérer ici
+    console.log("🗺️ Initialisation de la carte...");
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) return;
+
+    if (typeof L !== 'undefined') {
+        const map = L.map('map').setView([46.603354, 1.888334], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        console.log("✅ Carte affichée avec succès !");
+    }
 }
 
-// Fonction pour récupérer la météo selon la position du véhicule
 function chargerMeteo(lat, lng) {
     console.log("📍 Coordonnées reçues :", lat, lng);
-    
     const currentMonthYear = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date());
 
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
-      .then(response => {
-        console.log("🌐 Réponse de l'API Open-Meteo reçue");
-        return response.json();
-      })
+      .then(response => response.json())
       .then(data => {
-        console.log("📊 Données météo brutes :", data);
         const temp = Math.round(data.current_weather.temperature);
         const windSpeed = Math.round(data.current_weather.windspeed);
         
@@ -7714,17 +7717,12 @@ function chargerMeteo(lat, lng) {
         const weatherWidget = document.querySelector('.weather-current-text');
         if(weatherWidget) {
           weatherWidget.innerHTML = alertHtml;
-          console.log("✅ Affichage météo mis à jour avec succès !");
-        } else {
-          console.log("⚠️ Élément '.weather-current-text' introuvable dans le HTML.");
         }
       })
-      .catch(err => console.log("❌ Erreur lors de l'appel météo :", err));
+      .catch(err => console.log("❌ Erreur météo :", err));
 }
 
-// Utilisation de la géolocalisation du téléphone
 if (navigator.geolocation) {
-    console.log("🛰️ Demande de géolocalisation en cours...");
     navigator.geolocation.getCurrentPosition(
         position => {
             chargerMeteo(position.coords.latitude, position.coords.longitude);
@@ -7733,8 +7731,6 @@ if (navigator.geolocation) {
             console.log("❌ Erreur de géolocalisation :", error.message);
         }
     );
-} else {
-    console.log("❌ La géolocalisation n'est pas supportée par ce navigateur.");
 }
 
 function changeLanguage(lang) {
@@ -7749,7 +7745,6 @@ function changeLanguage(lang) {
         });
     }
     localStorage.setItem('nomadsync_lang', lang);
-    console.log("Langue active :", lang);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
