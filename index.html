@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="terracotta">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NomadSync</title>
+
+  <!-- Feuille de style Leaflet obligatoire pour l'affichage de la carte -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Configuration pour l'installation sur l'écran d'accueil (PWA) -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#D4621A">
+
+  <style>
+    :root {
+      --bg-color: #f7f2ea;
+      --card-bg: #ffffff;
+      --header-bg: #D4621A;
+      --ticker-bg: #2A1A0E;
+      --text-color: #2A1A0E;
+      --accent-color: #D4621A;
+      --border-color: #e3dbc9;
+      --input-bg: #fffcf7;
+      --tab-bg: #F4AE52;
+      --tab-active: #D4621A;
+      --tab-active-text: #ffffff;
+    }
+
+    [data-theme="nuit"] {
+      --bg-color: #121824;
+      --card-bg: #1e293b;
+      --header-bg: #334155;
+      --ticker-bg: #1e293b;
+      --text-color: #f8fafc;
+      --accent-color: #38bdf8;
+      --border-color: #475569;
+      --input-bg: #0f172a;
+      --tab-bg: #0f172a;
+      --tab-active: #2563eb;
+      --tab-active-text: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+      margin: 0; 
+      padding: 12px; 
+      background-color: var(--bg-color); 
+      color: var(--text-color); 
+      transition: background 0.3s, color 0.3s; 
+    }
+
+    /* Conteneur global */
+    .content-area {
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 16px;
+      position: relative;
+    }
+
+    .app-card { max-width: 1000px; margin: 0 auto; background: var(--card-bg); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); overflow: hidden; border: 1px solid var(--border-color); }
+
+    /* Bandeau Déroulant */
+    .ticker-wrap { background: var(--ticker-bg); color: #ffffff; padding: 8px 16px; overflow: hidden; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+    .ticker { display: inline-block; animation: ticker 25s linear infinite; }
+    @keyframes ticker { 0% { transform: translate3d(100%, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+
+    /* En-tête */
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--header-bg); color: #ffffff; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { font-size: 2rem; }
+    .brand h1 { margin: 0; font-size: 1.4rem; color: #ffffff; letter-spacing: 0.5px; }
+
+    .user-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .badge-vip { background: #2A1A0E; color: #ffffff; padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.1s; }
+    .badge-vip:active { transform: scale(0.95); }
+
+    .theme-toggle { background: rgba(255,255,255,0.3); color: white; border: 1px solid rgba(255,255,255,0.5); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .vehicle-select { background: rgba(0,0,0,0.15); color: #ffffff; border: 1px solid rgba(255,255,255,0.3); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .offline-toggle { background: rgba(0,0,0,0.15); color: #ffffff; border: 1px solid rgba(255,255,255,0.3); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .offline-toggle.active { background: #0284c7; }
+
+    /* Navigation Onglets */
+    .nav-tabs { display: flex; background: var(--tab-bg); padding: 6px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
+    .tab-btn { flex: 1; min-width: 130px; padding: 12px; border: none; background: transparent; color: var(--text-color); font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.2s; font-size: 0.85rem; opacity: 0.85; text-align: center; }
+    .tab-btn.active { background: var(--tab-active); color: var(--tab-active-text); opacity: 1; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+
+    /* Modals (VIP & QR Code) */
+    #vip-modal, #qr-modal { display: none; background: var(--bg-color); border: 2px solid var(--accent-color); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+    #vip-modal h3, #qr-modal h3 { margin-top: 0; color: var(--accent-color); display: flex; justify-content: space-between; align-items: center; }
+
+    .vip-pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 15px 0; }
+    .vip-price-card { background: var(--card-bg); padding: 14px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+    .vip-price-card.featured { border: 2px solid var(--accent-color); background: rgba(212, 98, 26, 0.04); }
+    .pay-btn { margin-top: 8px; width: 100%; background: var(--accent-color); color: white; border: none; padding: 6px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+
+    /* Barre de recherche et Filtres */
+    .search-container { display: flex; width: 100%; max-width: 800px; margin: 10px auto; gap: 8px; box-sizing: border-box; padding: 0 10px; align-items: center; }
+    .search-container input { flex: 1; width: 100%; padding: 12px 16px; border-radius: 25px; border: 1px solid #ccc; font-size: 1rem; outline: none; box-sizing: border-box; }
+    .search-container button { padding: 12px 20px; border-radius: 25px; border: none; background: #d35400; color: white; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    #searchInput { flex: 1 !important; width: 100% !important; min-width: 0 !important; }
+
+    .filters-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; justify-content: space-between; align-items: center; }
+    .filter-chips-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter-chip { padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .filter-chip.active { color: white; border-color: transparent; }
+    .filter-btn { padding: 4px 10px !important; font-size: 0.75rem !important; border-radius: 15px !important; display: inline-flex; align-items: center; gap: 4px; }
+
+    .add-spot-btn { background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .export-spots-btn { background: #3b82f6; color: white; border: none; padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+    #f-free.active { background: #ef4444; }
+    #f-wild.active { background: #f97316; }
+    #f-farm.active { background: #84cc16; color: #000; }
+    #f-fuel.active { background: #10b981; }
+    #f-water.active { background: #3b82f6; }
+    #f-elec.active { background: #eab308; color: #000; }
+    #f-drain.active { background: #a855f7; }
+
+    /* Formulaire Ajout Spot */
+    #add-spot-form { display: none; background: var(--bg-color); border: 2px solid #10b981; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 10px; }
+    .form-grid input, .form-grid select { padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.9rem; }
+
+    /* Carte Leaflet & Marqueurs */
+    #map { 
+      height: 450px !important; 
+      width: 100% !important; 
+      border-radius: 12px; 
+      border: 1px solid var(--border-color); 
+      z-index: 1; 
+      margin-top: 10px; 
+      display: block; 
+      position: relative !important; 
+    }
+    .custom-marker { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; color: white; font-size: 16px; font-weight: bold; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
+    .marker-free { background-color: #ef4444; }
+    .marker-wild { background-color: #f97316; }
+    .marker-farm { background-color: #84cc16; }
+    .marker-fuel { background-color: #10b981; }
+    .marker-water { background-color: #3b82f6; }
+    .marker-elec { background-color: #eab308; }
+    .marker-drain { background-color: #a855f7; }
+    .spot-popup-img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 6px; }
+
+    /* Modules Itinéraire & Jauges */
+    .route-card, .gauge-card, .bubble-card, .bluetooth-card, .security-card { background: var(--bg-color); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px; box-sizing: border-box; width: 100%; }
+    .route-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 12px; box-sizing: border-box; width: 100%; }
+
+    .vehicle-specs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px; box-sizing: border-box; width: 100%; }
+    .vehicle-specs-grid label { font-size: 0.75rem; font-weight: bold; color: var(--accent-color); display: block; margin-bottom: 2px; }
+    .vehicle-specs-grid input, .vehicle-specs-grid select { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem; box-sizing: border-box; }
+
+    .gauges-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .gauge-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; font-size: 0.9rem; }
+    .progress-bar { background: var(--border-color); height: 14px; border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 10px; transition: width 0.2s ease; }
+    .gauge-card input[type="range"] { width: 100%; margin-top: 10px; cursor: pointer; accent-color: var(--accent-color); }
+
+    .bubble-card { text-align: center; grid-column: 1 / -1; }
+    .bubble-outer { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-color); margin: 12px auto; display: flex; align-items: center; justify-content: center; position: relative; background: var(--card-bg); }
+    .bubble-inner { width: 20px; height: 20px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 10px #ef4444; position: absolute; top: 40px; left: 40px; transition: transform 0.1s ease; }
+
+    .status-banner { background: #2A1A0E; color: #f7f2ea; padding: 14px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border-color); }
+
+    /* Urgence & Utilitaires */
+    .emergency-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+    .emergency-box { background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+    .emergency-box h4 { margin: 0 0 6px 0; color: var(--accent-color); font-size: 0.9rem; }
+    .emergency-box p { margin: 3px 0; font-size: 0.85rem; }
+
+    input, select { width: 100% !important; box-sizing: border-box !important; }
+    .button-group, .btn-container { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
+  </style>
+</head>
+
+<body>
+<div class="app-card" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 8px 12px; background: #d35400; border-radius: 0 0 16px 16px;">
+  <!-- Bandeau Déroulant Compact -->
+  <div class="ticker-wrap" style="margin-bottom: 6px; overflow: hidden; white-space: nowrap; font-size: 0.75rem; opacity: 0.9;">
+    <div class="ticker" data-i18n="banner">
+      🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 | 🏕️ Aires & Dodos 100% Gratuits
+    </div>
+  </div>
+  <!-- En-tête Compact et Équilibré -->
+  <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+    
+    <div class="brand" style="display: flex; align-items: center; gap: 6px;">
+      <span class="brand-icon" style="font-size: 1.2rem;">🧭</span>
+      <div>
+        <h1 style="font-size: 0.95rem; margin: 0; line-height: 1.2; color: white;">NomadSync</h1>
+        <span style="font-size: 0.6rem; opacity: 0.85; color: white;">Navigation Nomade</span>
+      </div>
+    </div>
+    
+    <div class="user-controls" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+      <select id="langSelect" style="background: rgba(0,0,0,0.3); color: white; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); font-size: 0.75rem; cursor: pointer; outline: none;" onchange="changeLanguage(this.value)">
+          <option value="fr" style="color: black;">FR</option>
+          <option value="en" style="color: black;">EN</option>
+          <option value="es" style="color: black;">ES</option>
+          <option value="de" style="color: black;">DE</option>
+      </select>
+      
+      <select id="vehicleSelect" style="background: rgba(0,0,0,0.3); color: white; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); font-size: 0.75rem; cursor: pointer; outline: none;" onchange="updateVehicleSpec()">
+          <option value="van" style="color: black;">🚐 Van</option>
+          <option value="cc" style="color: black;">🚛 CC</option>
+          <option value="fourgon" style="color: black;">🚐 Fourgon</option>
+      </select>
+      
+      <button style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleQrModal()" title="QR Code">📱 QR</button>
+      <button style="background: #111; color: #f5af19; border: 1px solid #f5af19; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" onclick="toggleVipModal()" title="VIP">⭐ VIP</button>
+      <button id="themeBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleTheme()" title="Thème">🌙</button>
+      <button id="offlineBtn" style="background: rgba(46, 125, 50, 0.9); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleOffline()" title="Statut réseau">🟢</button>
+    </div>
+
+  </header>
+</div>
+
+<!-- NAV TABS -->
+<div style="max-width: 750px; margin: 0 auto 15px auto; width: 100%; box-sizing: border-box; padding: 0 10px;">
+  <div class="nav-tabs" style="display: flex; gap: 6px; width: 100%; background-color: #f5ebe0; padding: 6px; border-radius: 12px; border: 1px solid #e0d0c0; box-sizing: border-box;">
+    <button id="tab-route" class="tab-btn active" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: #D4621A; color: white; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
+    <button id="tab-gauges" class="tab-btn" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('jauges')">🚐 Jauges & Van</button>
+    <button id="tab-security" class="tab-btn" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
+  </div>
+</div>
+
+<!-- MODAL QR CODE DE PARTAGE -->
+  <div id="qr-modal" style="display: none;">
+    <h2 style="font-size: 1.25rem; margin: 0 0 10px 0;">📱 Partager NomadSync <span style="cursor:pointer; font-size:1.2rem; float:right;" onclick="toggleQrModal()">✕</span></h2>
+    <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Faites flasher ce QR code avec un autre téléphone pour partager instantanément l'application :</p>
+    <div style="text-align: center; padding: 10px;">
+      <img id="qrCodeImg" src="#" alt="QR Code NomadSync" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); background: white; padding: 6px;" />
+    </div>
+  </div>
+  
+    <!-- ESPACE VIP -->
+    <div id="vip-modal">
+      <h3>⭐ Espace VIP NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleVipModal()">✕</span></h3>
+      <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Accès illimité aux cartes hors-ligne, dodos secrets et calculateur de gabarit avancé :</p>
+      
+      <div class="vip-pricing-grid">
+        <div class="vip-price-card">
+          <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">MENSUEL</div>
+          <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">2,99 €</div>
+          <div style="font-size: 0.75rem; opacity: 0.7;">Sans engagement</div>
+          <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Mensuel)...')">S'abonner</button>
+        </div>
+        <div class="vip-price-card featured">
+          <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">ANNUEL ⭐</div>
+          <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">24,99 €</div>
+          <div style="font-size: 0.75rem; opacity: 0.7;">Économique</div>
+          <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Annuel)...')">S'abonner</button>
+        </div>
+        <div class="vip-price-card">
+          <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">À VIE</div>
+          <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">49,99 €</div>
+          <div style="font-size: 0.75rem; opacity: 0.7;">Accès illimité définitif</div>
+          <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (À vie)...')">Acheter</button>
+        </div>
+      </div>
+
+      <div style="background: var(--card-bg); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin-top: 15px;">
+        <b style="font-size: 0.9rem; display: block; margin-bottom: 8px;">🔐 Connexion / Accès Membre VIP :</b>
+        <form onsubmit="handleVipLogin(event)" style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <input type="email" id="loginEmail" placeholder="Votre adresse email" required style="flex:1; min-width: 160px; padding:9px; border-radius:6px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:0.85rem;" />
+          <input type="password" id="loginPass" placeholder="Mot de passe" required style="flex:1; min-width: 160px; padding:9px; border-radius:6px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:0.85rem;" />
+          <button type="submit" style="background: var(--accent-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Se connecter</button>
+        </form>
+        <div id="loginMessage" style="display: none; background: #ecfdf5; color: #065f46; border: 1px solid #10b981; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 10px;"></div>
+      </div>
+    </div>
+
+<!-- PANEL CARTE -->
+<div style="max-width: 750px; margin: 0 auto; width: 100%; box-sizing: border-box;">
+  
+  <div class="search-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 10px; box-sizing: border-box;">
+    <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" style="width: 100%; padding: 12px 16px; border-radius: 25px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; outline: none;" />
+    <div style="display: flex; gap: 8px; width: 100%;">
+      <button onclick="handleSearchBtn()" style="flex: 1; padding: 12px 20px; border-radius: 25px; border: none; background: #d4621a; color: white; font-weight: bold; cursor: pointer;">Chercher</button>
+      <button onclick="locateUser()" style="flex: 1; padding: 12px 16px; border-radius: 25px; border: none; background: #0284c7; color: white; font-weight: bold; cursor: pointer;" title="Me géolocaliser">📍 Ma Position</button>
+    </div>
+  </div>
+    
+  <div class="filters-grid" style="margin: 10px 10px 0 10px; box-sizing: border-box;">
+      <select id="servicesFilter" class="form-select" style="width: 100%; padding: 12px; border-radius: 25px; border: 1px solid #ccc; font-weight: bold; background: white; box-sizing: border-box;" onchange="toggleFilter(this.value)">
+          <option value="">📂 Catégories (Tous)</option>
+          <option value="free">🔴 Aires Gratuites</option>
+          <option value="wild">🟠 Dodos Sauvages</option>
+          <option value="nature">🌙 Nature</option>
+          <option value="farm">🟢 Fermes</option>
+          <option value="fuel">⛽ Carburant</option>
+          <option value="water">💧 Eau</option>
+          <option value="drain">🟣 Vidange</option>
+      </select>
+  </div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 10px 0 10px; box-sizing: border-box;">
+      <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un bon plan (Gratuit / Carburant)</button>
+  </div>
+
+</div>
+      
+<!-- FORMULAIRE AJOUT DE SPOT -->
+      <div id="add-spot-form">
+        <h4 style="margin-top:0; color:#10b981;">📍 Partager un nouveau bon plan nomade</h4>
+        
+        <!-- Avertissement esprit NomadSync -->
+        <div style="background: #f0fdf4; border: 1px solid #10b981; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; color: #065f46;">
+          💡 <strong>Esprit NomadSync :</strong><br>
+          Ici, on ne partage que :
+          <ul style="margin: 4px 0 4px 16px; padding: 0;">
+            <li>Des <strong>spots gratuits, sauvages et en pleine nature</strong> (hors campings et aires payantes).</li>
+            <li>Des <strong>stations-service low-cost ou économiques</strong> (type Leclerc, Intermarché, Total Access, etc., en évitant les pompes hors de prix ou sur autoroute).</li>
+          </ul>
+        </div>
+      
+<form onsubmit="handleAddNewSpot(event)">
+          <div class="form-grid">
+            <input type="text" id="newSpotName" placeholder="Nom du Spot ou de la Station" required />
+            <input type="text" id="newSpotAddress" placeholder="Adresse complète / Code Postal / Ville" required />
+            <select id="newSpotType">
+              <option value="wild">Dodo Sauvage (0 €)</option>
+              <option value="free">Aire Gratuite (0 €)</option>
+              <option value="farm">Ferme d'Accueil (0 €)</option>
+              <option value="fuel">Station Carburant Éco (Leclerc, Intermarché, Total Access...)</option>
+              <option value="water">Eau Gratuite</option>
+              <option value="elec">Électricité Gratuite</option>
+              <option value="drain">Station Vidange</option>
+            </select>
+            <input type="file" id="newSpotPhoto" accept="image/*" />
+          </div>
+          <button type="submit" style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer; margin-top: 10px;">Enregistrer le bon plan</button>
+        </form>
+      </div>
+  <!-- ZONE UNIQUE DE CONTENU D'ONGLETS -->
+<div class="content-area">
+      
+  <!-- 1. ONGLET ITINÉRAIRE (Contient le calculateur ET la carte) -->
+  <div id="panel-itineraire" style="display: block;">
+    <div class="route-card">
+      <h3 style="margin-top: 0; color: var(--accent-color);">Calculateur de Trajet Temps Réel & Gabarit</h3>
+      
+      <div class="vehicle-specs-grid">
+        <div>
+          <label>📏 Hauteur (m)</label>
+          <input type="number" step="0.05" id="specH" value="2.90" />
+        </div>
+        <div>
+          <label>📐 Longueur (m)</label>
+          <input type="number" step="0.1" id="specL" value="6.50" />
+        </div>
+        <div>
+          <label>↔️ Largeur (m)</label>
+          <input type="number" step="0.05" id="specW" value="2.20" />
+        </div>
+        <div>
+          <label>⚖️ Poids (tonnes)</label>
+          <input type="number" step="0.1" id="specP" value="3.5" />
+        </div>
+        <div>
+          <label>⛽ Carburant</label>
+          <select id="specFuelType" onchange="updateFuelPrice()">
+            <option value="gazole">Gazole (Diesel)</option>
+            <option value="sp95">Sans Plomb 95 (E10)</option>
+          </select>
+        </div>
+        <div>
+          <label>⛽ Conso (L/100km)</label>
+          <input type="number" step="0.5" id="specConso" value="10.5" />
+        </div>
+        <div>
+          <label>💶 Prix (€/L)</label>
+          <input type="number" step="0.01" id="specPrice" value="1.72" />
+        </div>
+      </div>
+
+      <div class="route-grid">
+        <input type="text" id="startInput" class="search-bar" style="margin:0" placeholder="Départ (ex: Le Mans)" />
+        <input type="text" id="destInput" class="search-bar" style="margin:0" placeholder="Arrivée (ex: Meaux)" />
+        <button onclick="calculateAndDrawRoute()" style="background:var(--accent-color); border:none; color:white; border-radius:8px; padding:10px 16px; font-weight:bold; cursor:pointer;">Calculer & Tracer</button>
+      </div>
+
+      <div id="route-result" class="status-banner" style="display: none;"></div>
+    </div>
+
+</div> <!-- Fin de #panel-itineraire -->
+</div>
+
+<!-- LA CARTE COMMUNE ET SES BOUTONS (Sortie du panneau et maintenant indépendante) -->
+<div id="map-container" style="max-width: 800px; margin: 15px auto 0 auto; width: 100%; box-sizing: border-box; position: relative;">
+  
+  <!-- Les 3 boutons placés au-dessus pour un accès direct sur mobile -->
+  <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+    <a href="https://www.google.com/maps/dir/?api=1&destination=" target="_blank" id="btn-gmaps" style="background: rgba(66, 133, 244, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🧭 Google Maps</a>
+    <a href="https://www.waze.com/ul?q=" target="_blank" id="btn-waze" style="background: rgba(51, 204, 255, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🚗 Waze</a>
+    <a href="maps://?" target="_blank" id="btn-offline" style="background: rgba(46, 125, 50, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🗺️ Maps.me</a>
+  </div>
+
+  <!-- La carte en dessous des boutons -->
+  <div id="map" style="width: 100%; height: 450px; border-radius: 12px;"></div>  
+</div>
+
+<!-- 2. ONGLET JAUGES & VAN -->
+<div id="view-jauges" style="display: none;">
+  <!-- MODULE BLUETOOTH -->
+  <div class="bluetooth-card">
+    <h3 style="margin-top: 0; color: var(--accent-color); display: flex; align-items: center; gap: 8px;">
+      <span>📡 Synchronisation Bluetooth (Véhicules Récents)</span>
+    </h3>
+    <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
+      Possédez-vous un camping-car ou van récent équipé de systèmes connectés (centrales Schaudt, CBE, Truma iNet, batteries au lithium intelligentes) ? 
+      <strong>NomadSync</strong> centralise toutes ces données en temps réel. Fini de multiplier les applications constructeurs : connectez votre véhicule en Bluetooth pour suivre d'un seul coup d'œil vos niveaux de vie, la charge solaire et l'état de votre chauffage.
+    </p>
+    <button onclick="alert('Recherche de périphériques Bluetooth à proximité... (Assurez-vous que le Bluetooth de votre appareil et de la centrale du van sont activés)')" style="background: var(--accent-color); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
+      🔗 Connecter mon van en Bluetooth
+    </button>
+  </div>
+</div>
+
+    <!-- PENSE-BÊTE / CHECKLIST DÉPART -->
+    <div class="bluetooth-card" style="border-color: #10b981;">
+      <h3 style="margin-top: 0; color: #10b981; display: flex; align-items: center; gap: 8px;">
+        <span>📋 Pense-bête / Checklist avant le départ</span>
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 0.9rem; margin-top: 10px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-step" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🦶 Rentrer le marchepied</label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-roof" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🌤️ Fermer les lanterneaux</label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-blocks" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🧱 Ranger les cales de roues</label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-fridge" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> ❄️ Verrouiller le frigo</label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-shore" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🔌 Débrancher la prise 220V</label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-door" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🚪 Verrouiller porte cellule & soutes</label>
+      </div>
+    </div>
+
+    <div class="gauges-grid">
+      <div class="gauge-card">
+        <div class="gauge-header"><span>🔋 Batterie Cellule</span><span id="val-bat">85% (12.8V)</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="fill-bat" style="width: 85%; background: #10b981;"></div></div>
+        <input type="range" id="range-bat" min="0" max="100" value="85" oninput="updateGauge('bat', this.value, '% (12.8V)')">
+      </div>
+
+      <div class="gauge-card">
+        <div class="gauge-header"><span>💧 Eau Propre</span><span id="val-eau">60%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="fill-eau" style="width: 60%; background: #0284c7;"></div></div>
+        <input type="range" id="range-eau" min="0" max="100" value="60" oninput="updateGauge('eau', this.value, '%')">
+      </div>
+
+      <div class="gauge-card">
+        <div class="gauge-header"><span>🛢 Eaux Usées</span><span id="val-usee">30%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="fill-usee" style="width: 30%; background: #f59e0b;"></div></div>
+        <input type="range" id="range-usee" min="0" max="100" value="30" oninput="updateGauge('usee', this.value, '%')">
+      </div>
+
+      <div class="gauge-card">
+        <div class="gauge-header"><span>🔥 Gaz Propane</span><span id="val-gaz">50%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="fill-gaz" style="width: 50%; background: #a855f7;"></div></div>
+        <input type="range" id="range-gaz" min="0" max="100" value="50" oninput="updateGauge('gaz', this.value, '%')">
+      </div>
+
+      <div class="bubble-card">
+        <h4 style="margin:0 0 6px 0; color:var(--accent-color)">⚖️ Niveau à Bulle (Calage)</h4>
+        <div class="bubble-outer"><div class="bubble-inner" id="bubblePos"></div></div>
+        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+          <button onclick="moveBubble(-10, 0)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">←</button>
+          <button onclick="moveBubble(10, 0)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">→</button>
+          <button onclick="moveBubble(0, -10)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">↑</button>
+          <button onclick="moveBubble(0, 10)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">↓</button>
+          <button onclick="resetBubble()" style="padding: 6px 12px; border-radius: 6px; cursor: pointer; background: var(--accent-color); color: white; border: none; font-weight: bold;">Centrer</button>
+        </div>
+        <span id="bubbleText" style="font-size:0.8rem; opacity:0.8; display: block; margin-top: 6px;">Véhicule parfaitement horizontal</span>
+      </div>
+  </div> <!-- Fin de #view-jauges -->
+
+<!-- 3. ONGLET INFOS & SÉCURITÉ -->
+  <div id="view-securite" style="display: none;">
+    <!-- MÉTÉO & VENT FORT -->
+    <div class="security-card">
+      <h3 style="margin-top: 0; color: var(--accent-color);">🌬️ Vigilance Météo & Vent Fort (Lanterneaux)</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 10px;">Surveillez les rafales pour éviter d'endommager les lanterneaux et les stores extérieurs de votre camping-car.</p>
+      <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <span style="font-weight: bold; font-size: 0.95rem;">Conditions Actuelles : </span>
+          <span id="meteo-status" style="color: #10b981; font-weight: bold;">🟢 Vent faible (15 km/h) - Lanterneaux autorisés</span>
+        </div>
+        <button onclick="checkMeteoAlert()" style="background: var(--accent-color); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Rafraîchir Météo</button>
+      </div>
+    </div>
+
+    <!-- SUIVI DU BUDGET CARBURANT -->
+    <div class="security-card">
+      <h3 style="margin-top: 0; color: var(--accent-color);">⛽ Suivi du Budget Carburant</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 10px;">Enregistrez vos pleins pour garder le contrôle sur le budget kilométrique du voyage.</p>
+      
+      <form onsubmit="addFuelExpense(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 12px;">
+        <input type="date" id="fuelDate" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
+        <input type="number" step="0.1" id="fuelLitres" placeholder="Litres (ex: 55)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
+        <input type="number" step="0.01" id="fuelCost" placeholder="Coût total (€) (ex: 95.50)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
+        <button type="submit" style="background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Ajouter un Plein</button>
+      </form>
+
+      <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;">
+          <span>Total Dépensé : <span id="totalFuelCost" style="color: var(--accent-color);">0.00 €</span></span>
+          <span>Total Litres : <span id="totalFuelLitres">0</span> L</span>
+        </div>
+        <div id="fuelHistoryList" style="font-size: 0.85rem; opacity: 0.85; max-height: 120px; overflow-y: auto;">Aucun plein enregistré pour l'instant.</div>
+      </div>
+    </div>
+
+    <!-- ANNUAIRE D'URGENCE NOMADE -->
+    <div class="security-card">
+      <h3 style="margin-top: 0; color: var(--accent-color);">📞 Annuaire d'Urgence Nomade (Europe & Maroc)</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 10px;">Les numéros essentiels à portée de main selon votre pays de voyage :</p>
+      
+      <div class="emergency-grid">
+        <div class="emergency-box">
+          <h4>🇫🇷 France & Europe</h4>
+          <p>🚨 Urgence Générale : <b>112</b></p>
+          <p>👮 Police / Gendarmerie : <b>17</b></p>
+          <p>🚒 Pompiers : <b>18</b></p>
+        </div>
+        <div class="emergency-box">
+          <h4>🇪🇸 Espagne</h4>
+          <p>🚨 Urgence Générale : <b>112</b></p>
+          <p>👮 Guardia Civil : <b>062</b></p>
+          <p>🚑 Urgences Médicales : <b>061</b></p>
+        </div>
+        <div class="emergency-box">
+          <h4>🇵🇹 Portugal</h4>
+          <p>🚨 Urgence Générale : <b>112</b></p>
+          <p>👮 GNR (Gendarmerie) : <b>213 587 232</b></p>
+        </div>
+        <div class="emergency-box" style="border-color: var(--accent-color);">
+          <h4>🇲🇦 Maroc</h4>
+          <p>👮 Police Secours : <b>19</b></p>
+          <p>🛡️ Gendarmerie Royale : <b>177</b></p>
+          <p>🚒 Protection Civile : <b>15</b></p>
+        </div>
+      </div>
+    </div>
+  </div> <!-- Fin de #view-securite -->
+
+  <!-- Mention légale & Footer -->
+  <footer style="text-align: center; padding: 15px; font-size: 12px; color: #666; background: #f8f9fa; border-top: 1px solid #dee2e6; margin-top: 20px;">
+    <p><strong>Mention légale :</strong> Les informations de stationnement sont indicatives. L'utilisatrice demeure seule responsable du respect de la réglementation locale en vigueur sur chaque emplacement.</p>
+  </footer>
+
+  <!-- Lien final vers ton fichier JavaScript externe -->
+  <script src="script.js"></script>
+</body>
+</html>
