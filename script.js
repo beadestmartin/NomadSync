@@ -7699,6 +7699,7 @@ async function checkMeteoAlert() {
 }
 
 // --- SUIVI BUDGET CARBURANT ---
+
 function addFuelExpense(e) {
   e.preventDefault();
   const date = document.getElementById('fuelDate').value;
