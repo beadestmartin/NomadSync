@@ -7993,5 +7993,8 @@ const translations = {
             changeLanguage(savedLang);
         }
 
-        if (typeof verifierStatut === 'function') {
+       if (typeof verifierStatut === 'function') {
             verifierStatut();
+        }
+    }
+});
