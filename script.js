@@ -7440,9 +7440,9 @@ function handleAddNewSpot(e) {
       photo: photoUrl
     };
 
-    spots.push(newSpot);
+   spots.push(newSpot);
     
-    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+    customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
     customSpots.push(newSpot);
     localStorage.setItem('nomadsync_custom_spots', JSON.stringify(customSpots));
 
