@@ -7687,11 +7687,9 @@ async function calculateAndDrawRoute() {
         • Distance : <b>${distanceKm} km</b> | Durée estimée : <b>${timeStr}</b><br>
         • Coût carburant estimé : <b>~${cost} €</b><br>
         • Gabarit pris en compte (Hauteur ${document.getElementById('specH').value}m).`;
-    } catch (err) {
-      resultDiv.innerHTML = `❌ Erreur : ${err.message}`;
-    }
-// Traçage de la ligne sur la carte (intégré proprement dans le try)
-      if (routeLine) {
+
+      // Traçage de la ligne sur la carte (intégré à l'intérieur du try)
+      if (typeof routeLine !== 'undefined' && routeLine) {
         map.removeLayer(routeLine);
       }
       const latLngs = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
@@ -7702,7 +7700,6 @@ async function calculateAndDrawRoute() {
       resultDiv.innerHTML = `❌ Erreur : ${err.message}`;
     }
 }
-
 // --- MÉTÉO / VENT FORT (Données réelles Open-Meteo) ---
 async function checkMeteoAlert() {
   const status = document.getElementById('meteo-status');
