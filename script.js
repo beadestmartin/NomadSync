@@ -7215,23 +7215,21 @@ function renderNomadSyncSpots() {
       iconSize: [30, 30],
       iconAnchor: [15, 15]
     });
-// Ta boucle qui parcourt chaque spot
-mesSpots.forEach(spot => {
-    
-    // 1. La création du marqueur (bien à l'intérieur de la boucle)
+
     const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
 
-    // 2. Le bloc de pop-up nettoyé juste après
+    let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
+    let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
+
     marker.bindPopup(`
       <div style="font-family: sans-serif; max-width: 240px;">
         <h4 style="margin: 0 0 5px 0; color: #2A1A0E;">${spot.name || 'Lieu'}</h4>
-        <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${cat}</span><br>
+        <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${spot.category || 'aire'}</span><br>
         <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
         <p style="margin: 3px 0; font-size: 12px;"><strong>Tarif :</strong> ${spot.price || 'Gratuit'}</p>
         <p style="margin: 3px 0; font-size: 12px;"><strong>Durée :</strong> ${spot.stay || 'N/A'}</p>
         ${spot.exchange ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Échange :</strong> ${spot.exchange}</p>` : ''}
         ${spot.electricity ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Électricité :</strong> ${spot.electricity}</p>` : ''}
-        ${typeof photoHtml !== 'undefined' && photoHtml ? photoHtml + '<br>' : ''}
         <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
           <a href="${gmapsUrl}" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>
           <a href="${wazeUrl}" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>
@@ -7239,11 +7237,11 @@ mesSpots.forEach(spot => {
       </div>
     `);
 
-    // 3. L'ajout au groupe de la carte
     markersGroup.addLayer(marker);
+  });
+}
 
-});
-// --- Fonction unique de rendu des spots (nettoyée du doublon) ---
+// --- Fonction unique de rendu des spots ---
 function renderSpots() {
     if (!map || !markersGroup) return;
     markersGroup.clearLayers();
@@ -7341,6 +7339,27 @@ function renderSpots() {
         let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
         let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
 
+        marker.bindPopup(`
+            <div style="font-family: sans-serif; max-width: 240px;">
+                <h4 style="margin: 0 0 5px 0; color: #2A1A0E;">${spot.name || 'Lieu'}</h4>
+                <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${cat}</span><br>
+                <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
+                <p style="margin: 3px 0; font-size: 12px;"><strong>Tarif :</strong> ${spot.price || 'Gratuit'}</p>
+                <p style="margin: 3px 0; font-size: 12px;"><strong>Durée :</strong> ${spot.stay || 'N/A'}</p>
+                ${spot.exchange ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Échange :</strong> ${spot.exchange}</p>` : ''}
+                ${spot.electricity ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Électricité :</strong> ${spot.electricity}</p>` : ''}
+                ${photoHtml}
+                <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+                    <a href="${gmapsUrl}" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>
+                    <a href="${wazeUrl}" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>
+                </div>
+            </div>
+        `);
+
+        markersGroup.addLayer(marker);
+    });
+}
+// --- Fonction utilitaire de normalisation des catégories ---
 function getNormalizedCategory(spot) {
     if (!spot) return 'aire';
     if (spot._isWaterSource) return 'eau';
@@ -7439,15 +7458,6 @@ function exportSpotsJSON() {
       alert("Aucun spot personnalisé enregistré pour l'instant.");
       return;
     }
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(customSpots, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "mes_spots_nomadsync.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-}
-
 function toggleVipModal() {
     const modal = document.getElementById('vip-modal');
     modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
@@ -7548,9 +7558,10 @@ async function handleSearchBtn() {
       alert("Recherche indisponible.");
     }
 }
+
 function handleSearch(e) {
     if(e.key === 'Enter') handleSearchBtn();
-  }
+}
 
 function switchTab(tab) {
     const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
@@ -7581,8 +7592,8 @@ function switchTab(tab) {
         setTimeout(() => { if (typeof map !== 'undefined' && map) map.invalidateSize(); }, 200);
         return;
     }
-	
-	   // 2. Sinon, on cache tous les panneaux
+    
+    // 2. Sinon, on cache tous les panneaux
     document.getElementById('panel-itineraire').style.display = 'none';
     document.getElementById('view-jauges').style.display = 'none';
     document.getElementById('view-securite').style.display = 'none';
@@ -7627,8 +7638,11 @@ function switchTab(tab) {
         }
     }
 
-    // --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
-  async function calculateAndDrawRoute() {
+    setTimeout(() => { if (typeof map !== 'undefined' && map) map.invalidateSize(); }, 200);
+} // <--- Fermeture correcte de switchTab ici
+
+// --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
+async function calculateAndDrawRoute() {
     const startText = document.getElementById('startInput').value;
     const destText = document.getElementById('destInput').value;
     const resultDiv = document.getElementById('route-result');
@@ -7673,8 +7687,10 @@ function switchTab(tab) {
         • Distance : <b>${distanceKm} km</b> | Durée estimée : <b>${timeStr}</b><br>
         • Coût carburant estimé : <b>~${cost} €</b><br>
         • Gabarit pris en compte (Hauteur ${document.getElementById('specH').value}m).`;
-
-      // Traçage de la ligne sur la carte (intégré proprement dans le try)
+    } catch (err) {
+      resultDiv.innerHTML = `❌ Erreur : ${err.message}`;
+    }
+// Traçage de la ligne sur la carte (intégré proprement dans le try)
       if (routeLine) {
         map.removeLayer(routeLine);
       }
@@ -7685,7 +7701,7 @@ function switchTab(tab) {
     } catch (err) {
       resultDiv.innerHTML = `❌ Erreur : ${err.message}`;
     }
-  }
+}
 
 // --- MÉTÉO / VENT FORT (Données réelles Open-Meteo) ---
 async function checkMeteoAlert() {
@@ -7737,80 +7753,80 @@ async function checkMeteoAlert() {
   );
 }
 
-  // --- SUIVI BUDGET CARBURANT ---
-  function addFuelExpense(e) {
-    e.preventDefault();
-    const date = document.getElementById('fuelDate').value;
-    const litres = parseFloat(document.getElementById('fuelLitres').value);
-    const cost = parseFloat(document.getElementById('fuelCost').value);
+// --- SUIVI BUDGET CARBURANT ---
+function addFuelExpense(e) {
+  e.preventDefault();
+  const date = document.getElementById('fuelDate').value;
+  const litres = parseFloat(document.getElementById('fuelLitres').value);
+  const cost = parseFloat(document.getElementById('fuelCost').value);
 
-    const expenses = JSON.parse(localStorage.getItem('nomadsync_fuel_expenses') || '[]');
-    expenses.push({ date, litres, cost });
-    localStorage.setItem('nomadsync_fuel_expenses', JSON.stringify(expenses));
+  const expenses = JSON.parse(localStorage.getItem('nomadsync_fuel_expenses') || '[]');
+  expenses.push({ date, litres, cost });
+  localStorage.setItem('nomadsync_fuel_expenses', JSON.stringify(expenses));
 
-    renderFuelExpenses();
-    e.target.reset();
+  renderFuelExpenses();
+  e.target.reset();
+}
+
+function renderFuelExpenses() {
+  const expenses = JSON.parse(localStorage.getItem('nomadsync_fuel_expenses') || '[]');
+  const listDiv = document.getElementById('fuelHistoryList');
+  let totalCost = 0;
+  let totalLitres = 0;
+
+  if (expenses.length === 0) {
+    listDiv.innerHTML = "Aucun plein enregistré pour l'instant.";
+    document.getElementById('totalFuelCost').innerText = "0.00 €";
+    document.getElementById('totalFuelLitres').innerText = "0";
+    return;
   }
 
-  function renderFuelExpenses() {
-    const expenses = JSON.parse(localStorage.getItem('nomadsync_fuel_expenses') || '[]');
-    const listDiv = document.getElementById('fuelHistoryList');
-    let totalCost = 0;
-    let totalLitres = 0;
+  let html = "";
+  expenses.forEach((item, index) => {
+    totalCost += item.cost;
+    totalLitres += item.litres;
+    html += `• ${item.date} : <b>${item.litres}L</b> (${item.cost} €)<br>`;
+  });
 
-    if (expenses.length === 0) {
-      listDiv.innerHTML = "Aucun plein enregistré pour l'instant.";
-      document.getElementById('totalFuelCost').innerText = "0.00 €";
-      document.getElementById('totalFuelLitres').innerText = "0";
-      return;
-    }
+  listDiv.innerHTML = html;
+  document.getElementById('totalFuelCost').innerText = totalCost.toFixed(2) + " €";
+  document.getElementById('totalFuelLitres').innerText = totalLitres.toFixed(1);
+}
 
-    let html = "";
-    expenses.forEach((item, index) => {
-      totalCost += item.cost;
-      totalLitres += item.litres;
-      html += `• ${item.date} : <b>${item.litres}</b><br>`;
-    });
+// --- GESTION DES JAUGES & STOCKAGE LOCAL ---
+function updateGauge(type, val, suffix) {
+  document.getElementById(`val-${type}`).innerText = val + suffix;
+  document.getElementById(`fill-${type}`).style.width = val + '%';
+  localStorage.setItem(`nomadsync_gauge_${type}`, val);
+}
 
-    listDiv.innerHTML = html;
-    document.getElementById('totalFuelCost').innerText = totalCost.toFixed(2) + " €";
-    document.getElementById('totalFuelLitres').innerText = totalLitres.toFixed(1);
+let bubbleX = 40, bubbleY = 40;
+function moveBubble(dx, dy) {
+  bubbleX = Math.max(10, Math.min(70, bubbleX + dx));
+  bubbleY = Math.max(10, Math.min(70, bubbleY + dy));
+  const inner = document.getElementById('bubblePos');
+  inner.style.left = bubbleX + 'px';
+  inner.style.top = bubbleY + 'px';
+  
+  const text = document.getElementById('bubbleText');
+  if (bubbleX === 40 && bubbleY === 40) {
+    text.innerText = "Véhicule parfaitement horizontal";
+    inner.style.background = "#10b981";
+    inner.style.boxShadow = "0 0 10px #10b981";
+  } else {
+    text.innerText = "Attention : Véhicule penché (ajuster les cales)";
+    inner.style.background = "#ef4444";
+    inner.style.boxShadow = "0 0 10px #ef4444";
   }
+  localStorage.setItem('nomadsync_bubble_x', bubbleX);
+  localStorage.setItem('nomadsync_bubble_y', bubbleY);
+}
 
-  // --- GESTION DES JAUGES & STOCKAGE LOCAL ---
-  function updateGauge(type, val, suffix) {
-    document.getElementById(`val-${type}`).innerText = val + suffix;
-    document.getElementById(`fill-${type}`).style.width = val + '%';
-    localStorage.setItem(`nomadsync_gauge_${type}`, val);
-  }
-
-  let bubbleX = 40, bubbleY = 40;
-  function moveBubble(dx, dy) {
-    bubbleX = Math.max(10, Math.min(70, bubbleX + dx));
-    bubbleY = Math.max(10, Math.min(70, bubbleY + dy));
-    const inner = document.getElementById('bubblePos');
-    inner.style.left = bubbleX + 'px';
-    inner.style.top = bubbleY + 'px';
-    
-    const text = document.getElementById('bubbleText');
-    if (bubbleX === 40 && bubbleY === 40) {
-      text.innerText = "Véhicule parfaitement horizontal";
-      inner.style.background = "#10b981";
-      inner.style.boxShadow = "0 0 10px #10b981";
-    } else {
-      text.innerText = "Attention : Véhicule penché (ajuster les cales)";
-      inner.style.background = "#ef4444";
-      inner.style.boxShadow = "0 0 10px #ef4444";
-    }
-    localStorage.setItem('nomadsync_bubble_x', bubbleX);
-    localStorage.setItem('nomadsync_bubble_y', bubbleY);
-  }
-
-  function resetBubble() {
-    bubbleX = 40;
-    bubbleY = 40;
-    moveBubble(0, 0);
-  }
+function resetBubble() {
+  bubbleX = 40;
+  bubbleY = 40;
+  moveBubble(0, 0);
+}
 
  // --- CHECKLIST / PENSE-BÊTE ---
   function saveChecklist() {
@@ -7955,46 +7971,45 @@ const translations = {
         .catch(err => console.log("❌ Erreur lors de l'appel météo :", err));
     }
 
-    // Utilisation de la géolocalisation du téléphone
-    if (navigator.geolocation) {
-      console.log("🛰️ Demande de géolocalisation en cours...");
-      navigator.geolocation.getCurrentPosition(
+  // Utilisation de la géolocalisation du téléphone
+if (navigator.geolocation) {
+    console.log("🛰️ Demande de géolocalisation en cours...");
+    navigator.geolocation.getCurrentPosition(
         position => {
-          chargerMeteo(position.coords.latitude, position.coords.longitude);
+            chargerMeteo(position.coords.latitude, position.coords.longitude);
         },
         error => {
-          console.log("❌ Erreur de géolocalisation :", error.message);
+            console.log("❌ Erreur de géolocalisation :", error.message);
         }
-      );
-    } else {
-      console.log("❌ La géolocalisation n'est pas supportée par ce navigateur.");
+    );
+} else {
+    console.log("❌ La géolocalisation n'est pas supportée par ce navigateur.");
+}
+
+function changeLanguage(lang) {
+    const t = window.translations ? window.translations[lang] : null;
+    if (t) {
+        document.title = t.title;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key]) {
+                el.innerHTML = t[key];
+            }
+        });
     }
-	
-	 function changeLanguage(lang) {
-        const t = window.translations ? window.translations[lang] : null;
-        if (t) {
-            document.title = t.title;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) {
-                    el.innerHTML = t[key];
-                }
-            });
-        }
-        localStorage.setItem('nomadsync_lang', lang);
-        console.log("Langue active :", lang);
+    localStorage.setItem('nomadsync_lang', lang);
+    console.log("Langue active :", lang);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('nomadsync_lang');
+    if (savedLang) {
+        const select = document.getElementById('langSelect');
+        if (select) select.value = savedLang;
+        changeLanguage(savedLang);
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        const savedLang = localStorage.getItem('nomadsync_lang');
-        if (savedLang) {
-            const select = document.getElementById('langSelect');
-            if (select) select.value = savedLang;
-            changeLanguage(savedLang);
-        }
-
-       if (typeof verifierStatut === 'function') {
-            verifierStatut();
-        }
+    if (typeof verifierStatut === 'function') {
+        verifierStatut();
     }
 });
