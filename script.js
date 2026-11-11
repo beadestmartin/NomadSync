@@ -7,11 +7,9 @@ let rawSpots = [
     name: 'Pen Bé - Aire de la Marche au Bœuf (Assérac)',
     category: 'aire',
     address: 'Chemin de la Marche aux Bœufs, 44410 Assérac, France',
-  lat: 47.431451,                                   }
+    lat: 47.431451,                                  
     lng: -2.451946,
-    type: 'aire',
-    icon: '🚐',
-    price: 'Gratuit',
+    type: 'aire
     stay: '48 heures max',
     ground: 'Terre / Bitume',
     petsAllowed: true,
