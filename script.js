@@ -7189,217 +7189,6 @@ function renderNomadSyncSpots() {
   });
 }
 
-// --- Fonction unique de rendu des spots ---
-function renderSpots() {
-    if (!map || !markersGroup) return;
-    markersGroup.clearLayers();
-
-    let sourceSpots = [];
-    if (typeof rawSpots !== 'undefined' && Array.isArray(rawSpots)) {
-        sourceSpots = sourceSpots.concat(rawSpots);
-    }
-    if (typeof rawWaterPoints !== 'undefined' && Array.isArray(rawWaterPoints)) {
-        let waterTagged = rawWaterPoints.map(p => ({ ...p, _isWaterSource: true }));
-        sourceSpots = sourceSpots.concat(waterTagged);
-    }
-
-    sourceSpots.forEach(spot => {
-        if (!spot || typeof spot.lat === 'undefined') return;
-
-        let cat = getNormalizedCategory(spot);
-
-        if (typeof currentCategory !== 'undefined' && currentCategory && currentCategory !== 'all' && currentCategory !== 'tous' && currentCategory !== 'all spot') {
-            let cur = currentCategory.toLowerCase();
-            let match = false;
-
-            if (cur.includes('eau') || cur.includes('water')) {
-                match = (cat === 'eau');
-            } else if (cur.includes('vidange')) {
-                match = (cat === 'vidange');
-            } else if (cur.includes('nature')) {
-                match = (cat === 'nature');
-            } else if (cur.includes('ferme')) {
-                match = (cat === 'ferme');
-            } else if (cur.includes('carburant')) {
-                match = (cat === 'carburant');
-            } else if (cur.includes('sauvage') || cur.includes('dodo') || cur.includes('wild')) {
-                match = (cat === 'sauvage');
-            } else if (cur.includes('gratuit') || cur.includes('free')) {
-                let isFree = (spot.type === 'free' || !spot.price || spot.price === '' || spot.price.toLowerCase().includes('0') || spot.price.toLowerCase().includes('gratuit'));
-                match = isFree && (cat !== 'carburant');
-            } else if (cur.includes('parking')) {
-                match = (cat === 'parking');
-            } else if (cur.includes('aire') || cur.includes('camping') || cur.includes('car')) {
-                match = (cat === 'aire');
-            } else {
-                match = cat.includes(cur);
-            }
-            
-            if (!match) return;
-        }
-
-        let bgColor = '#e74c3c'; 
-        let defaultIcon = '🚐';
-
-        if (cat === 'eau') { 
-            bgColor = '#3498db'; 
-            defaultIcon = '💧'; 
-        } 
-        else if (cat === 'vidange') { 
-            bgColor = '#8e44ad'; 
-            defaultIcon = '🚰'; 
-        } 
-        else if (cat === 'nature') { 
-            bgColor = '#2c3e50'; 
-            defaultIcon = '🌙'; 
-        } 
-        else if (cat === 'ferme') { 
-            bgColor = '#27ae60'; 
-            defaultIcon = '🚜'; 
-        } 
-        else if (cat === 'carburant') { 
-            bgColor = '#e67e22'; 
-            defaultIcon = '⛽'; 
-        } 
-        else if (cat === 'sauvage') { 
-            bgColor = '#D4621A'; 
-            defaultIcon = '🏕️'; 
-        } 
-        else if (cat === 'parking') { 
-            bgColor = '#e74c3c'; 
-            defaultIcon = '🅿️'; 
-        } 
-        else if (cat === 'aire') { 
-            bgColor = '#e74c3c'; 
-            defaultIcon = '🚐'; 
-        }
-
-        const customIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: '<div style="background-color: ' + bgColor + '; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">' + defaultIcon + '</div>',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
-        });
-
-        const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
-        let photoHtml = spot.photo ? '<img src="' + spot.photo + '" class="spot-popup-img" />' : '';
-
-        let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
-        let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
-
-        marker.bindPopup(`
-            <div style="font-family: sans-serif; max-width: 240px;">
-                <h4 style="margin: 0 0 5px 0; color: #2A1A0E;">${spot.name || 'Lieu'}</h4>
-                <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${cat}</span><br>
-                <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
-                <p style="margin: 3px 0; font-size: 12px;"><strong>Tarif :</strong> ${spot.price || 'Gratuit'}</p>
-                <p style="margin: 3px 0; font-size: 12px;"><strong>Durée :</strong> ${spot.stay || 'N/A'}</p>
-                ${spot.exchange ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Échange :</strong> ${spot.exchange}</p>` : ''}
-                ${spot.electricity ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Électricité :</strong> ${spot.electricity}</p>` : ''}
-                ${photoHtml}
-                <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
-                    <a href="${gmapsUrl}" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>
-                    <a href="${wazeUrl}" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>
-                </div>
-            </div>
-        `);
-
-        markersGroup.addLayer(marker);
-    });
-}
-// --- Fonction utilitaire de normalisation des catégories ---
-function getNormalizedCategory(spot) {
-    if (!spot) return 'aire';
-    if (spot._isWaterSource) return 'eau';
-
-    let type = (spot.type || spot.category || spot.kind || '').toString().toLowerCase();
-    let name = (spot.name || spot.title || '').toString().toLowerCase();
-    let desc = (spot.description || spot.comment || '').toString().toLowerCase();
-    let tags = (spot.tags || '').toString().toLowerCase();
-    let combined = type + ' ' + name + ' ' + desc + ' ' + tags;
-
-    if (type.includes('fuel') || type.includes('carburant') || name.includes('station-service')) return 'carburant';
-    
-    // Fermes
-    if (type.includes('ferme') || combined.includes('ferme') || combined.includes('producteur') || combined.includes('agriculteur') || combined.includes('grappe') || combined.includes('fermier')) {
-        return 'ferme';
-    }
-
-    // Vidanges
-    if (type.includes('vidange') || type.includes('service') || combined.includes('vidange') || combined.includes('eaux usées') || combined.includes('eaux usees') || combined.includes('grise') || combined.includes('noire') || combined.includes('flot bleu') || combined.includes('borne')) {
-        return 'vidange';
-    }
-
-    // Sauvage
-    if (type.includes('sauvage') || type.includes('wild') || type.includes('bivouac') || combined.includes('bivouac') || combined.includes('dodo')) {
-        return 'sauvage';
-    }
-
-    // Eau
-    if (type.includes('water') || combined.includes('robinet') || combined.includes('potable') || /\beau\b/.test(combined)) {
-        return 'eau';
-    }
-
-    // Nature
-    if (type.includes('nature') || combined.includes('foret') || combined.includes('lac') || combined.includes('riviere') || combined.includes('montagne')) {
-        return 'nature';
-    }
-
-    // Parking
-    if (type.includes('parking') || type.includes('stationnement') || name.includes('parking')) {
-        return 'parking';
-    }
-
-    return 'aire';
-}
-
-function toggleFilter(type) {
-    currentCategory = type;
-    renderSpots();
-}
-
-function toggleAddSpotForm() {
-    const form = document.getElementById('add-spot-form');
-    form.style.display = form.style.display === 'block' ? 'none' : 'block';
-}
-
-function handleAddNewSpot(e) {
-    e.preventDefault();
-    const name = document.getElementById('newSpotName').value;
-    const address = document.getElementById('newSpotAddress').value;
-    const type = document.getElementById('newSpotType').value;
-    const photoInput = document.getElementById('newSpotPhoto');
-
-    let photoUrl = '';
-    if (photoInput.files && photoInput.files[0]) {
-      photoUrl = URL.createObjectURL(photoInput.files[0]);
-    }
-
-    const center = map ? map.getCenter() : { lat: 46.6, lng: 1.88 };
-    const newSpot = {
-      name: name,
-      address: address,
-      lat: center.lat + (Math.random() - 0.5) * 0.05,
-      lng: center.lng + (Math.random() - 0.5) * 0.05,
-      type: type,
-      icon: typeIcons[type] || '📍',
-      price: type === 'fuel' ? 'Tarif Temps Réel' : '0 € (Gratuit)',
-      stay: '24h / Indiqué sur place',
-      photo: photoUrl
-    };
-
-   spots.push(newSpot);
-    
-    customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
-    customSpots.push(newSpot);
-    localStorage.setItem('nomadsync_custom_spots', JSON.stringify(customSpots));
-
-    renderSpots();
-    document.getElementById('add-spot-form').style.display = 'none';
-    e.target.reset();
-    alert("✅ Votre spot a été ajouté et sauvegardé avec succès !");
-}
-
 function exportSpotsJSON() {
     const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
     if (customSpots.length === 0) {
@@ -7500,7 +7289,6 @@ function updateVehicleSpec() {
     }
     updateFuelPrice();
 }
-
 async function handleSearchBtn() {
     const query = document.getElementById('searchInput').value;
     if (!query) return;
@@ -7891,43 +7679,50 @@ const translations = {
         tab4: "🛡️ Infos & Sicherheit"
     }
 };
-  // Fonction pour récupérer la météo selon la position du véhicule
-    function chargerMeteo(lat, lng) {
-      console.log("📍 Coordonnées reçues :", lat, lng);
-      
-      const currentMonthYear = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date());
 
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
-        .then(response => {
-          console.log("🌐 Réponse de l'API Open-Meteo reçue");
-          return response.json();
-        })
-        .then(data => {
-          console.log("📊 Données météo brutes :", data);
-          const temp = Math.round(data.current_weather.temperature);
-          const windSpeed = Math.round(data.current_weather.windspeed);
-          
-          let alertHtml = "";
-          if (windSpeed > 50) {
-            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🔴 <strong>ATTENTION</strong> Rafales à ${windSpeed} km/h (${temp}°C) - Fermez impérativement les lanterneaux !`;
-          } else if (windSpeed > 25) {
-            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟡 Vent modéré (${windSpeed} km/h, ${temp}°C) - Prudence sur les stores.`;
-          } else {
-            alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟢 Calme (${windSpeed} km/h, ${temp}°C) - Conditions favorables.`;
-          }
+// Fonction pour initialiser la carte (évite l'erreur "initMap is not defined")
+function initMap() {
+    console.log("🗺️ Initialisation de la carte en cours...");
+    // Le code de ta carte viendra s'insérer ici
+}
 
-          const weatherWidget = document.querySelector('.weather-current-text');
-          if(weatherWidget) {
-            weatherWidget.innerHTML = alertHtml;
-            console.log("✅ Affichage météo mis à jour avec succès !");
-          } else {
-            console.log("⚠️ Élément '.weather-current-text' introuvable dans le HTML.");
-          }
-        })
-        .catch(err => console.log("❌ Erreur lors de l'appel météo :", err));
-    }
+// Fonction pour récupérer la météo selon la position du véhicule
+function chargerMeteo(lat, lng) {
+    console.log("📍 Coordonnées reçues :", lat, lng);
+    
+    const currentMonthYear = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date());
 
-  // Utilisation de la géolocalisation du téléphone
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
+      .then(response => {
+        console.log("🌐 Réponse de l'API Open-Meteo reçue");
+        return response.json();
+      })
+      .then(data => {
+        console.log("📊 Données météo brutes :", data);
+        const temp = Math.round(data.current_weather.temperature);
+        const windSpeed = Math.round(data.current_weather.windspeed);
+        
+        let alertHtml = "";
+        if (windSpeed > 50) {
+          alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🔴 <strong>ATTENTION</strong> Rafales à ${windSpeed} km/h (${temp}°C) - Fermez impérativement les lanterneaux !`;
+        } else if (windSpeed > 25) {
+          alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟡 Vent modéré (${windSpeed} km/h, ${temp}°C) - Prudence sur les stores.`;
+        } else {
+          alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟢 Calme (${windSpeed} km/h, ${temp}°C) - Conditions favorables.`;
+        }
+
+        const weatherWidget = document.querySelector('.weather-current-text');
+        if(weatherWidget) {
+          weatherWidget.innerHTML = alertHtml;
+          console.log("✅ Affichage météo mis à jour avec succès !");
+        } else {
+          console.log("⚠️ Élément '.weather-current-text' introuvable dans le HTML.");
+        }
+      })
+      .catch(err => console.log("❌ Erreur lors de l'appel météo :", err));
+}
+
+// Utilisation de la géolocalisation du téléphone
 if (navigator.geolocation) {
     console.log("🛰️ Demande de géolocalisation en cours...");
     navigator.geolocation.getCurrentPosition(
