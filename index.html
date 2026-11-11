@@ -8494,7 +8494,7 @@ const translations = {
         tab4: "🛡️ Infos & Sicherheit"
     }
 };
-    // Fonction pour récupérer la météo selon la position du véhicule
+  // Fonction pour récupérer la météo selon la position du véhicule
     function chargerMeteo(lat, lng) {
       console.log("📍 Coordonnées reçues :", lat, lng);
       
@@ -8530,7 +8530,7 @@ const translations = {
         .catch(err => console.log("❌ Erreur lors de l'appel météo :", err));
     }
 
-   // Utilisation de la géolocalisation du téléphone
+    // Utilisation de la géolocalisation du téléphone
     if (navigator.geolocation) {
       console.log("🛰️ Demande de géolocalisation en cours...");
       navigator.geolocation.getCurrentPosition(
@@ -8544,12 +8544,14 @@ const translations = {
     } else {
       console.log("❌ La géolocalisation n'est pas supportée par ce navigateur.");
     }
-  } // <-- L'accolade manquante qui fermait la fonction parente ou globale ouverte plus haut
   </script>
+
   <!-- Mention légale -->
   <footer style="text-align: center; padding: 15px; font-size: 12px; color: #666; background: #f8f9fa; border-top: 1px solid #dee2e6; margin-top: 20px;">
     <p><strong>Mention légale :</strong> Les informations de stationnement sont indicatives. L'utilisatrice demeure seule responsable du respect de la réglementation locale en vigueur sur chaque emplacement.</p>
   </footer>
+
+  <script>
     function changeLanguage(lang) {
         const t = window.translations ? window.translations[lang] : null;
         if (t) {
@@ -8577,6 +8579,6 @@ const translations = {
             verifierStatut();
         }
     });
-</script>
+  </script>
 </body>
 </html>
