@@ -3,7 +3,6 @@ let isOffline = false;
 let filters = { free: false, wild: false, farm: false, fuel: false, water: false, elec: false, drain: false };
 
 let rawSpots = [
- let rawSpots = [
   {
     name: 'Pen Bé - Aire de la Marche au Bœuf (Assérac)',
     category: 'aire',
