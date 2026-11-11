@@ -1,9 +1,6 @@
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-  let map, markersGroup, routeLayer, userMarker, routeLine;
-  let isOffline = false;
-  let filters = { free: false, wild: false, farm: false, fuel: false, water: false, elec: false, drain: false };
+let map, markersGroup, routeLayer, userMarker, routeLine;
+let isOffline = false;
+let filters = { free: false, wild: false, farm: false, fuel: false, water: false, elec: false, drain: false };
 
 let rawSpots = [
   {
@@ -7772,7 +7769,7 @@ async function checkMeteoAlert() {
     expenses.forEach((item, index) => {
       totalCost += item.cost;
       totalLitres += item.litres;
-      html += `• ${item.date} : <b>${item.litres} L</b> pour <b>${item.cost.toFixed(2)} €</b><br>`;
+      html += `• ${item.date} : <b>${item.litres}</b><br>`;
     });
 
     listDiv.innerHTML = html;
