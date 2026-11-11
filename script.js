@@ -7,7 +7,7 @@ let rawSpots = [
     name: 'Pen Bé - Aire de la Marche au Bœuf (Assérac)',
     category: 'aire',
     address: 'Chemin de la Marche aux Bœufs, 44410 Assérac, France',
-    lat: 47.431451,
+  lat: 47.431451,                                   }
     lng: -2.451946,
     type: 'aire',
     icon: '🚐',
@@ -7406,6 +7406,16 @@ function exportSpotsJSON() {
       alert("Aucun spot personnalisé enregistré pour l'instant.");
       return;
     }
+    
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(customSpots, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "nomadsync_custom_spots.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
+
 function toggleVipModal() {
     const modal = document.getElementById('vip-modal');
     modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
