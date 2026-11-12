@@ -7267,25 +7267,32 @@ function renderNomadSyncSpots() {
   if (typeof markersGroup === 'undefined' || !markersGroup) return;
   markersGroup.clearLayers();
 
+  // 1. Charger dynamiquement les spots depuis le localStorage s'ils ne le sont pas
+  if (typeof nomadSyncSpots === 'undefined' || !Array.isArray(nomadSyncSpots)) {
+    nomadSyncSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
+  }
+
   if (!Array.isArray(nomadSyncSpots)) return;
 
-  const activeFilter = document.getElementById('filterSelect') ? document.getElementById('filterSelect').value : 'all';
+  // 2. Correction de l'ID du filtre (servicesFilter au lieu de filterSelect)
+  const activeFilter = document.getElementById('servicesFilter') ? document.getElementById('servicesFilter').value : 'all';
 
   nomadSyncSpots.forEach(spot => {
     if (activeFilter && activeFilter !== 'all' && spot.type !== activeFilter && spot.category !== activeFilter) {
       return;
     }
 
-   let markerColor = '#D4621A'; // Couleur par défaut (aires)
+    let markerColor = '#D4621A'; // Couleur par défaut (aires)
 
-if (spot.type === 'aire' || spot.category === 'aire' || spot.type === 'free' || spot.category === 'free') markerColor = '#D4621A';
-if (spot.type === 'parking' || spot.category === 'parking') markerColor = '#555555';
-if (spot.type === 'eau' || spot.category === 'eau') markerColor = '#1E90FF';
-if (spot.type === 'vidange' || spot.category === 'vidange') markerColor = '#8B4513';
-if (spot.type === 'ferme' || spot.category === 'ferme') markerColor = '#228B22';
-if (spot.type === 'carburant' || spot.category === 'carburant' || spot.type === 'fuel' || spot.category === 'fuel') markerColor = '#FF4500';
-if (spot.type === 'nature' || spot.category === 'nature') markerColor = '#2A1A0E';
-if (spot.type === 'sauvage' || spot.category === 'sauvage' || spot.type === 'Dodo sauvage' || spot.category === 'Dodo sauvage' || spot.type === 'wild' || spot.category === 'wild') markerColor = '#2E8B57';
+    if (spot.type === 'aire' || spot.category === 'aire' || spot.type === 'free' || spot.category === 'free') markerColor = '#D4621A';
+    if (spot.type === 'parking' || spot.category === 'parking') markerColor = '#555555';
+    if (spot.type === 'eau' || spot.category === 'eau') markerColor = '#1E90FF';
+    if (spot.type === 'vidange' || spot.category === 'vidange') markerColor = '#8B4513';
+    if (spot.type === 'ferme' || spot.category === 'ferme') markerColor = '#228B22';
+    if (spot.type === 'carburant' || spot.category === 'carburant' || spot.type === 'fuel' || spot.category === 'fuel') markerColor = '#FF4500';
+    if (spot.type === 'nature' || spot.category === 'nature') markerColor = '#2A1A0E';
+    if (spot.type === 'sauvage' || spot.category === 'sauvage' || spot.type === 'Dodo sauvage' || spot.category === 'Dodo sauvage' || spot.type === 'wild' || spot.category === 'wild') markerColor = '#2E8B57';
+    
     const lat = spot.lat;
     const lng = spot.lng || spot.lon;
 
