@@ -7798,7 +7798,6 @@ function changeLanguage(lang) {
 // Expositions globales pour les boutons HTML
 window.initMap = initMap;
 window.locateUser = locateUser;
-window.toggleAddSpotForm = toggleAddSpotForm;
 window.switchTab = switchTab;
 window.calculateAndDrawRoute = calculateAndDrawRoute;
 window.checkMeteoAlert = checkMeteoAlert;
@@ -7812,8 +7811,6 @@ window.addEventListener('DOMContentLoaded', () => {
         changeLanguage(savedLang);
     }
 
-    if (typeof loadSavedData === 'function') {
-        loadSavedData();
     }
 
     if (typeof initMap === 'function') {
