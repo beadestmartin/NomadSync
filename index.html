@@ -168,7 +168,7 @@
 
     .status-banner { background: #2A1A0E; color: #f7f2ea; padding: 14px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border-color); }
 
-    /* Urgence & Utilitaires */
+  /* Urgence & Utilitaires */
     .emergency-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
     .emergency-box { background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
     .emergency-box h4 { margin: 0 0 6px 0; color: var(--accent-color); font-size: 0.9rem; }
@@ -177,6 +177,11 @@
     input, select { width: 100% !important; box-sizing: border-box !important; }
     .button-group, .btn-container { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
   </style>
+
+  <!-- 🗺️ Ajout obligatoire des fichiers Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 </head>
 
 <body>
