@@ -273,17 +273,18 @@
   </div>
     
   <div class="filters-grid" style="margin: 10px 10px 0 10px; box-sizing: border-box;">
-      <select id="servicesFilter" class="form-select" style="width: 100%; padding: 12px; border-radius: 25px; border: 1px solid #ccc; font-weight: bold; background: white; box-sizing: border-box;" onchange="toggleFilter(this.value)">
-          <option value="all">📂 Catégories (Tous)</option>
-          <option value="aire">🔴 Aires</option>
-          <option value="parking">🟠 Parkings</option>
-          <option value="ferme">🟢 Fermes</option>
-          <option value="fuel">⛽ Carburant</option>
-          <option value="Ove">💧 Eau</option>
-          <option value="elec">⚡ Électricité</option>
-          <option value="vidange">🟣 Vidange</option>
-      </select>
-  </div>
+    <select id="servicesFilter" class="form-select" style="width: 100%; padding: 12px; border-radius: 25px; border: 1px solid #ccc; font-weight: bold; background: white; box-sizing: border-box;" onchange="toggleFilter(this.value)">
+        <option value="all">📂 Catégories (Tous)</option>
+        <option value="aire">🔴 Aires</option>
+        <option value="parking">🟠 Parkings</option>
+        <option value="ferme">🟢 Fermes</option>
+        <option value="nature">🌲 Nature</option>
+        <option value="sauvage">⛺ Sauvage</option>
+        <option value="eau">💧 Eau</option>
+        <option value="vidange">🟣 Vidange</option>
+        <option value="carburant">⛽ Carburant</option>
+    </select>
+  </dive>
   <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 10px 0 10px; box-sizing: border-box;">
     <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un bon plan (Gratuit / Carburant)</button>
   </div>
@@ -307,13 +308,14 @@
       <input type="text" id="newSpotName" placeholder="Nom du Spot ou de la Station" required />
       <input type="text" id="newSpotAddress" placeholder="Adresse complète / Code Postal / Ville" required />
       <select id="newSpotType">
-        <option value="parking">Parking (0 €)</option>
-        <option value="aire">Aire (0 €)</option>
-        <option value="ferme">Ferme d'Accueil (0 €)</option>
-        <option value="fuel">Station Carburant Éco (Leclerc, Intermarché, Total Access...)</option>
-        <option value="Ove">Eau Gratuite</option>
-        <option value="elec">Électricité Gratuite</option>
-        <option value="vidange">Station Vidange</option>
+        <option value="parking">Parking</option>
+        <option value="aire">Aire</option>
+        <option value="ferme">Ferme</option>
+        <option value="nature">Nature</option>
+        <option value="sauvage">Sauvage</option>
+        <option value="eau">Eau</option>
+        <option value="vidange">Vidange</option>
+        <option value="carburant">Carburant</option>
       </select>
       <input type="file" id="newSpotPhoto" accept="image/*" />
     </div>
