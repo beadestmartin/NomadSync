@@ -7146,27 +7146,139 @@ const nomadSyncSpots = [
 ];
 
 // 2. Fonction d'affichage des pastilles reliée à ton markersGroup
+// ==========================================
+// CONFIGURATION GLOBALE ET VARIABLE DE CARTE
+// ==========================================
+let leafletMap = null;
+let routeLine = null;
+let isOffline = false;
+
+// Déclaration sécurisée des tableaux pour éviter les erreurs au chargement
+if (typeof filteredSpots === 'undefined') var filteredSpots = [];
+if (typeof filteredWaterPoints === 'undefined') var filteredWaterPoints = [];
+if (typeof rawNaturePoints === 'undefined') var rawNaturePoints = [];
+if (typeof rawFarmPoints === 'undefined') var rawFarmPoints = [];
+if (typeof rawFuelPoints === 'undefined') var rawFuelPoints = [];
+if (typeof rawDrainPoints === 'undefined') var rawDrainPoints = [];
+if (typeof nomadSyncSpots === 'undefined') var nomadSyncSpots = [];
+
+// Fusion des spots personnalisés du stockage local
+let customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+
+const spots = [
+  ...filteredSpots,
+  ...filteredWaterPoints,
+  ...rawNaturePoints,
+  ...rawFarmPoints,
+  ...rawFuelPoints,
+  ...rawDrainPoints,
+  ...customSpots,
+  ...nomadSyncSpots
+];
+
+const translations = {
+    fr: {
+        title: "NomadSync",
+        subtitle: "Navigation Nomade",
+        banner: "🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 | 🏕️ Aires & Dodos 100% Gratuits",
+        tab2: "🗺️ Itinéraire",
+        tab3: "🚐 Jauges & Van",
+        tab4: "🛡️ Infos & Sécurité"
+    },
+    en: {
+        title: "NomadSync",
+        subtitle: "Nomad Navigation",
+        banner: "🌤️ Weather France & Europe: Favorable conditions 🚐 | ⛽ Diesel & Gas Stations 95 | 🏕️ 100% Free Spots",
+        tab2: "🗺️ Route",
+        tab3: "🚐 Gauges & Van",
+        tab4: "🛡️ Info & Security"
+    },
+    es: {
+        title: "NomadSync",
+        subtitle: "Navegación Nómada",
+        banner: "🌤️ Clima Francia y Europa: Condiciones favorables 🚐 | ⛽ Gasolineras 🏕️ Áreas gratuitas",
+        tab2: "🗺️ Ruta",
+        tab3: "🚐 Niveles y Furgo",
+        tab4: "🛡️ Info y Seguridad"
+    },
+    de: {
+        title: "NomadSync",
+        subtitle: "Nomaden-Navigation",
+        banner: "🌤️ Wetter Frankreich & Europa: Günstige Bedingungen 🚐 | ⛽ Tankstellen 🏕️ Kostenlose Stellplätze",
+        tab2: "🗺️ Route",
+        tab3: "🚐 Füllstände & Van",
+        tab4: "🛡️ Infos & Sicherheit"
+    }
+};
+
+// ==========================================
+// INITIALISATION DE LA CARTE
+// ==========================================
+function initMap() {
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) return;
+
+    if (typeof L === 'undefined') return;
+
+    if (!leafletMap) {
+        try {
+            leafletMap = L.map('map').setView([46.603354, 1.888334], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(leafletMap);
+        } catch (e) {
+            return;
+        }
+    }
+
+    setTimeout(() => {
+        if (leafletMap && typeof leafletMap.invalidateSize === 'function') {
+            leafletMap.invalidateSize();
+        }
+    }, 250);
+
+    if (typeof renderNomadSyncSpots === 'function') {
+        renderNomadSyncSpots();
+    }
+}
+
+function locateUser() {
+    if (!leafletMap) {
+        initMap();
+    }
+    if (leafletMap && typeof leafletMap.locate === 'function') {
+        leafletMap.locate({ setView: true, maxZoom: 16 });
+    }
+}
+
+// ==========================================
+// GESTION DES MARQUEURS ET SPOTS
+// ==========================================
 function renderNomadSyncSpots() {
-  if (!markersGroup) return;
+  if (typeof markersGroup === 'undefined' || !markersGroup) return;
   markersGroup.clearLayers();
 
-  // Récupère la valeur du filtre actuel (par exemple 'all', 'R', 'parking', 'Ove', 'vidange', 'ferme')
+  if (!Array.isArray(nomadSyncSpots)) return;
+
   const activeFilter = document.getElementById('filterSelect') ? document.getElementById('filterSelect').value : 'all';
 
   nomadSyncSpots.forEach(spot => {
-    // Si un filtre est actif et ne correspond pas au type/catégorie du spot, on passe au suivant
     if (activeFilter && activeFilter !== 'all' && spot.type !== activeFilter && spot.category !== activeFilter) {
       return;
     }
 
-    let markerColor = '#D4621A'; // Couleur par défaut
-    
-    // Adaptation avec les valeurs normalisées
+    let markerColor = '#D4621A';
     if (spot.type === 'parking' || spot.category === 'parking') markerColor = '#555555';
-    if (spot.type === 'Ove') markerColor = '#1E90FF';    // Bleu pour l'eau
-    if (spot.type === 'vidange') markerColor = '#8B4513'; // Marron pour la vidange
-    if (spot.type === 'ferme') markerColor = '#228B22';   // Vert pour les fermes
+    if (spot.type === 'Ove') markerColor = '#1E90FF';
+    if (spot.type === 'vidange') markerColor = '#8B4513';
+    if (spot.type === 'ferme') markerColor = '#228B22';
     if (spot.type === 'R' || spot.category === 'nature') markerColor = '#2A1A0E';
+
+    const lat = spot.lat;
+    const lng = spot.lng || spot.lon;
+
+    if (!lat || !lng) return;
 
     const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${spot.icon || '📍'}</div>`;
     
@@ -7177,24 +7289,15 @@ function renderNomadSyncSpots() {
       iconAnchor: [15, 15]
     });
 
-    // Ajout effectif du marqueur sur la carte avec ses coordonnées (lat, lon)
-    if (spot.lat && spot.lon) {
-      const marker = L.marker([spot.lat, spot.lon], { icon: customIcon });
-      if (spot.name) {
-        marker.bindPopup(`<b>${spot.name}</b><br>Type: ${spot.type || spot.category}`);
-      }
-      markersGroup.addLayer(marker);
-    }
-  
-    const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
+    const marker = L.marker([lat, lng], { icon: customIcon });
 
-    let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
-    let wazeUrl = 'https://www.waze.com/ul?ll=' + spot.lat + ',' + spot.lng + '&navigate=yes';
+    let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng;
+    let wazeUrl = 'https://www.waze.com/ul?ll=' + lat + ',' + lng + '&navigate=yes';
 
     marker.bindPopup(`
       <div style="font-family: sans-serif; max-width: 240px;">
         <h4 style="margin: 0 0 5px 0; color: #2A1A0E;">${spot.name || 'Lieu'}</h4>
-        <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${spot.category || 'aire'}</span><br>
+        <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${spot.category || spot.type || 'aire'}</span><br>
         <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
         <p style="margin: 3px 0; font-size: 12px;"><strong>Tarif :</strong> ${spot.price || 'Gratuit'}</p>
         <p style="margin: 3px 0; font-size: 12px;"><strong>Durée :</strong> ${spot.stay || 'N/A'}</p>
@@ -7210,209 +7313,10 @@ function renderNomadSyncSpots() {
     markersGroup.addLayer(marker);
   });
 }
-function toggleFilter(valeurFiltre) {
-    console.log("Filtre sélectionné :", valeurFiltre);
-}
 
-function exportSpotsJSON() {
-    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
-    if (customSpots.length === 0) {
-      alert("Aucun spot personnalisé enregistré pour l'instant.");
-      return;
-    }
-    
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(customSpots, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "nomadsync_custom_spots.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-}
-
-function toggleVipModal() {
-    const modal = document.getElementById('vip-modal');
-    modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-}
-
-function toggleQrModal() {
-    const modal = document.getElementById('qr-modal');
-    const isOpening = modal.style.display !== 'block';
-    modal.style.display = isOpening ? 'block' : 'none';
-    
-    if (isOpening) {
-      const currentUrl = window.location.href;
-      document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}`;
-    }
-}
-
-function handleVipLogin(e) {
-    e.preventDefault();
-    const msg = document.getElementById('loginMessage');
-    msg.style.display = 'block';
-    msg.innerText = '✅ Connexion VIP réussie ! Bienvenue dans NomadSync.';
-}
-
-function toggleTheme() {
-    const html = document.documentElement;
-    const btn = document.getElementById('themeBtn');
-    if (html.getAttribute('data-theme') === 'terracotta') {
-      html.setAttribute('data-theme', 'nuit');
-      btn.innerText = '☀️ Mode Jour';
-      localStorage.setItem('nomadsync_theme', 'nuit');
-    } else {
-      html.setAttribute('data-theme', 'terracotta');
-      btn.innerText = '🌙 Mode Nuit';
-      localStorage.setItem('nomadsync_theme', 'terracotta');
-    }
-}
-
-function toggleOffline() {
-    isOffline = !isOffline;
-    const btn = document.getElementById('offlineBtn');
-    if (isOffline) {
-      btn.classList.add('active');
-      btn.innerText = '🔴 Hors Ligne';
-    } else {
-      btn.classList.remove('active');
-      btn.innerText = '🟢 En Ligne';
-    }
-}
-
-function updateFuelPrice() {
-    const type = document.getElementById('specFuelType').value;
-    if (type === 'gazole') {
-      document.getElementById('specPrice').value = '1.72';
-    } else {
-      document.getElementById('specPrice').value = '1.81';
-    }
-}
-
-function updateVehicleSpec() {
-    const val = document.getElementById('vehicleSelect').value;
-    if (val === 'van') {
-      document.getElementById('specH').value = '2.90';
-      document.getElementById('specL').value = '6.50';
-      document.getElementById('specW').value = '2.20';
-      document.getElementById('specP').value = '3.5';
-      document.getElementById('specFuelType').value = 'gazole';
-      document.getElementById('specConso').value = '10.5';
-    } else if (val === 'cc') {
-      document.getElementById('specH').value = '3.20';
-      document.getElementById('specL').value = '7.40';
-      document.getElementById('specW').value = '2.35';
-      document.getElementById('specP').value = '4.5';
-      document.getElementById('specFuelType').value = 'gazole';
-      document.getElementById('specConso').value = '12.5';
-    } else {
-      document.getElementById('specH').value = '2.40';
-      document.getElementById('specL').value = '5.40';
-      document.getElementById('specW').value = '2.05';
-      document.getElementById('specP').value = '3.3';
-      document.getElementById('specFuelType').value = 'sp95';
-      document.getElementById('specConso').value = '8.5';
-    }
-    updateFuelPrice();
-}
-async function handleSearchBtn() {
-    const query = document.getElementById('searchInput').value;
-    if (!query) return;
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      if (data && data.length > 0) {
-        map.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 11);
-      } else {
-        alert("Lieu non trouvé. Essayez de rajouter le code postal ou le pays.");
-      }
-    } catch (err) {
-      alert("Recherche indisponible.");
-    }
-}
-
-function handleSearch(e) {
-    if(e.key === 'Enter') handleSearchBtn();
-}
-
-function switchTab(tab) {
-    const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
-    const targetElement = document.getElementById(targetId);
-    
-    // On cible la carte par son ID 'map' ou par sa classe si besoin
-    const mapContainer = document.getElementById('map') || document.querySelector('.map-container');
-
-    // 1. Si l'onglet cliqué est DÉJÀ ouvert, on ferme tout
-    if (targetElement && targetElement.style.display === 'block') {
-        document.getElementById('panel-itineraire').style.display = 'none';
-        document.getElementById('view-jauges').style.display = 'none';
-        document.getElementById('view-securite').style.display = 'none';
-        
-        // On réaffiche la carte par défaut quand tout se ferme
-        if (mapContainer) mapContainer.style.display = 'block';
-
-        // On remet tous les boutons en transparent
-        ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
-            const b = document.getElementById(id);
-            if (b) {
-                b.classList.remove('active');
-                b.style.background = 'transparent';
-                b.style.color = '#555';
-            }
-        });
-
-        setTimeout(() => { if (typeof map !== 'undefined' && map) map.invalidateSize(); }, 200);
-        return;
-    }
-    
-    // 2. Sinon, on cache tous les panneaux
-    document.getElementById('panel-itineraire').style.display = 'none';
-    document.getElementById('view-jauges').style.display = 'none';
-    document.getElementById('view-securite').style.display = 'none';
-
-    // 3. On réinitialise tous les boutons en transparent
-    ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
-        const b = document.getElementById(id);
-        if (b) {
-            b.classList.remove('active');
-            b.style.background = 'transparent';
-            b.style.color = '#555';
-        }
-    });
-
-    // 4. On ouvre le panneau demandé et on gère l'affichage de la carte
-    if (tab === 'itineraire') {
-        document.getElementById('panel-itineraire').style.display = 'block';
-        if (mapContainer) mapContainer.style.display = 'block'; // La carte reste visible
-        const btn = document.getElementById('tab-route');
-        if (btn) {
-            btn.classList.add('active');
-            btn.style.background = '#D4621A';
-            btn.style.color = 'white';
-        }
-    } else if (tab === 'jauges') {
-        document.getElementById('view-jauges').style.display = 'block';
-        if (mapContainer) mapContainer.style.display = 'none'; // On masque la carte
-        const btn = document.getElementById('tab-gauges');
-        if (btn) {
-            btn.classList.add('active');
-            btn.style.background = '#D4621A';
-            btn.style.color = 'white';
-        }
-    } else if (tab === 'securite') {
-        document.getElementById('view-securite').style.display = 'block';
-        if (mapContainer) mapContainer.style.display = 'none'; // On masque la carte
-        const btn = document.getElementById('tab-security');
-        if (btn) {
-            btn.classList.add('active');
-            btn.style.background = '#D4621A';
-            btn.style.color = 'white';
-        }
-    }
-
-    setTimeout(() => { if (typeof map !== 'undefined' && map) map.invalidateSize(); }, 200);
-} // <--- Fermeture correcte de switchTab ici
-
-// --- CALCUL D'ITINÉRAIRE RÉEL AVEC OSRM ---
+// ==========================================
+// CALCUL D'ITINÉRAIRE (OSRM)
+// ==========================================
 async function calculateAndDrawRoute() {
     const startText = document.getElementById('startInput').value;
     const destText = document.getElementById('destInput').value;
@@ -7459,70 +7363,244 @@ async function calculateAndDrawRoute() {
         • Coût carburant estimé : <b>~${cost} €</b><br>
         • Gabarit pris en compte (Hauteur ${document.getElementById('specH').value}m).`;
 
-      // Traçage de la ligne sur la carte (intégré à l'intérieur du try)
-      if (typeof routeLine !== 'undefined' && routeLine) {
-        map.removeLayer(routeLine);
+      if (typeof routeLine !== 'undefined' && routeLine && leafletMap) {
+        leafletMap.removeLayer(routeLine);
       }
       const latLngs = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
-      routeLine = L.polyline(latLngs, { color: '#D4621A', weight: 5, opacity: 0.8 }).addTo(map);
-      map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+      
+      if (typeof L !== 'undefined' && leafletMap) {
+        routeLine = L.polyline(latLngs, { color: '#D4621A', weight: 5, opacity: 0.8 }).addTo(leafletMap);
+        leafletMap.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+      }
 
     } catch (err) {
       resultDiv.innerHTML = `❌ Erreur : ${err.message}`;
     }
 }
-// --- MÉTÉO / VENT FORT (Données réelles Open-Meteo) ---
-async function checkMeteoAlert() {
-  const status = document.getElementById('meteo-status');
-  if (!status) return;
 
-  status.style.color = "#6b7280";
-  status.innerHTML = "⏳ Récupération de la météo locale...";
-
-  if (!navigator.geolocation) {
-    status.style.color = "#ef4444";
-    status.innerHTML = "❌ Géolocalisation non supportée par votre navigateur.";
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-
-      try {
-        const response = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_gusts_10m`
-        );
-        const data = await response.json();
-
-        const windSpeed = Math.round(data.current.wind_speed_10m);
-        const windGusts = Math.round(data.current.wind_gusts_10m);
-
-        if (windGusts > 40 || windSpeed > 35) {
-          status.style.color = "#ef4444";
-          status.innerHTML = `🔴 ATTENTION Rafales à ${windGusts} km/h (vent ${windSpeed} km/h) - Fermez impérativement les lanterneaux !`;
-        } else if (windGusts > 25 || windSpeed > 20) {
-          status.style.color = "#f59e0b";
-          status.innerHTML = `🟡 Vent modéré (${windSpeed} km/h, rafales ${windGusts} km/h) - Prudence sur les stores.`;
-        } else {
-          status.style.color = "#10b981";
-          status.innerHTML = `🟢 Vent faible (${windSpeed} km/h, rafales ${windGusts} km/h) - Lanterneaux autorisés.`;
-        }
-      } catch (error) {
-        status.style.color = "#ef4444";
-        status.innerHTML = "❌ Impossible de récupérer la météo en direct.";
-      }
-    },
-    (error) => {
-      status.style.color = "#ef4444";
-      status.innerHTML = "⚠️ Veuillez activer le GPS pour la météo locale.";
-    }
-  );
+// ==========================================
+// RECHERCHE, UI ET UTILITAIRES
+// ==========================================
+function toggleFilter(valeurFiltre) {
+    console.log("Filtre sélectionné :", valeurFiltre);
 }
 
-// --- SUIVI BUDGET CARBURANT ---
+function exportSpotsJSON() {
+    const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
+    if (customSpots.length === 0) {
+      alert("Aucun spot personnalisé enregistré pour l'instant.");
+      return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(customSpots, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "nomadsync_custom_spots.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
 
+function toggleVipModal() {
+    const modal = document.getElementById('vip-modal');
+    if (modal) modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+}
+
+function toggleQrModal() {
+    const modal = document.getElementById('qr-modal');
+    if (!modal) return;
+    const isOpening = modal.style.display !== 'block';
+    modal.style.display = isOpening ? 'block' : 'none';
+    if (isOpening) {
+      const currentUrl = window.location.href;
+      const qrImg = document.getElementById('qrCodeImg');
+      if (qrImg) {
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}`;
+      }
+    }
+}
+
+function handleVipLogin(e) {
+    e.preventDefault();
+    const msg = document.getElementById('loginMessage');
+    if (msg) {
+      msg.style.display = 'block';
+      msg.innerText = '✅ Connexion VIP réussie ! Bienvenue dans NomadSync.';
+    }
+}
+
+function toggleTheme() {
+    const html = document.documentElement;
+    const btn = document.getElementById('themeBtn');
+    const currentTheme = html.getAttribute('data-theme');
+    if (currentTheme === 'terracotta') {
+      html.setAttribute('data-theme', 'nuit');
+      if (btn) btn.innerText = '☀️ Mode Jour';
+      localStorage.setItem('nomadsync_theme', 'nuit');
+    } else {
+      html.setAttribute('data-theme', 'terracotta');
+      if (btn) btn.innerText = '🌙 Mode Nuit';
+      localStorage.setItem('nomadsync_theme', 'terracotta');
+    }
+}
+
+function toggleOffline() {
+    isOffline = !isOffline;
+    const btn = document.getElementById('offlineBtn');
+    if (!btn) return;
+    if (isOffline) {
+      btn.classList.add('active');
+      btn.innerText = '🔴 Hors Ligne';
+    } else {
+      btn.classList.remove('active');
+      btn.innerText = '🟢 En Ligne';
+    }
+}
+
+function updateFuelPrice() {
+    const fuelTypeEl = document.getElementById('specFuelType');
+    const specPriceEl = document.getElementById('specPrice');
+    if (!fuelTypeEl || !specPriceEl) return;
+    if (fuelTypeEl.value === 'gazole') {
+      specPriceEl.value = '1.72';
+    } else {
+      specPriceEl.value = '1.81';
+    }
+}
+
+function updateVehicleSpec() {
+    const val = document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'van';
+    const specH = document.getElementById('specH');
+    const specL = document.getElementById('specL');
+    const specW = document.getElementById('specW');
+    const specP = document.getElementById('specP');
+    const specFuelType = document.getElementById('specFuelType');
+    const specConso = document.getElementById('specConso');
+
+    if (val === 'van') {
+      if (specH) specH.value = '2.90';
+      if (specL) specL.value = '6.50';
+      if (specW) specW.value = '2.20';
+      if (specP) specP.value = '3.5';
+      if (specFuelType) specFuelType.value = 'gazole';
+      if (specConso) specConso.value = '10.5';
+    } else if (val === 'cc') {
+      if (specH) specH.value = '3.20';
+      if (specL) specL.value = '7.40';
+      if (specW) specW.value = '2.35';
+      if (specP) specP.value = '4.5';
+      if (specFuelType) specFuelType.value = 'gazole';
+      if (specConso) specConso.value = '12.5';
+    } else {
+      if (specH) specH.value = '2.40';
+      if (specL) specL.value = '5.40';
+      if (specW) specW.value = '2.05';
+      if (specP) specP.value = '3.3';
+      if (specFuelType) specFuelType.value = 'sp95';
+      if (specConso) specConso.value = '8.5';
+    }
+    updateFuelPrice();
+}
+
+async function handleSearchBtn() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+    const query = searchInput.value;
+    if (!query) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        if (leafletMap) {
+          leafletMap.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 11);
+        }
+      } else {
+        alert("Lieu non trouvé. Essayez de rajouter le code postal ou le pays.");
+      }
+    } catch (err) {
+      alert("Recherche indisponible.");
+    }
+}
+
+function handleSearch(e) {
+    if (e.key === 'Enter') handleSearchBtn();
+}
+
+function switchTab(tab) {
+    const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
+    const targetElement = document.getElementById(targetId);
+    const mapContainer = document.getElementById('map-container') || document.getElementById('map');
+
+    if (targetElement && targetElement.style.display === 'block') {
+        ['panel-itineraire', 'view-jauges', 'view-securite'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+        if (mapContainer) mapContainer.style.display = 'block';
+
+        ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
+            const b = document.getElementById(id);
+            if (b) {
+                b.classList.remove('active');
+                b.style.background = 'transparent';
+                b.style.color = '#555';
+            }
+        });
+        setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 200);
+        return;
+    }
+    
+    ['panel-itineraire', 'view-jauges', 'view-securite'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    ['tab-route', 'tab-gauges', 'tab-security'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) {
+            b.classList.remove('active');
+            b.style.background = 'transparent';
+            b.style.color = '#555';
+        }
+    });
+
+    if (tab === 'itineraire') {
+        const itineraireEl = document.getElementById('panel-itineraire');
+        if (itineraireEl) itineraireEl.style.display = 'block';
+        if (mapContainer) mapContainer.style.display = 'block';
+        const btn = document.getElementById('tab-route');
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#D4621A';
+            btn.style.color = 'white';
+        }
+    } else if (tab === 'jauges') {
+        const jaugesEl = document.getElementById('view-jauges');
+        if (jaugesEl) jaugesEl.style.display = 'block';
+        if (mapContainer) mapContainer.style.display = 'none';
+        const btn = document.getElementById('tab-gauges');
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#D4621A';
+            btn.style.color = 'white';
+        }
+    } else if (tab === 'securite') {
+        const securiteEl = document.getElementById('view-securite');
+        if (securiteEl) securiteEl.style.display = 'block';
+        if (mapContainer) mapContainer.style.display = 'none';
+        const btn = document.getElementById('tab-security');
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#D4621A';
+            btn.style.color = 'white';
+        }
+    }
+
+    setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 200);
+}
+
+// ==========================================
+// BUDGET, JAUGES, BULLE ET CHECKLIST
+// ==========================================
 function addFuelExpense(e) {
   e.preventDefault();
   const date = document.getElementById('fuelDate').value;
@@ -7543,29 +7621,36 @@ function renderFuelExpenses() {
   let totalCost = 0;
   let totalLitres = 0;
 
+  if (!listDiv) return;
+
   if (expenses.length === 0) {
     listDiv.innerHTML = "Aucun plein enregistré pour l'instant.";
-    document.getElementById('totalFuelCost').innerText = "0.00 €";
-    document.getElementById('totalFuelLitres').innerText = "0";
+    const tfc = document.getElementById('totalFuelCost');
+    const tfl = document.getElementById('totalFuelLitres');
+    if (tfc) tfc.innerText = "0.00 €";
+    if (tfl) tfl.innerText = "0";
     return;
   }
 
   let html = "";
-  expenses.forEach((item, index) => {
+  expenses.forEach((item) => {
     totalCost += item.cost;
     totalLitres += item.litres;
     html += `• ${item.date} : <b>${item.litres}L</b> (${item.cost} €)<br>`;
   });
 
   listDiv.innerHTML = html;
-  document.getElementById('totalFuelCost').innerText = totalCost.toFixed(2) + " €";
-  document.getElementById('totalFuelLitres').innerText = totalLitres.toFixed(1);
+  const tfc = document.getElementById('totalFuelCost');
+  const tfl = document.getElementById('totalFuelLitres');
+  if (tfc) tfc.innerText = totalCost.toFixed(2) + " €";
+  if (tfl) tfl.innerText = totalLitres.toFixed(1);
 }
 
-// --- GESTION DES JAUGES & STOCKAGE LOCAL ---
 function updateGauge(type, val, suffix) {
-  document.getElementById(`val-${type}`).innerText = val + suffix;
-  document.getElementById(`fill-${type}`).style.width = val + '%';
+  const valEl = document.getElementById(`val-${type}`);
+  const fillEl = document.getElementById(`fill-${type}`);
+  if (valEl) valEl.innerText = val + suffix;
+  if (fillEl) fillEl.style.width = val + '%';
   localStorage.setItem(`nomadsync_gauge_${type}`, val);
 }
 
@@ -7574,16 +7659,17 @@ function moveBubble(dx, dy) {
   bubbleX = Math.max(10, Math.min(70, bubbleX + dx));
   bubbleY = Math.max(10, Math.min(70, bubbleY + dy));
   const inner = document.getElementById('bubblePos');
+  if (!inner) return;
   inner.style.left = bubbleX + 'px';
   inner.style.top = bubbleY + 'px';
   
   const text = document.getElementById('bubbleText');
   if (bubbleX === 40 && bubbleY === 40) {
-    text.innerText = "Véhicule parfaitement horizontal";
+    if (text) text.innerText = "Véhicule parfaitement horizontal";
     inner.style.background = "#10b981";
     inner.style.boxShadow = "0 0 10px #10b981";
   } else {
-    text.innerText = "Attention : Véhicule penché (ajuster les cales)";
+    if (text) text.innerText = "Attention : Véhicule penché (ajuster les cales)";
     inner.style.background = "#ef4444";
     inner.style.boxShadow = "0 0 10px #ef4444";
   }
@@ -7597,30 +7683,32 @@ function resetBubble() {
   moveBubble(0, 0);
 }
 
- // --- CHECKLIST / PENSE-BÊTE ---
-  function saveChecklist() {
-    const checks = ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'];
-    checks.forEach(id => {
-      const checked = document.getElementById(id).checked;
-      localStorage.setItem(`nomadsync_${id}`, checked);
-    });
-  } // <--- C'est cette accolade qui manquait cruellement ici !
+function saveChecklist() {
+  const checks = ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'];
+  checks.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      localStorage.setItem(`nomadsync_${id}`, el.checked);
+    }
+  });
+}
 
 function loadSavedData() {
     const savedTheme = localStorage.getItem('nomadsync_theme');
+    const themeBtn = document.getElementById('themeBtn');
     if (savedTheme === 'nuit') {
         document.documentElement.setAttribute('data-theme', 'nuit');
-        document.getElementById('themeBtn').innerText = '☀️ Mode Jour';
+        if (themeBtn) themeBtn.innerText = '☀️ Mode Jour';
     }
 
     ['bat', 'eau', 'usee', 'gaz'].forEach(type => {
       const savedVal = localStorage.getItem(`nomadsync_gauge_${type}`);
-      if (savedVal !== null) {
-        document.getElementById(`range-${type}`).value = savedVal;
+      const rangeEl = document.getElementById(`range-${type}`);
+      if (savedVal !== null && rangeEl) {
+        rangeEl.value = savedVal;
         const suffix = type === 'bat' ? '% (12.8V)' : '%';
         updateGauge(type, savedVal, suffix);
       }
-      
     });
 
     const savedX = localStorage.getItem('nomadsync_bubble_x');
@@ -7629,197 +7717,73 @@ function loadSavedData() {
       bubbleX = parseInt(savedX);
       bubbleY = parseInt(savedY);
       const inner = document.getElementById('bubblePos');
-      inner.style.left = bubbleX + 'px';
-      inner.style.top = bubbleY + 'px';
+      if (inner) {
+        inner.style.left = bubbleX + 'px';
+        inner.style.top = bubbleY + 'px';
+      }
     }
 
     ['chk-step', 'chk-roof', 'chk-blocks', 'chk-fridge', 'chk-shore', 'chk-door'].forEach(id => {
       const val = localStorage.getItem(`nomadsync_${id}`);
-      if (val === 'true') {
-        document.getElementById(id).checked = true;
+      const el = document.getElementById(id);
+      if (val === 'true' && el) {
+        el.checked = true;
       }
     });
 
     renderFuelExpenses();
 }
-// <-- Ici la fonction loadSavedData() se ferme proprement
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .catch(err => console.log('Service Worker non enregistré', err));
-    });
-}
 
 // ==========================================
-// TABLEAU GLOBAL DES SPOTS (TOUT À LA FIN)
+// MÉTÉO ET INITIALISATION FINALE
 // ==========================================
-const spots = [
-  ...filteredSpots,
-  ...filteredWaterPoints,
-  ...rawNaturePoints,
-  ...rawFarmPoints,
-  ...rawFuelPoints,
-  ...rawDrainPoints
-];
+async function checkMeteoAlert() {
+  const status = document.getElementById('meteo-status');
+  if (!status) return;
 
-customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
-spots.push(...customSpots);
+  status.style.color = "#6b7280";
+  status.innerHTML = "⏳ Récupération de la météo locale...";
 
-window.onload = function() {
-    initMap();
-    loadSavedData();
-};
-
-const translations = {
-    fr: {
-        title: "NomadSync",
-        subtitle: "Navigation Nomade",
-        banner: "🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 | 🏕️ Aires & Dodos 100% Gratuits",
-        tab2: "🗺️ Itinéraire",
-        tab3: "🚐 Jauges & Van",
-        tab4: "🛡️ Infos & Sécurité"
-    },
-    en: {
-        title: "NomadSync",
-        subtitle: "Nomad Navigation",
-        banner: "🌤️ Weather France & Europe: Favorable conditions 🚐 | ⛽ Diesel & Gas Stations 95 | 🏕️ 100% Free Spots",
-        tab2: "🗺️ Route",
-        tab3: "🚐 Gauges & Van",
-        tab4: "🛡️ Info & Security"
-    },
-    es: {
-        title: "NomadSync",
-        subtitle: "Navegación Nómada",
-        banner: "🌤️ Clima Francia y Europa: Condiciones favorables 🚐 | ⛽ Gasolineras 🏕️ Áreas gratuitas",
-        tab2: "🗺️ Ruta",
-        tab3: "🚐 Niveles y Furgo",
-        tab4: "🛡️ Info y Seguridad"
-    },
-    de: {
-        title: "NomadSync",
-        subtitle: "Nomaden-Navigation",
-        banner: "🌤️ Wetter Frankreich & Europa: Günstige Bedingungen 🚐 | ⛽ Tankstellen 🏕️ Kostenlose Stellplätze",
-        tab2: "🗺️ Route",
-        tab3: "🚐 Füllstände & Van",
-        tab4: "🛡️ Infos & Sicherheit"
-    }
+  if (!navigator.geolocation) {
+    status.style.color = "#ef4444";
+    status.innerHTML = "❌ Géolocalisation non supportée.";
+    return;
   }
 
-// Initialisation de la carte Leaflet
-function initMap() {
-    console.log("🗺️ Tentative d'initialisation de la carte...");
-    
-    const mapContainer = document.getElementById('map');
-    if (!mapContainer) {
-        console.error("❌ ERREur : Aucun élément HTML avec l'id 'map' n'a été trouvé !");
-        return;
-    }
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      try {
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_gusts_10m`);
+        const data = await response.json();
+        const windSpeed = Math.round(data.current.wind_speed_10m);
+        const windGusts = Math.round(data.current.wind_gusts_10m);
 
-    if (typeof L === 'undefined') {
-        console.error("❌ ERREUR : La bibliothèque Leaflet (L) n'est pas chargée ou est inaccessible !");
-        return;
-    }
-
-    if (!window.map) {
-        try {
-            window.map = L.map('map').setView([46.603354, 1.888334], 6);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(window.map);
-            console.log("✅ Carte créée et affichée avec succès !");
-        } catch (e) {
-            console.error("❌ ERREUR lors de la création Leaflet :", e);
-            return;
-        }
-    } else {
-        console.log("ℹ️ La carte existait déjà.");
-    }
-
-    setTimeout(() => {
-        if (window.map && typeof window.map.invalidateSize === 'function') {
-            window.map.invalidateSize();
-        }
-    }, 250);
-
-    if (typeof renderNomadSyncSpots === 'function') {
-        renderNomadSyncSpots();
-    }
-}
-
-function locateUser() {
-    console.log("📍 Clic sur 'Ma position'...");
-    
-    if (!window.map) {
-        console.log("⚠️ window.map est vide, on force l'initialisation...");
-        initMap();
-    }
-
-    if (window.map && typeof window.map.locate === 'function') {
-        window.map.locate({ setView: true, maxZoom: 16 });
-        console.log("🎯 Localisation demandée.");
-    } else {
-        console.error("❌ ÉCHEC FINAL : Impossible de lancer locate(), window.map est toujours introuvable.");
-    }
-}
-
-// Afficher ou masquer le formulaire d'ajout de spot
-function toggleAddSpotForm() {
-    console.log("➕ Gestion du formulaire d'ajout...");
-    const form = document.getElementById('add-spot-form') || document.getElementById('spotForm');
-    if (form) {
-        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
-    } else {
-        console.warn("Formulaire d'ajout introuvable dans le HTML.");
-    }
-}
-
-// Rendre les fonctions accessibles globalement pour les boutons HTML
-window.initMap = initMap;
-window.locateUser = locateUser;
-window.toggleAddSpotForm = toggleAddSpotForm;
-
-function chargerMeteo(lat, lng) {
-    console.log("📍 Coordonnées reçues :", lat, lng);
-    const currentMonthYear = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date());
-
-    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
-      .then(response => response.json())
-      .then(data => {
-        const temp = Math.round(data.current_weather.temperature);
-        const windSpeed = Math.round(data.current_weather.windspeed);
-        
-        let alertHtml = "";
-        if (windSpeed > 50) {
-          alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🔴 <strong>ATTENTION</strong> Rafales à ${windSpeed} km/h (${temp}°C) - Fermez impérativement les lanterneaux !`;
-        } else if (windSpeed > 25) {
-          alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟡 Vent modéré (${windSpeed} km/h, ${temp}°C) - Prudence sur les stores.`;
+        if (windGusts > 40 || windSpeed > 35) {
+          status.style.color = "#ef4444";
+          status.innerHTML = `🔴 ATTENTION Rafales à ${windGusts} km/h - Fermez les lanterneaux !`;
+        } else if (windGusts > 25 || windSpeed > 20) {
+          status.style.color = "#f59e0b";
+          status.innerHTML = `🟡 Vent modéré (${windSpeed} km/h) - Prudence sur les stores.`;
         } else {
-          alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟢 Calme (${windSpeed} km/h, ${temp}°C) - Conditions favorables.`;
+          status.style.color = "#10b981";
+          status.innerHTML = `🟢 Vent faible (${windSpeed} km/h) - Lanterneaux autorisés.`;
         }
-
-        const weatherWidget = document.querySelector('#meteo-status');
-        if(weatherWidget) {
-          weatherWidget.innerHTML = alertHtml;
-        }
-      })
-      .catch(err => console.log("❌ Erreur météo :", err));
-}
-
-if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-        position => {
-            chargerMeteo(position.coords.latitude, position.coords.longitude);
-        },
-        error => {
-            console.log("❌ Erreur de géolocalisation :", error.message);
-        }
-    );
+      } catch (error) {
+        status.style.color = "#ef4444";
+        status.innerHTML = "❌ Impossible de récupérer la météo.";
+      }
+    },
+    () => {
+      status.style.color = "#ef4444";
+      status.innerHTML = "⚠️ Activez le GPS pour la météo.";
+    }
+  );
 }
 
 function changeLanguage(lang) {
-    const t = window.translations ? window.translations[lang] : null;
+    const t = translations ? translations[lang] : null;
     if (t) {
         document.title = t.title;
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -7832,6 +7796,15 @@ function changeLanguage(lang) {
     localStorage.setItem('nomadsync_lang', lang);
 }
 
+// Expositions globales pour les boutons HTML
+window.initMap = initMap;
+window.locateUser = locateUser;
+window.toggleAddSpotForm = toggleAddSpotForm;
+window.switchTab = switchTab;
+window.calculateAndDrawRoute = calculateAndDrawRoute;
+window.checkMeteoAlert = checkMeteoAlert;
+
+// Lancement global au chargement du DOM
 window.addEventListener('DOMContentLoaded', () => {
     const savedLang = localStorage.getItem('nomadsync_lang');
     if (savedLang) {
@@ -7840,12 +7813,17 @@ window.addEventListener('DOMContentLoaded', () => {
         changeLanguage(savedLang);
     }
 
-    if (typeof verifierStatut === 'function') {
-        verifierStatut();
+    if (typeof loadSavedData === 'function') {
+        loadSavedData();
     }
 
-    // Lance l'affichage de la carte au chargement
     if (typeof initMap === 'function') {
         initMap();
     }
 });
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+}
