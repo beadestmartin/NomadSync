@@ -114,14 +114,6 @@
     .add-spot-btn { background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .export-spots-btn { background: #3b82f6; color: white; border: none; padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-    #f-aire.active { background: #ef4444; }
-    #f-parking.active { background: #f97316; }
-    #f-ferme.active { background: #84cc16; color: #000; }
-    #f-fuel.active { background: #10b981; }
-    #f-Ove.active { background: #3b82f6; }
-    #f-elec.active { background: #eab308; color: #000; }
-    #f-vidange.active { background: #a855f7; }
-
     /* Formulaire Ajout Spot */
     #add-spot-form { display: none; background: var(--bg-color); border: 2px solid #10b981; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 10px; }
@@ -139,13 +131,6 @@
       position: relative !important; 
     }
     .custom-marker { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; color: white; font-size: 16px; font-weight: bold; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
-    .marker-aire { background-color: #ef4444; }
-    .marker-parking { background-color: #f97316; }
-    .marker-ferme { background-color: #84cc16; }
-    .marker-fuel { background-color: #10b981; }
-    .marker-Ove { background-color: #3b82f6; }
-    .marker-elec { background-color: #eab308; }
-    .marker-vidange { background-color: #a855f7; }
     .spot-popup-img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 6px; }
 
     /* Modules Itinéraire & Jauges */
@@ -168,20 +153,17 @@
 
     .status-banner { background: #2A1A0E; color: #f7f2ea; padding: 14px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border-color); }
 
-  /* Urgence & Utilitaires */
+    /* Urgence & Utilitaires */
     .emergency-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
     .emergency-box { background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
     .emergency-box h4 { margin: 0 0 6px 0; color: var(--accent-color); font-size: 0.9rem; }
     .emergency-box p { margin: 3px 0; font-size: 0.85rem; }
 
     input, select { width: 100% !important; box-sizing: border-box !important; }
-    .button-group, .btn-container { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
   </style>
 
-  <!-- 🗺️ Ajout obligatoire des fichiers Leaflet -->
+  <!-- Feuille de style Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 </head>
 
 <body>
@@ -192,9 +174,9 @@
       🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 | 🏕️ Aires & Dodos 100% Gratuits
     </div>
   </div>
+  
   <!-- En-tête Compact et Équilibré -->
   <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-    
     <div class="brand" style="display: flex; align-items: center; gap: 6px;">
       <span class="brand-icon" style="font-size: 1.2rem;">🧭</span>
       <div>
@@ -222,7 +204,6 @@
       <button id="themeBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleTheme()" title="Thème">🌙</button>
       <button id="offlineBtn" style="background: rgba(46, 125, 50, 0.9); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleOffline()" title="Statut réseau">🟢</button>
     </div>
-
   </header>
 </div>
 
@@ -236,54 +217,53 @@
 </div>
 
 <!-- MODAL QR CODE DE PARTAGE -->
-  <div id="qr-modal" style="display: none;">
-    <h2 style="font-size: 1.25rem; margin: 0 0 10px 0;">📱 Partager NomadSync <span style="cursor:pointer; font-size:1.2rem; float:right;" onclick="toggleQrModal()">✕</span></h2>
-    <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Faites flasher ce QR code avec un autre téléphone pour partager instantanément l'application :</p>
-    <div style="text-align: center; padding: 10px;">
-      <img id="qrCodeImg" src="#" alt="QR Code NomadSync" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); background: white; padding: 6px;" />
+<div id="qr-modal" style="display: none; max-width: 800px; margin: 0 auto; padding: 20px;">
+  <h2 style="font-size: 1.25rem; margin: 0 0 10px 0;">📱 Partager NomadSync <span style="cursor:pointer; font-size:1.2rem; float:right;" onclick="toggleQrModal()">✕</span></h2>
+  <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Faites flasher ce QR code avec un autre téléphone pour partager instantanément l'application :</p>
+  <div style="text-align: center; padding: 10px;">
+    <img id="qrCodeImg" src="#" alt="QR Code NomadSync" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); background: white; padding: 6px;" />
+  </div>
+</div>
+
+<!-- ESPACE VIP -->
+<div id="vip-modal" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+  <h3>⭐ Espace VIP NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleVipModal()">✕</span></h3>
+  <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Accès illimité aux cartes hors-ligne, dodos secrets et calculateur de gabarit avancé :</p>
+  
+  <div class="vip-pricing-grid">
+    <div class="vip-price-card">
+      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">MENSUEL</div>
+      <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">2,99 €</div>
+      <div style="font-size: 0.75rem; opacity: 0.7;">Sans engagement</div>
+      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Mensuel)...')">S'abonner</button>
+    </div>
+    <div class="vip-price-card featured">
+      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">ANNUEL ⭐</div>
+      <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">24,99 €</div>
+      <div style="font-size: 0.75rem; opacity: 0.7;">Économique</div>
+      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Annuel)...')">S'abonner</button>
+    </div>
+    <div class="vip-price-card">
+      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">À VIE</div>
+      <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">49,99 €</div>
+      <div style="font-size: 0.75rem; opacity: 0.7;">Accès illimité définitif</div>
+      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (À vie)...')">Acheter</button>
     </div>
   </div>
-  
-    <!-- ESPACE VIP -->
-    <div id="vip-modal">
-      <h3>⭐ Espace VIP NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleVipModal()">✕</span></h3>
-      <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Accès illimité aux cartes hors-ligne, dodos secrets et calculateur de gabarit avancé :</p>
-      
-      <div class="vip-pricing-grid">
-        <div class="vip-price-card">
-          <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">MENSUEL</div>
-          <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">2,99 €</div>
-          <div style="font-size: 0.75rem; opacity: 0.7;">Sans engagement</div>
-          <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Mensuel)...')">S'abonner</button>
-        </div>
-        <div class="vip-price-card featured">
-          <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">ANNUEL ⭐</div>
-          <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">24,99 €</div>
-          <div style="font-size: 0.75rem; opacity: 0.7;">Économique</div>
-          <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Annuel)...')">S'abonner</button>
-        </div>
-        <div class="vip-price-card">
-          <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">À VIE</div>
-          <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">49,99 €</div>
-          <div style="font-size: 0.75rem; opacity: 0.7;">Accès illimité définitif</div>
-          <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (À vie)...')">Acheter</button>
-        </div>
-      </div>
 
-      <div style="background: var(--card-bg); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin-top: 15px;">
-        <b style="font-size: 0.9rem; display: block; margin-bottom: 8px;">🔐 Connexion / Accès Membre VIP :</b>
-        <form onsubmit="handleVipLogin(event)" style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <input type="email" id="loginEmail" placeholder="Votre adresse email" required style="flex:1; min-width: 160px; padding:9px; border-radius:6px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:0.85rem;" />
-          <input type="password" id="loginPass" placeholder="Mot de passe" required style="flex:1; min-width: 160px; padding:9px; border-radius:6px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:0.85rem;" />
-          <button type="submit" style="background: var(--accent-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Se connecter</button>
-        </form>
-        <div id="loginMessage" style="display: none; background: #ecfdf5; color: #065f46; border: 1px solid #10b981; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 10px;"></div>
-      </div>
-    </div>
+  <div style="background: var(--card-bg); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin-top: 15px;">
+    <b style="font-size: 0.9rem; display: block; margin-bottom: 8px;">🔐 Connexion / Accès Membre VIP :</b>
+    <form onsubmit="handleVipLogin(event)" style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <input type="email" id="loginEmail" placeholder="Votre adresse email" required style="flex:1; min-width: 160px; padding:9px; border-radius:6px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:0.85rem;" />
+      <input type="password" id="loginPass" placeholder="Mot de passe" required style="flex:1; min-width: 160px; padding:9px; border-radius:6px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:0.85rem;" />
+      <button type="submit" style="background: var(--accent-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Se connecter</button>
+    </form>
+    <div id="loginMessage" style="display: none; background: #ecfdf5; color: #065f46; border: 1px solid #10b981; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 10px;"></div>
+  </div>
+</div>
 
 <!-- PANEL CARTE -->
 <div style="max-width: 750px; margin: 0 auto; width: 100%; box-sizing: border-box;">
-  
   <div class="search-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 10px; box-sizing: border-box;">
     <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" style="width: 100%; padding: 12px 16px; border-radius: 25px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; outline: none;" />
     <div style="display: flex; gap: 8px; width: 100%;">
@@ -304,49 +284,47 @@
           <option value="vidange">🟣 Vidange</option>
       </select>
   </div>
-<div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 10px 0 10px; box-sizing: border-box;">
+  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 10px 0 10px; box-sizing: border-box;">
     <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un bon plan (Gratuit / Carburant)</button>
   </div>
-
 </div>
       
 <!-- FORMULAIRE AJOUT DE SPOT -->
-      <div id="add-spot-form">
-        <h4 style="margin-top:0; color:#10b981;">📍 Partager un nouveau bon plan nomade</h4>
-        
-        <!-- Avertissement esprit NomadSync -->
-        <div style="background: #f0fdf4; border: 1px solid #10b981; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; color: #065f46;">
-          💡 <strong>Esprit NomadSync :</strong><br>
-          Ici, on ne partage que :
-          <ul style="margin: 4px 0 4px 16px; padding: 0;">
-            <li>Des <strong>spots gratuits, sauvages et en pleine nature</strong> (hors campings et aires payantes).</li>
-            <li>Des <strong>stations-service low-cost ou économiques</strong> (type Leclerc, Intermarché, Total Access, etc., en évitant les pompes hors de prix ou sur autoroute).</li>
-          </ul>
-        </div>
-      
-<form onsubmit="handleAddNewSpot(event)">
-          <div class="form-grid">
-            <input type="text" id="newSpotName" placeholder="Nom du Spot ou de la Station" required />
-            <input type="text" id="newSpotAddress" placeholder="Adresse complète / Code Postal / Ville" required />
-            <select id="newSpotType">
-              <option value="parking">Parking (0 €)</option>
-              <option value="aire">Aire (0 €)</option>
-              <option value="ferme">Ferme d'Accueil (0 €)</option>
-              <option value="fuel">Station Carburant Éco (Leclerc, Intermarché, Total Access...)</option>
-              <option value="Ove">Eau Gratuite</option>
-              <option value="elec">Électricité Gratuite</option>
-              <option value="vidange">Station Vidange</option>
-            </select>
-            <input type="file" id="newSpotPhoto" accept="image/*" />
-          </div>
-          <button type="submit" style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer; margin-top: 10px;">Enregistrer le bon plan</button>
-        </form>
-      </div>
+<div id="add-spot-form" style="max-width: 750px; margin: 10px auto; box-sizing: border-box; padding: 0 10px;">
+  <h4 style="margin-top:0; color:#10b981;">📍 Partager un nouveau bon plan nomade</h4>
+  
+  <div style="background: #f0fdf4; border: 1px solid #10b981; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; color: #065f46;">
+    💡 <strong>Esprit NomadSync :</strong><br>
+    Ici, on ne partage que :
+    <ul style="margin: 4px 0 4px 16px; padding: 0;">
+      <li>Des <strong>spots gratuits, sauvages et en pleine nature</strong> (hors campings et aires payantes).</li>
+      <li>Des <strong>stations-service low-cost ou économiques</strong> (type Leclerc, Intermarché, Total Access, etc., en évitant les pompes hors de prix ou sur autoroute).</li>
+    </ul>
+  </div>
 
-  <!-- ZONE UNIQUE DE CONTENU D'ONGLETS -->
+  <form onsubmit="handleAddNewSpot(event)">
+    <div class="form-grid">
+      <input type="text" id="newSpotName" placeholder="Nom du Spot ou de la Station" required />
+      <input type="text" id="newSpotAddress" placeholder="Adresse complète / Code Postal / Ville" required />
+      <select id="newSpotType">
+        <option value="parking">Parking (0 €)</option>
+        <option value="aire">Aire (0 €)</option>
+        <option value="ferme">Ferme d'Accueil (0 €)</option>
+        <option value="fuel">Station Carburant Éco (Leclerc, Intermarché, Total Access...)</option>
+        <option value="Ove">Eau Gratuite</option>
+        <option value="elec">Électricité Gratuite</option>
+        <option value="vidange">Station Vidange</option>
+      </select>
+      <input type="file" id="newSpotPhoto" accept="image/*" />
+    </div>
+    <button type="submit" style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer; margin-top: 10px;">Enregistrer le bon plan</button>
+  </form>
+</div>
+
+<!-- ZONE UNIQUE DE CONTENU D'ONGLETS -->
 <div class="content-area">
-      
-  <!-- 1. ONGLET ITINÉRAIRE (Contient le calculateur ET la carte) -->
+    
+  <!-- 1. ONGLET ITINÉRAIRE (Contient le calculateur) -->
   <div id="panel-itineraire" style="display: block;">
     <div class="route-card">
       <h3 style="margin-top: 0; color: var(--accent-color);">Calculateur de Trajet Temps Réel & Gabarit</h3>
@@ -393,38 +371,23 @@
 
       <div id="route-result" class="status-banner" style="display: none;"></div>
     </div>
+  </div> <!-- Fin de #panel-itineraire -->
 
-</div> <!-- Fin de #panel-itineraire -->
-</div>
-
-<!-- LA CARTE COMMUNE ET SES BOUTONS (Sortie du panneau et maintenant indépendante) -->
-<div id="map-container" style="max-width: 800px; margin: 15px auto 0 auto; width: 100%; height: 450px; box-sizing: border-box; position: relative;">
-  
-  <!-- Les 3 boutons placés au-dessus pour un accès direct sur mobile -->
-  <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
-    <a href="https://www.google.com/maps/dir/?api=1&destination=" target="_blank" id="btn-gmaps" style="background: rgba(66, 133, 244, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🧭 Google Maps</a>
-    <a href="https://www.waze.com/ul?q=" target="_blank" id="btn-waze" style="background: rgba(51, 204, 255, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🚗 Waze</a>
-    <a href="maps://?" target="_blank" id="btn-offline" style="background: rgba(46, 125, 50, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🗺️ Maps.me</a>
-  </div>
-
- <!-- La carte en dessous des boutons -->
-<div id="map" style="width: 100%; height: 450px; position: relative; border-radius: 12px;"></div>
-<!-- 2. ONGLET JAUGES & VAN -->
-<div id="view-jauges" style="display: none;">
-  <!-- MODULE BLUETOOTH -->
-  <div class="bluetooth-card">
-    <h3 style="margin-top: 0; color: var(--accent-color); display: flex; align-items: center; gap: 8px;">
-      <span>📡 Synchronisation Bluetooth (Véhicules Récents)</span>
-    </h3>
-    <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
-      Possédez-vous un camping-car ou van récent équipé de systèmes connectés (centrales Schaudt, CBE, Truma iNet, batteries au lithium intelligentes) ? 
-      <strong>NomadSync</strong> centralise toutes ces données en temps réel. Fini de multiplier les applications constructeurs : connectez votre véhicule en Bluetooth pour suivre d'un seul coup d'œil vos niveaux de vie, la charge solaire et l'état de votre chauffage.
-    </p>
-    <button onclick="alert('Recherche de périphériques Bluetooth à proximité... (Assurez-vous que le Bluetooth de votre appareil et de la centrale du van sont activés)')" style="background: var(--accent-color); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
-      🔗 Connecter mon van en Bluetooth
-    </button>
-  </div>
-</div>
+  <!-- 2. ONGLET JAUGES & VAN -->
+  <div id="view-jauges" style="display: none;">
+    <!-- MODULE BLUETOOTH -->
+    <div class="bluetooth-card">
+      <h3 style="margin-top: 0; color: var(--accent-color); display: flex; align-items: center; gap: 8px;">
+        <span>📡 Synchronisation Bluetooth (Véhicules Récents)</span>
+      </h3>
+      <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
+        Possédez-vous un camping-car ou van récent équipé de systèmes connectés (centrales Schaudt, CBE, Truma iNet, batteries au lithium intelligentes) ? 
+        <strong>NomadSync</strong> centralise toutes ces données en temps réel. Fini de multiplier les applications constructeurs : connectez votre véhicule en Bluetooth pour suivre d'un seul coup d'œil vos niveaux de vie, la charge solaire et l'état de votre chauffage.
+      </p>
+      <button onclick="alert('Recherche de périphériques Bluetooth à proximité... (Assurez-vous que le Bluetooth de votre appareil et de la centrale du van sont activés)')" style="background: var(--accent-color); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
+        🔗 Connecter mon van en Bluetooth
+      </button>
+    </div>
 
     <!-- PENSE-BÊTE / CHECKLIST DÉPART -->
     <div class="bluetooth-card" style="border-color: #10b981;">
@@ -478,9 +441,10 @@
         </div>
         <span id="bubbleText" style="font-size:0.8rem; opacity:0.8; display: block; margin-top: 6px;">Véhicule parfaitement horizontal</span>
       </div>
+    </div>
   </div> <!-- Fin de #view-jauges -->
 
-<!-- 3. ONGLET INFOS & SÉCURITÉ -->
+  <!-- 3. ONGLET INFOS & SÉCURITÉ -->
   <div id="view-securite" style="display: none;">
     <!-- MÉTÉO & VENT FORT -->
     <div class="security-card">
@@ -548,17 +512,28 @@
       </div>
     </div>
   </div> <!-- Fin de #view-securite -->
+</div>
 
-  <!-- Mention légale & Footer -->
-  <footer style="text-align: center; padding: 15px; font-size: 12px; color: #666; background: #f8f9fa; border-top: 1px solid #dee2e6; margin-top: 20px;">
-    <p><strong>Mention légale :</strong> Les informations de stationnement sont indicatives. L'utilisatrice demeure seule responsable du respect de la réglementation locale en vigueur sur chaque emplacement.</p>
-  </footer>
+<!-- LA CARTE COMMUNE ET SES BOUTONS DE NAVIGATION EXTERNE -->
+<div id="map-container" style="max-width: 800px; margin: 15px auto 0 auto; width: 100%; height: 450px; box-sizing: border-box; position: relative; padding: 0 10px;">
+  <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+    <a href="https://www.google.com/maps/dir/?api=1&destination=" target="_blank" id="btn-gmaps" style="background: rgba(66, 133, 244, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🧭 Google Maps</a>
+    <a href="https://www.waze.com/ul?q=" target="_blank" id="btn-waze" style="background: rgba(51, 204, 255, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🚗 Waze</a>
+    <a href="maps://?" target="_blank" id="btn-offline" style="background: rgba(46, 125, 50, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🗺️ Maps.me</a>
+  </div>
 
-  <!-- Script Leaflet obligatoire (à placer avant script.js) -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- La carte Leaflet -->
+  <div id="map" style="width: 100%; height: 450px; position: relative; border-radius: 12px;"></div>
+</div>
 
-  <!-- Lien final vers ton fichier JavaScript externe -->
-  <script src="script.js">
-  </script>
+<!-- Mention légale & Footer -->
+<footer style="text-align: center; padding: 15px; font-size: 12px; color: #666; background: #f8f9fa; border-top: 1px solid #dee2e6; margin-top: 20px;">
+  <p><strong>Mention légale :</strong> Les informations de stationnement sont indicatives. L'utilisatrice demeure seule responsable du respect de la réglementation locale en vigueur sur chaque emplacement.</p>
+</footer>
+
+<!-- Scripts JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="script.js"></script>
+
 </body>
 </html>
