@@ -7524,6 +7524,13 @@ function handleSearch(e) {
     if (e.key === 'Enter') handleSearchBtn();
 }
 
+function toggleAddSpotForm() {
+    const form = document.getElementById('addSpotForm');
+    if (form) {
+        form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
+    }
+}
+
 function switchTab(tab) {
     const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
     const targetElement = document.getElementById(targetId);
