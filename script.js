@@ -7215,7 +7215,6 @@ const translations = {
 
 // ==========================================
 // INITIALISATION DE LA CARTE
-// ==========================================
 function initMap() {
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
@@ -7229,6 +7228,14 @@ function initMap() {
                 maxZoom: 19,
                 attribution: '© OpenStreetMap contributors'
             }).addTo(leafletMap);
+
+            // <-- AJOUTE CETTE PARTIE ICI :
+            leafletMap.on('click', function(e) {
+                window.selectedLat = e.latlng.lat;
+                window.selectedLng = e.latlng.lng;
+                console.log("Coordonnées capturées :", window.selectedLat, window.selectedLng);
+            });
+
         } catch (e) {
             return;
         }
@@ -7244,7 +7251,6 @@ function initMap() {
         renderNomadSyncSpots();
     }
 }
-
 function locateUser() {
     if (!leafletMap) {
         initMap();
@@ -7270,13 +7276,16 @@ function renderNomadSyncSpots() {
       return;
     }
 
-    let markerColor = '#D4621A';
-    if (spot.type === 'parking' || spot.category === 'parking') markerColor = '#555555';
-    if (spot.type === 'Ove') markerColor = '#1E90FF';
-    if (spot.type === 'vidange') markerColor = '#8B4513';
-    if (spot.type === 'ferme') markerColor = '#228B22';
-    if (spot.type === 'R' || spot.category === 'nature') markerColor = '#2A1A0E';
+   let markerColor = '#D4621A'; // Couleur par défaut (aires)
 
+if (spot.type === 'aire' || spot.category === 'aire' || spot.type === 'free' || spot.category === 'free') markerColor = '#D4621A';
+if (spot.type === 'parking' || spot.category === 'parking') markerColor = '#555555';
+if (spot.type === 'eau' || spot.category === 'eau') markerColor = '#1E90FF';
+if (spot.type === 'vidange' || spot.category === 'vidange') markerColor = '#8B4513';
+if (spot.type === 'ferme' || spot.category === 'ferme') markerColor = '#228B22';
+if (spot.type === 'carburant' || spot.category === 'carburant' || spot.type === 'fuel' || spot.category === 'fuel') markerColor = '#FF4500';
+if (spot.type === 'nature' || spot.category === 'nature') markerColor = '#2A1A0E';
+if (spot.type === 'sauvage' || spot.category === 'sauvage' || spot.type === 'Dodo sauvage' || spot.category === 'Dodo sauvage' || spot.type === 'wild' || spot.category === 'wild') markerColor = '#2E8B57';
     const lat = spot.lat;
     const lng = spot.lng || spot.lon;
 
@@ -7818,6 +7827,8 @@ function handleAddNewSpot(event) {
         name: name,
         address: address,
         category: category,
+        lat: window.selectedLat || null, // Récupère la latitude du clic sur la carte
+        lng: window.selectedLng || null, // Récupère la longitude du clic sur la carte
         photo: photoInput.files && photoInput.files[0] ? URL.createObjectURL(photoInput.files[0]) : null
     };
 
@@ -7825,6 +7836,9 @@ function handleAddNewSpot(event) {
     localStorage.setItem('nomadSyncSpots', JSON.stringify(spots));
 
     event.target.reset();
+    window.selectedLat = null; // Réinitialise après l'enregistrement
+    window.selectedLng = null;
+
     if (typeof toggleAddSpotForm === 'function') {
         toggleAddSpotForm();
     }
