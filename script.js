@@ -7150,7 +7150,8 @@ const nomadSyncSpots = [
 // CONFIGURATION GLOBALE ET VARIABLE DE CARTE
 // ==========================================
 let leafletMap = null;
-let isOffline = false;
+routeLine = null;
+isOffline = false;
 
 // Déclaration sécurisée des tableaux pour éviter les erreurs au chargement
 if (typeof filteredSpots === 'undefined') var filteredSpots = [];
