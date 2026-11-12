@@ -7712,17 +7712,23 @@ function initMap() {
     if (!mapContainer) return;
 
     if (typeof L !== 'undefined') {
-        window.map = L.map('map').setView([46.603354, 1.888334], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(window.map);
+        if (!window.map) {
+            window.map = L.map('map').setView([46.603354, 1.888334], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(window.map);
+            console.log("✅ Carte créée avec succès !");
+        }
         
-        console.log("✅ Carte affichée avec succès !");
-        
+        // Double actualisation pour forcer l'affichage des tuiles
         setTimeout(() => {
             window.map.invalidateSize();
-        }, 200);
+        }, 300);
+
+        setTimeout(() => {
+            window.map.invalidateSize();
+        }, 800);
 
         if (typeof renderNomadSyncSpots === 'function') {
             renderNomadSyncSpots();
