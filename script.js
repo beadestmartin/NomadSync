@@ -7595,6 +7595,7 @@ function loadSavedData() {
         const suffix = type === 'bat' ? '% (12.8V)' : '%';
         updateGauge(type, savedVal, suffix);
       }
+      
     });
 
     const savedX = localStorage.getItem('nomadsync_bubble_x');
