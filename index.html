@@ -161,9 +161,6 @@
 
     input, select { width: 100% !important; box-sizing: border-box !important; }
   </style>
-
-  <!-- Feuille de style Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 
 <body>
@@ -284,7 +281,8 @@
         <option value="vidange">🟣 Vidange</option>
         <option value="carburant">⛽ Carburant</option>
     </select>
-  </dive>
+  </div> <!-- CORRECTION ICI : Remplacement de </dive> par </div> -->
+
   <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 10px 0 10px; box-sizing: border-box;">
     <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un bon plan (Gratuit / Carburant)</button>
   </div>
