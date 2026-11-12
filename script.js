@@ -7706,6 +7706,7 @@ const translations = {
     }
   }
 
+// Initialisation de la carte Leaflet
 function initMap() {
     console.log("🗺️ Initialisation de la carte...");
     const mapContainer = document.getElementById('map');
@@ -7721,21 +7722,41 @@ function initMap() {
             console.log("✅ Carte créée avec succès !");
         }
         
-        // Double actualisation pour forcer l'affichage des tuiles
         setTimeout(() => {
-            window.map.invalidateSize();
-        }, 300);
-
-        setTimeout(() => {
-            window.map.invalidateSize();
-        }, 800);
+            if (window.map && typeof window.map.invalidateSize === 'function') {
+                window.map.invalidateSize();
+            }
+        }, 250);
 
         if (typeof renderNomadSyncSpots === 'function') {
             renderNomadSyncSpots();
         }
     }
+// Centrer la carte sur la position de l'utilisateur
+function locateUser() {
+    console.log("📍 Localisation de l'utilisateur...");
+    if (window.map) {
+        window.map.locate({ setView: true, maxZoom: 16 });
+    } else {
+        console.error("La carte n'est pas initialisée.");
+    }
 }
 
+// Afficher ou masquer le formulaire d'ajout de spot
+function toggleAddSpotForm() {
+    console.log("➕ Gestion du formulaire d'ajout...");
+    const form = document.getElementById('add-spot-form') || document.getElementById('spotForm');
+    if (form) {
+        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+    } else {
+        console.warn("Formulaire d'ajout introuvable dans le HTML.");
+    }
+}
+
+// Rendre les fonctions accessibles globalement pour les boutons HTML
+window.initMap = initMap;
+window.locateUser = locateUser;
+window.toggleAddSpotForm = toggleAddSpotForm;
 function chargerMeteo(lat, lng) {
     console.log("📍 Coordonnées reçues :", lat, lng);
     const currentMonthYear = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date());
