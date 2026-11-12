@@ -7737,12 +7737,19 @@ function initMap() {
 // Centrer la carte sur la position de l'utilisateur
 function locateUser() {
     console.log("📍 Localisation de l'utilisateur...");
+    
+    // Si la carte n'est pas encore créée, on l'initialise à la volée
+    if (!window.map && typeof initMap === 'function') {
+        initMap();
+    }
+
     if (window.map && typeof window.map.locate === 'function') {
         window.map.locate({ setView: true, maxZoom: 16 });
     } else {
         console.error("La carte n'est pas initialisée.");
     }
 }
+
 // Afficher ou masquer le formulaire d'ajout de spot
 function toggleAddSpotForm() {
     console.log("➕ Gestion du formulaire d'ajout...");
