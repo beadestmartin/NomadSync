@@ -7710,25 +7710,17 @@ const translations = {
 function initMap() {
     console.log("🗺️ Initialisation de la carte...");
     const mapContainer = document.getElementById('map');
-    if (!mapContainer) {
-        console.error("❌ Conteneur 'map' introuvable dans le HTML.");
-        return;
-    }
+    if (!mapContainer) return;
 
-    if (typeof L === 'undefined') {
-        console.error("❌ ERREUR : La bibliothèque Leaflet (L) n'est pas chargée. Vérifie tes balises <script> dans le <head>.");
-        return;
-    }
-
-    if (!window.map) {
-        window.map = L.map('map').setView([46.603354, 1.888334], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(window.map);
-        console.log("✅ Carte créée avec succès !");
-    }
-}
+    if (typeof L !== 'undefined') {
+        if (!window.map) {
+            window.map = L.map('map').setView([46.603354, 1.888334], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(window.map);
+            console.log("✅ Carte créée avec succès !");
+        }
         
         setTimeout(() => {
             if (window.map && typeof window.map.invalidateSize === 'function') {
@@ -7740,6 +7732,7 @@ function initMap() {
             renderNomadSyncSpots();
         }
     }
+}
 
 // Centrer la carte sur la position de l'utilisateur
 function locateUser() {
@@ -7750,7 +7743,6 @@ function locateUser() {
         console.error("La carte n'est pas initialisée.");
     }
 }
-
 // Afficher ou masquer le formulaire d'ajout de spot
 function toggleAddSpotForm() {
     console.log("➕ Gestion du formulaire d'ajout...");
