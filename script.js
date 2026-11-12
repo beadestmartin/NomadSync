@@ -7707,6 +7707,7 @@ const translations = {
   }
 
 // Initialisation de la carte Leaflet
+// Initialisation de la carte Leaflet
 function initMap() {
     console.log("🗺️ Initialisation de la carte...");
     const mapContainer = document.getElementById('map');
@@ -7732,10 +7733,12 @@ function initMap() {
             renderNomadSyncSpots();
         }
     }
+}
+
 // Centrer la carte sur la position de l'utilisateur
 function locateUser() {
     console.log("📍 Localisation de l'utilisateur...");
-    if (window.map) {
+    if (window.map && typeof window.map.locate === 'function') {
         window.map.locate({ setView: true, maxZoom: 16 });
     } else {
         console.error("La carte n'est pas initialisée.");
@@ -7757,6 +7760,7 @@ function toggleAddSpotForm() {
 window.initMap = initMap;
 window.locateUser = locateUser;
 window.toggleAddSpotForm = toggleAddSpotForm;
+
 function chargerMeteo(lat, lng) {
     console.log("📍 Coordonnées reçues :", lat, lng);
     const currentMonthYear = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date());
