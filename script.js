@@ -7708,45 +7708,59 @@ const translations = {
 
 // Initialisation de la carte Leaflet
 function initMap() {
-    console.log("🗺️ Initialisation de la carte...");
+    console.log("🗺️ Tentative d'initialisation de la carte...");
+    
     const mapContainer = document.getElementById('map');
-    if (!mapContainer) return;
+    if (!mapContainer) {
+        console.error("❌ ERREur : Aucun élément HTML avec l'id 'map' n'a été trouvé !");
+        return;
+    }
 
-    if (typeof L !== 'undefined') {
-        if (!window.map) {
+    if (typeof L === 'undefined') {
+        console.error("❌ ERREUR : La bibliothèque Leaflet (L) n'est pas chargée ou est inaccessible !");
+        return;
+    }
+
+    if (!window.map) {
+        try {
             window.map = L.map('map').setView([46.603354, 1.888334], 6);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '© OpenStreetMap contributors'
             }).addTo(window.map);
-            console.log("✅ Carte créée avec succès !");
+            console.log("✅ Carte créée et affichée avec succès !");
+        } catch (e) {
+            console.error("❌ ERREUR lors de la création Leaflet :", e);
+            return;
         }
-        
-        setTimeout(() => {
-            if (window.map && typeof window.map.invalidateSize === 'function') {
-                window.map.invalidateSize();
-            }
-        }, 250);
+    } else {
+        console.log("ℹ️ La carte existait déjà.");
+    }
 
-        if (typeof renderNomadSyncSpots === 'function') {
-            renderNomadSyncSpots();
+    setTimeout(() => {
+        if (window.map && typeof window.map.invalidateSize === 'function') {
+            window.map.invalidateSize();
         }
+    }, 250);
+
+    if (typeof renderNomadSyncSpots === 'function') {
+        renderNomadSyncSpots();
     }
 }
 
-// Centrer la carte sur la position de l'utilisateur
 function locateUser() {
-    console.log("📍 Localisation de l'utilisateur...");
+    console.log("📍 Clic sur 'Ma position'...");
     
-    // Si la carte n'est pas encore créée, on l'initialise à la volée
-    if (!window.map && typeof initMap === 'function') {
+    if (!window.map) {
+        console.log("⚠️ window.map est vide, on force l'initialisation...");
         initMap();
     }
 
     if (window.map && typeof window.map.locate === 'function') {
         window.map.locate({ setView: true, maxZoom: 16 });
+        console.log("🎯 Localisation demandée.");
     } else {
-        console.error("La carte n'est pas initialisée.");
+        console.error("❌ ÉCHEC FINAL : Impossible de lancer locate(), window.map est toujours introuvable.");
     }
 }
 
