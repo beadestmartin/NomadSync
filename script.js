@@ -7188,6 +7188,9 @@ function renderNomadSyncSpots() {
     markersGroup.addLayer(marker);
   });
 }
+function toggleFilter(valeurFiltre) {
+    console.log("Filtre sélectionné :", valeurFiltre);
+}
 
 function exportSpotsJSON() {
     const customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
