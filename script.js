@@ -7811,6 +7811,8 @@ window.addEventListener('DOMContentLoaded', () => {
         changeLanguage(savedLang);
     }
 
+    if (typeof loadSavedData === 'function') {
+        loadSavedData();
     }
 
     if (typeof initMap === 'function') {
@@ -7820,6 +7822,5 @@ window.addEventListener('DOMContentLoaded', () => {
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+        navigator.serviceWorker.register('sw.js').catch(() => {});
     });
-}
