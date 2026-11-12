@@ -7707,7 +7707,6 @@ const translations = {
   }
 
 // Initialisation de la carte Leaflet
-// Initialisation de la carte Leaflet
 function initMap() {
     console.log("🗺️ Initialisation de la carte...");
     const mapContainer = document.getElementById('map');
@@ -7823,5 +7822,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (typeof verifierStatut === 'function') {
         verifierStatut();
+    }
+
+    // Lance l'affichage de la carte au chargement
+    if (typeof initMap === 'function') {
+        initMap();
     }
 });
