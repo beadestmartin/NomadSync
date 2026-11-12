@@ -6983,18 +6983,21 @@ let filteredWaterPoints = rawWaterPoints.filter(spot => {
 });
 
 const typeIcons = { 
+  aire: '🚐', 
   free: '🚐', 
   parking: '🅿️', 
+  sauvage: '🏕️', 
   'Dodo sauvage': '🏕️', 
   wild: '🏕️', 
   nature: '🌙', 
+  ferme: '🚜', 
   farm: '🚜', 
-  fuel: '⛽', 
   carburant: '⛽', 
-  water: '💧', 
+  fuel: '⛽', 
   eau: '💧', 
-  drain: '🚰', 
-  vidange: '🚰' 
+  water: '💧', 
+  vidange: '🚰', 
+  drain: '🚰' 
 };
 
 // 1. Tes fiches de voyage validées
@@ -7808,23 +7811,19 @@ function handleAddNewSpot(event) {
     const category = document.getElementById('newSpotType').value;
     const photoInput = document.getElementById('newSpotPhoto');
 
-    // Récupération des spots existants ou création d'un tableau vide
     let spots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
 
-    // Création du nouvel objet spot
     const newSpot = {
         id: Date.now(),
         name: name,
         address: address,
-        category: category, // Valeurs normalisées (parking, aire, ferme, nature, sauvage, eau, vidange, carburant)
+        category: category,
         photo: photoInput.files && photoInput.files[0] ? URL.createObjectURL(photoInput.files[0]) : null
     };
 
-    // Ajout et sauvegarde
     spots.push(newSpot);
     localStorage.setItem('nomadSyncSpots', JSON.stringify(spots));
 
-    // Réinitialisation du formulaire et fermeture
     event.target.reset();
     if (typeof toggleAddSpotForm === 'function') {
         toggleAddSpotForm();
@@ -7832,11 +7831,30 @@ function handleAddNewSpot(event) {
 
     alert('Bon plan enregistré avec succès !');
     
-    // Recharge la carte si la fonction existe
     if (typeof loadSpots === 'function') {
         loadSpots();
     }
 }
+
+function loadSpots() {
+    if (typeof map === 'undefined' && typeof leafletMap === 'undefined') return;
+    const activeMap = typeof leafletMap !== 'undefined' ? leafletMap : map;
+
+    const spots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
+
+    spots.forEach(spot => {
+        if (spot.lat && spot.lng) {
+            const emoji = typeIcons[spot.category] || '📍';
+            L.marker([spot.lat, spot.lng])
+              .addTo(activeMap)
+              .bindPopup(`<b>${emoji} ${spot.name}</b><br>${spot.address}<br><em>Catégorie : ${spot.category}</em>`);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadSpots();
+});
 
 // Expositions globales pour les boutons HTML
 window.initMap = initMap;
