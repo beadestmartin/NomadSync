@@ -7154,14 +7154,13 @@ routeLine = null;
 isOffline = false;
 
 // Déclaration sécurisée des tableaux pour éviter les erreurs au chargement
-if (typeof filteredSpots === 'undefined') var filteredSpots = [];
-if (typeof filteredWaterPoints === 'undefined') var filteredWaterPoints = [];
-if (typeof rawNaturePoints === 'undefined') var rawNaturePoints = [];
-if (typeof rawFarmPoints === 'undefined') var rawFarmPoints = [];
-if (typeof rawFuelPoints === 'undefined') var rawFuelPoints = [];
-if (typeof rawDrainPoints === 'undefined') var rawDrainPoints = [];
-if (typeof nomadSyncSpots === 'undefined') var nomadSyncSpots = [];
-
+if (typeof filteredSpots === 'undefined') filteredSpots = [];
+if (typeof filteredWaterPoints === 'undefined') filteredWaterPoints = [];
+if (typeof rawNaturePoints === 'undefined') rawNaturePoints = [];
+if (typeof rawFarmPoints === 'undefined') rawFarmPoints = [];
+if (typeof rawFuelPoints === 'undefined') rawFuelPoints = [];
+if (typeof rawDrainPoints === 'undefined') rawDrainPoints = [];
+if (typeof nomadSyncSpots === 'undefined') nomadSyncSpots = [];
 // Fusion des spots personnalisés du stockage local
 let customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
 
