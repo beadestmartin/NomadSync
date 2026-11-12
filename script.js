@@ -7715,7 +7715,7 @@ function chargerMeteo(lat, lng) {
           alertHtml = `<strong>Conditions (${currentMonthYear}) :</strong> 🟢 Calme (${windSpeed} km/h, ${temp}°C) - Conditions favorables.`;
         }
 
-        const weatherWidget = document.querySelector('.weather-current-text');
+        const weatherWidget = document.querySelector('#meteo-status');
         if(weatherWidget) {
           weatherWidget.innerHTML = alertHtml;
         }
