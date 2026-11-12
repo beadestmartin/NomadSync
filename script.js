@@ -7706,28 +7706,27 @@ const translations = {
     }
   }
 
-let map = null; // On déclare la carte en dehors pour qu'elle soit accessible partout
-
 function initMap() {
     console.log("🗺️ Initialisation de la carte...");
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
     if (typeof L !== 'undefined') {
-        map = L.map('map').setView([46.603354, 1.888334], 6);
+        window.map = L.map('map').setView([46.603354, 1.888334], 6);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+        }).addTo(window.map);
         
         console.log("✅ Carte affichée avec succès !");
         
-        // On force le calcul de la taille pour enlever le fond gris
         setTimeout(() => {
-            map.invalidateSize();
+            window.map.invalidateSize();
         }, 200);
 
-        renderNomadSyncSpots();
+        if (typeof renderNomadSyncSpots === 'function') {
+            renderNomadSyncSpots();
+        }
     }
 }
 
