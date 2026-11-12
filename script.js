@@ -7740,7 +7740,6 @@ function initMap() {
             renderNomadSyncSpots();
         }
     }
-}
 
 // Centrer la carte sur la position de l'utilisateur
 function locateUser() {
