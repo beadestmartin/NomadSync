@@ -7800,6 +7800,43 @@ function changeLanguage(lang) {
     }
     localStorage.setItem('nomadsync_lang', lang);
 }
+function handleAddNewSpot(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('newSpotName').value;
+    const address = document.getElementById('newSpotAddress').value;
+    const category = document.getElementById('newSpotType').value;
+    const photoInput = document.getElementById('newSpotPhoto');
+
+    // Récupération des spots existants ou création d'un tableau vide
+    let spots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
+
+    // Création du nouvel objet spot
+    const newSpot = {
+        id: Date.now(),
+        name: name,
+        address: address,
+        category: category, // Valeurs normalisées (parking, aire, ferme, nature, sauvage, eau, vidange, carburant)
+        photo: photoInput.files && photoInput.files[0] ? URL.createObjectURL(photoInput.files[0]) : null
+    };
+
+    // Ajout et sauvegarde
+    spots.push(newSpot);
+    localStorage.setItem('nomadSyncSpots', JSON.stringify(spots));
+
+    // Réinitialisation du formulaire et fermeture
+    event.target.reset();
+    if (typeof toggleAddSpotForm === 'function') {
+        toggleAddSpotForm();
+    }
+
+    alert('Bon plan enregistré avec succès !');
+    
+    // Recharge la carte si la fonction existe
+    if (typeof loadSpots === 'function') {
+        loadSpots();
+    }
+}
 
 // Expositions globales pour les boutons HTML
 window.initMap = initMap;
