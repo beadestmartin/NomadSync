@@ -7808,6 +7808,7 @@ window.locateUser = locateUser;
 window.switchTab = switchTab;
 window.calculateAndDrawRoute = calculateAndDrawRoute;
 window.checkMeteoAlert = checkMeteoAlert;
+window.toggleAddSpotForm = toggleAddSpotForm;
 
 // Lancement global au chargement du DOM
 window.addEventListener('DOMContentLoaded', () => {
