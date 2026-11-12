@@ -7150,12 +7150,25 @@ function renderNomadSyncSpots() {
   if (!markersGroup) return;
   markersGroup.clearLayers();
 
-  nomadSyncSpots.forEach(spot => {
-    let markerColor = '#D4621A';
-    if (spot.category === 'nature') markerColor = '#2A1A0E';
-    if (spot.category === 'parking') markerColor = '#555555';
+  // Récupère la valeur du filtre actuel (par exemple 'all', 'R', 'parking', 'Ove', 'vidange', 'ferme')
+  const activeFilter = document.getElementById('filterSelect') ? document.getElementById('filterSelect').value : 'all';
 
-    const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${spot.icon}</div>`;
+  nomadSyncSpots.forEach(spot => {
+    // Si un filtre est actif et ne correspond pas au type/catégorie du spot, on passe au suivant
+    if (activeFilter && activeFilter !== 'all' && spot.type !== activeFilter && spot.category !== activeFilter) {
+      return;
+    }
+
+    let markerColor = '#D4621A'; // Couleur par défaut
+    
+    // Adaptation avec les valeurs normalisées
+    if (spot.type === 'parking' || spot.category === 'parking') markerColor = '#555555';
+    if (spot.type === 'Ove') markerColor = '#1E90FF';    // Bleu pour l'eau
+    if (spot.type === 'vidange') markerColor = '#8B4513'; // Marron pour la vidange
+    if (spot.type === 'ferme') markerColor = '#228B22';   // Vert pour les fermes
+    if (spot.type === 'R' || spot.category === 'nature') markerColor = '#2A1A0E';
+
+    const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${spot.icon || '📍'}</div>`;
     
     const customIcon = L.divIcon({
       className: 'nomadsync-custom-marker',
@@ -7164,6 +7177,15 @@ function renderNomadSyncSpots() {
       iconAnchor: [15, 15]
     });
 
+    // Ajout effectif du marqueur sur la carte avec ses coordonnées (lat, lon)
+    if (spot.lat && spot.lon) {
+      const marker = L.marker([spot.lat, spot.lon], { icon: customIcon });
+      if (spot.name) {
+        marker.bindPopup(`<b>${spot.name}</b><br>Type: ${spot.type || spot.category}`);
+      }
+      markersGroup.addLayer(marker);
+    }
+  
     const marker = L.marker([spot.lat, spot.lng], { icon: customIcon });
 
     let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + spot.lat + ',' + spot.lng;
@@ -7682,7 +7704,7 @@ const translations = {
         tab3: "🚐 Füllstände & Van",
         tab4: "🛡️ Infos & Sicherheit"
     }
-};
+  }
 
 function initMap() {
     console.log("🗺️ Initialisation de la carte...");
@@ -7696,8 +7718,9 @@ function initMap() {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
         console.log("✅ Carte affichée avec succès !");
+        renderNomadSyncSpots();
     }
-}
+  }
 
 function chargerMeteo(lat, lng) {
     console.log("📍 Coordonnées reçues :", lat, lng);
