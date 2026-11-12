@@ -7525,11 +7525,10 @@ function handleSearch(e) {
 }
 
 function toggleAddSpotForm() {
-    const form = document.getElementById('addSpotForm');
+    const form = document.getElementById('add-spot-form');
     if (form) {
         form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
     }
-}
 
 function switchTab(tab) {
     const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
