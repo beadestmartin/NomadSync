@@ -7756,8 +7756,12 @@ function loadSavedData() {
     });
 
     renderFuelExpenses();
-}
 
+    // <-- C'EST ICI QU'ON AJOUTE L'AFFICHAGE DE TES SPOTS :
+    if (typeof renderNomadSyncSpots === 'function') {
+        renderNomadSyncSpots();
+    }
+}
 // ==========================================
 // MÉTÉO ET INITIALISATION FINALE
 // ==========================================
