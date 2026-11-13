@@ -7262,6 +7262,67 @@ function locateUser() {
         leafletMap.locate({ setView: true, maxZoom: 16 });
     }
 }
+
+async function calculateAndDrawRoute() {
+    const startText = document.getElementById('startInput').value;
+    const destText = document.getElementById('destInput').value;
+    const resultDiv = document.getElementById('route-result');
+    
+    if (!startText || !destText) {
+      alert("Veuillez renseigner un départ et une arrivée.");
+      return;
+    }
+
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = "⏳ Calcul de l'itinéraire en cours...";
+
+    try {
+      const startRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(startText)}`);
+      const startData = await startRes.json();
+      if (!startData.length) throw new Error("Départ introuvable.");
+
+      const destRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destText)}`);
+      const destData = await destRes.json();
+      if (!destData.length) throw new Error("Arrivée introuvable.");
+
+      const startCoord = [parseFloat(startData[0].lon), parseFloat(startData[0].lat)];
+      const destCoord = [parseFloat(destData[0].lon), parseFloat(destData[0].lat)];
+
+      const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${startCoord[0]},${startCoord[1]};${destCoord[0]},${destCoord[1]}?overview=full&geometries=geojson`);
+      const routeData = await routeRes.json();
+
+      if (!routeData.routes || !routeData.routes.length) throw new Error("Impossible de calculer la route.");
+
+      const route = routeData.routes[0];
+      const distanceKm = (route.distance / 1000).toFixed(1);
+      const durationMin = Math.round(route.duration / 60);
+      const hours = Math.floor(durationMin / 60);
+      const mins = durationMin % 60;
+      const timeStr = hours > 0 ? `${hours}h${mins > 0 ? mins + 'min' : ''}` : `${mins} min`;
+
+      const conso = parseFloat(document.getElementById('specConso').value);
+      const priceL = parseFloat(document.getElementById('specPrice').value);
+      const cost = ((distanceKm * conso / 100) * priceL).toFixed(2);
+
+      resultDiv.innerHTML = `<b>📊 Itinéraire réel tracé :</b><br>
+        • Distance : <b>${distanceKm} km</b> | Durée estimée : <b>${timeStr}</b><br>
+        • Coût carburant estimé : <b>~${cost} €</b><br>
+        • Gabarit pris en compte (Hauteur ${document.getElementById('specH').value}m).`;
+
+      if (typeof routeLine !== 'undefined' && routeLine && leafletMap) {
+        leafletMap.removeLayer(routeLine);
+      }
+      const latLngs = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+      
+      if (typeof L !== 'undefined' && leafletMap) {
+        routeLine = L.polyline(latLngs, { color: '#D4621A', weight: 5, opacity: 0.8 }).addTo(leafletMap);
+        leafletMap.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+      }
+
+    } catch (err) {
+      resultDiv.innerHTML = `❌ Erreur : ${err.message}`;
+    }
+}
 // ==========================================
 // GESTION DES MARQUEURS ET SPOTS
 // ==========================================
