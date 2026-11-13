@@ -7410,11 +7410,7 @@ function renderNomadSyncSpots() {
 // RECHERCHE, UI ET UTILITAIRES
 // ==========================================
 function toggleFilter(valeurFiltre) {
-    const filterSelect = document.getElementById('servicesFilter');
-    if (filterSelect) {
-        filterSelect.value = valeurFiltre;
-    }
-    renderNomadSyncSpots();
+    console.log("Filtre sélectionné :", valeurFiltre);
 }
 
 function exportSpotsJSON() {
