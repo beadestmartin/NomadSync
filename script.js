@@ -7347,7 +7347,12 @@ function renderNomadSyncSpots() {
   // 2. Correction de l'ID du filtre (servicesFilter au lieu de filterSelect)
   const activeFilter = document.getElementById('servicesFilter') ? document.getElementById('servicesFilter').value : 'all';
 
-  nomadSyncSpots.forEach(spot => {
+  const localSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
+  const allDisplaySpots = (typeof spots !== 'undefined' && Array.isArray(spots))
+    ? [...spots, ...localSpots]
+    : [...nomadSyncSpots, ...localSpots];
+
+  allDisplaySpots.forEach(spot => {
     if (activeFilter && activeFilter !== 'all' && spot.type !== activeFilter && spot.category !== activeFilter) {
       return;
     }
