@@ -7389,7 +7389,7 @@ filteredWaterPoints = rawWaterPoints.filter(spot => {
     return !isForbidden && !isDuplicate;
 });
 
-// 2. Fonction stricte pour attribuer une seule catégorie exclusive à chaque spot
+// Fonction de tri avec priorité stricte (le parking l'emporte sur le sauvage si c'en est un)
 function getSpotCategory(spot) {
     const cat = (spot.category || '').toLowerCase();
     const type = (spot.type || '').toLowerCase();
@@ -7399,11 +7399,14 @@ function getSpotCategory(spot) {
     if (type === 'point_eau' || cat === 'eau' || cat === 'water' || (cat.includes('eau') && !cat.includes('aire'))) return 'water';
     if (type === 'borne_vidange' || type === 'waste' || cat === 'vidange' || cat === 'drain' || cat.includes('vidange') || name.includes('vidange')) return 'drain';
     if (cat.includes('ferme') || cat.includes('farm') || cat.includes('vignoble') || type.includes('ferme')) return 'farm';
-    if (cat.includes('sauvage') || cat.includes('wild') || cat.includes('bivouac') || type.includes('nuit_toleree')) return 'wild';
-    if (cat.includes('nature') || type === 'nature') return 'nature';
+    
+    // Le parking est prioritaire pour éviter qu'un parking ne bascule en sauvage
     if (cat.includes('parking') || type.includes('parking') || cat.includes('park')) return 'parking';
     
-    return 'aire'; // Par défaut pour les véritables aires de camping-car
+    if (cat.includes('nature') || type === 'nature') return 'nature';
+    if (cat.includes('sauvage') || cat.includes('wild') || cat.includes('bivouac') || type.includes('nuit_toleree')) return 'wild';
+    
+    return 'aire'; // Par défaut pour les aires de camping-car
 }
 
 function loadSpots() {
@@ -7416,7 +7419,7 @@ function loadSpots() {
 
     const activeFilter = window.activeSpotFilter && window.activeSpotFilter !== 'all' 
         ? window.activeSpotFilter 
-        : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter').value : 'all');
+        : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter'].value : 'all');
 
     const localSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
     const t = translations[currentLang] || translations.fr;
@@ -7424,6 +7427,13 @@ function loadSpots() {
     const allDisplaySpots = [...spots, ...localSpots];
 
     for (const spot of allDisplaySpots) {
+        const lat = spot.lat;
+        const lng = spot.lng || spot.lon;
+        if (!lat || !lng) continue;
+
+        // Filtre géographique strict : on ne garde que l'Europe (adieu la Colombie et les bugs lointains)
+        if (lat < 35 || lat > 60 || lng < -10 || lng > 20) continue;
+
         const spotCat = getSpotCategory(spot);
 
         if (activeFilter && activeFilter !== 'all') {
@@ -7451,10 +7461,6 @@ function loadSpots() {
 
             if (!matches) continue;
         }
-
-        const lat = spot.lat;
-        const lng = spot.lng || spot.lon;
-        if (!lat || !lng) continue;
 
         let markerColor = '#D4621A';
         let emoji = spot.icon || '🚐';
