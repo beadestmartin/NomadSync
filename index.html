@@ -1,47 +1,37 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" data-theme="terracotta">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="title">NomadSync</title>
-
-  <!-- Feuille de style Leaflet obligatoire pour l'affichage de la carte -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-  <!-- Configuration pour l'installation sur l'écran d'accueil (PWA) -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#D4621A">
-
-  <style>
-    /* En-tête en ligne : Titre/logo à gauche, sélecteurs compacts à droite */
-    .header-card, .top-bar, .card-header {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: wrap !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-    }
-
-    /* Bloc contenant les deux listes déroulantes */
-    .header-controls, div:has(#langSelect) {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 6px !important;
-        width: auto !important;
-        margin: 0 !important;
-    }
-
-    /* Taille ultra-compacte pour tenir sur le côté */
-    #langSelect, #languageSelect, #vanSelect {
-        display: inline-block !important;
-        width: 75px !important;
-        min-width: 60px !important;
-        max-width: 90px !important;
-        flex: 0 0 auto !important;
-        padding: 4px !important;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title">NomadSync</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#D4621A">
+    <style>
+        .header-card, .top-bar, .card-header {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+        .header-controls, div:has(#langSelect) {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 6px !important;
+            width: auto !important;
+            margin: 0 !important;
+        }
+        #langSelect, #languageSelect, #vanSelect {
+            display: inline-block !important;
+            width: 75px !important;
+            min-width: 60px !important;
+            max-width: 90px !important;
+            flex: 0 0 auto !important;
+            padding: 4px !important;
+        }
+    </style>
+</head>
 </head>
     :root {
       --bg-color: #f7f2ea;
