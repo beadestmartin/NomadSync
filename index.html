@@ -14,8 +14,11 @@
   <meta name="theme-color" content="#D4621A">
 
   <style>
-    select {
+    /* Forcer la taille normale des menus déroulants et bloquer l'étirement flexbox */
+select, #languageSelect, #vanSelect {
     width: auto !important;
+    max-width: 160px !important;
+    flex: 0 0 auto !important;
     display: inline-block !important;
 }
     :root {
