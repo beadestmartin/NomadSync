@@ -3706,6 +3706,230 @@ let rawSpots = [
     description: 'Belle aire de camping-car communale gratuite comprenant environ 20 emplacements bien délimités. Bruit de route présent mais supportable. Service d\'eau payant par jeton dans les commerces du village (5 € pour 150 L), vidanges gratuites.',
     services: { water: true, electricity: false, waste: true },
     photo: ''
+  },
+  {
+    name: 'Lac du Ternay - Dodo Sauvage',
+    category: 'Dodo sauvage',
+    address: 'Lac du Ternay, 07100 Saint-Marcel-lès-Annonay, France',
+    lat: 45.3095,
+    lng: 4.6366,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Bivouac sauvage',
+    ground: 'Terre / Herbe',
+    petsAllowed: true,
+    description: 'Spot nature discret repéré à proximité du lac du Ternay et des chemins forestiers.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Spot Sauvage - Le Bessat',
+    category: 'Dodo sauvage',
+    address: 'Le Bessat, 42660 Le Bessat, France',
+    lat: 45.363958,
+    lng: 4.523831,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Bivouac sauvage',
+    ground: 'Stabilisé / Nature',
+    petsAllowed: true,
+    description: 'Spot secret et calme en pleine nature repéré sur le chemin au Bessat.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Dodo Sauvage - Sarlat-la-Canéda',
+    category: 'Dodo sauvage',
+    address: 'Rte Frédéric Mistral, 24200 Sarlat-la-Canéda, France',
+    lat: 44.877951,
+    lng: 1.222516,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Nuitée discrète',
+    ground: 'Stabilisé / Terre',
+    petsAllowed: true,
+    description: 'Petit coin circulaire d\'environ 4 places au pied d\'une falaise boisée. Proche des commerces et du centre-ville en vélo (2 min). Idéal pour un dodo au calme.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Dodo Sauvage - Sisteron (Chemin de Chantereine)',
+    category: 'Dodo sauvage',
+    address: '21 Chem. de Chantereine, 04200 Sisteron, France',
+    lat: 44.1936,
+    lng: 5.9361,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Nuitée discrète',
+    ground: 'Stabilisé / Terre',
+    petsAllowed: true,
+    description: 'Petit coin tranquille pour un dodo sauvage le long du Chemin de Chantereine à Sisteron, près d\'une petite construction.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Spot Nature - Camino del Manso (Los Santos de la Humosa)',
+    category: 'Dodo sauvage',
+    address: 'Cam. del Manso, 28817 Los Santos de la Humosa, Espagne',
+    lat: 40.505000,
+    lng: -3.275000,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Nuitée tolérée (Spot nature)',
+    ground: 'Terre / Herbe',
+    petsAllowed: true,
+    description: 'Piste rurale en pleine zone agricole sur les hauteurs. Emplacement isolé au calme, accessible aux fourgons et camping-cars légers par beau temps. Terrain en terre pouvant devenir glissant en cas de pluie. Strictement inadapté aux poids lourds et véhicules à double essieu (voie étroite, absence de zone de retournement).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Spot Rivière Tajuña - Tielmes',
+    category: 'Dodo sauvage',
+    address: 'Tielmes, 28550 Madrid, Espagne',
+    lat: 40.241529,
+    lng: -3.312860,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Nuitée tolérée (Spot nature)',
+    ground: 'Terre',
+    petsAllowed: true,
+    description: 'Petit coin calme en sous-bois au bord de la rivière Tajuña, en cul-de-sac loin de la route principale. Emplacement ombragé près de la zone de pique-nique. Capacité limitée à 2 ou 3 véhicules maximum. Accès par chemin en terre ; strictement réservé aux fourgons et camping-cars courts, déconseillé aux poids lourds.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Cala Blanca - Spot Sauvage',
+    category: 'Dodo sauvage',
+    address: 'Diseminado Garrobillo, 27, 30876 Lorca (Murcie), Espagne',
+    lat: 37.483555,
+    lng: -1.462179,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée (Discrétion requise)',
+    ground: 'Terre / Naturel',
+    petsAllowed: true,
+    description: 'Magnifique crique isolée et sauvage sur la côte de Murcie. Spot idéal pour le calme et la nature. À préserver absolument : discrétion et respect des lieux exigés.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Portmán - Surplomb Baie',
+    category: 'Dodo sauvage',
+    address: 'Carthagène, 30389, Murcie, Espagne',
+    lat: 37.581934,
+    lng: -0.839973,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Nuitée discrète',
+    ground: 'Piste en terre et chemins secondaires',
+    petsAllowed: true,
+    description: 'Superbes emplacements nichés sur la falaise avec une vue magnifique sur la baie et la Méditerranée. Plusieurs petits chemins secondaires desservant des alvéoles isolées. Recommandations : pistes du bas très pentues, idéal pour vans/fourgons ou gabarits raisonnables (reconnaissance à pied conseillée, privilégier le haut si trop escarpé).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Almenara - Platja de Casablanca (Dodo Sauvage)',
+    category: 'Dodo sauvage',
+    address: '12590 Casablanca / Almenara, Castellón, Espagne',
+    lat: 39.754942,
+    lng: -0.172985,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Bivouac / Nuitée sauvage',
+    ground: 'Terre / Sable / Herbe',
+    petsAllowed: true,
+    description: 'Grand espace naturel très espacé le long du littoral et des dunes, au nord du pont de la Séquia de Noguera. Zone totalement brute (non goudronnée) à deux pas de la plage de galets. Aucun service sur place : rester très discret et laisser le site propre.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Bord du Canal / Épannes',
+    category: 'Dodo sauvage',
+    address: 'Chemin du Canal, 79270 Épannes, France',
+    lat: 46.233703,
+    lng: -0.565917,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée et très calme',
+    ground: 'Herbe / Ombragé / Plat',
+    petsAllowed: true,
+    description: 'Spot de dodo sauvage très calme, situé entre la rivière La Mère et le canal de La Courance. Emplacement intimiste à faible capacité (2 à 3 véhicules max). Terrain plat sous les arbres sans service, idéal pour un bivouac en pleine nature.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Bord de Boutonne / Nuillé',
+    category: 'Dodo sauvage',
+    address: 'Nuillé-sur-Boutonne, 17470 Rives-de-Boutonne, France',
+    lat: 46.027876,
+    lng: -0.422930,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Nuitée autorisée et calme',
+    ground: 'Terre / Ombragé sous les arbres',
+    petsAllowed: true,
+    description: 'Lieu simple en pleine forêt à proximité immédiate d\'un cours d\'eau. Ombragé, moins fréquenté et très calme. Capacité d\'environ 5 véhicules, idéal pour un dodo sauvage en immersion totale.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Chemin de Pêch Roussel / Cézac',
+    category: 'Dodo sauvage',
+    address: 'Chemin de Pêch Roussel, 46170 Cézac, France',
+    lat: 44.362629,
+    lng: 1.315659,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Nuitée très calme et isolée',
+    ground: 'Chemin de terre / Nature',
+    petsAllowed: true,
+    description: 'Spot de dodo sauvage situé sur un chemin de terre calme et désert, à environ 2 km à l\'est de la route principale. Environnement naturel préservé, capacité limitée à 2 emplacements, idéal pour un bivouac intimiste en toute tranquillité.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Vue sur le Quercy / Pern',
+    category: 'Dodo sauvage',
+    address: 'Pern, 46170 Pern-Lhospitalet, France',
+    lat: 44.332488,
+    lng: 1.388560,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Nuitée très calme',
+    ground: 'Nature / Panoramique',
+    petsAllowed: true,
+    description: 'Super petit coin avec une vue imprenable sur le Quercy, situé à proximité d\'une route très calme (zéro voiture sur 24 heures). Capacité de 3 places, idéal pour un dodo sauvage en immersion sur le chemin de Saint-Jacques (voie de Moissac).',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
+  },
+  {
+    name: 'Panorama du Quercy / Pern',
+    category: 'Dodo sauvage',
+    address: 'Pern, 46170 Pern-Lhospitalet, France',
+    lat: 44.335355,
+    lng: 1.390012,
+    type: 'wild',
+    icon: '🏕️',
+    price: 'Gratuit',
+    stay: 'Nuitée très calme',
+    ground: 'Chemin caillouteux / Herbe / Panoramique',
+    petsAllowed: true,
+    description: 'Super petit coin avec vue imprenable, idéal pour admirer les couchers et levers de soleil (présence de bancs). Attention : accès par un chemin caillouteux et en pente sur 50 mètres, réservé aux petits gabarits et véhicules agiles (déconseillé aux grands camping-cars). Nuit très silencieuse.',
+    services: { water: false, electricity: false, waste: false },
+    photo: ''
   }
   ];
 
@@ -7418,12 +7642,12 @@ function loadSpots() {
 
     const activeFilter = window.activeSpotFilter && window.activeSpotFilter !== 'all' 
         ? window.activeSpotFilter 
-        : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter').value : 'all');
+        : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter'].value : 'all');
 
     const localSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
     const t = translations[currentLang] || translations.fr;
+    const userIsVip = localStorage.getItem('nomadSyncVip') === 'true';
     
-    // --- ICI : On fusionne TOUTES les sources pour ne rien perdre ---
     const allDisplaySpots = [
         ...spots, 
         ...(typeof rawWaterPoints !== 'undefined' ? rawWaterPoints : []), 
@@ -7467,18 +7691,30 @@ function loadSpots() {
             if (!matches) continue;
         }
 
+        const isWildSpot = (spotCat === 'wild' || spot.vip === true);
+        const isLocked = isWildSpot && !userIsVip;
+
         let markerColor = '#D4621A';
         let emoji = spot.icon || '🚐';
 
-        if (spotCat === 'fuel') { markerColor = '#FF4500'; emoji = '⛽'; }
+        if (isWildSpot) {
+            if (userIsVip) {
+                markerColor = '#145A32'; // Vert forêt profond (VIP débloqué)
+                emoji = '🏕️';
+            } else {
+                markerColor = '#7F8C8D'; // Gris (verrouillé)
+                emoji = '🔒';
+            }
+        }
+        else if (spotCat === 'fuel') { markerColor = '#FF4500'; emoji = '⛽'; }
         else if (spotCat === 'water') { markerColor = '#1E90FF'; emoji = '💧'; }
         else if (spotCat === 'drain') { markerColor = '#8B4513'; emoji = '🚰'; }
         else if (spotCat === 'parking') { markerColor = '#555555'; emoji = '🅿️'; }
-        else if (spotCat === 'wild') { markerColor = '#2E8B57'; emoji = '🏕️'; }
         else if (spotCat === 'nature') { markerColor = '#2A1A0E'; emoji = '🌙'; }
         else if (spotCat === 'farm') { markerColor = '#228B22'; emoji = '🚜'; }
 
-        const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${emoji}</div>`;
+        const opacityStyle = isLocked ? 'opacity: 0.85;' : '';
+        const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); ${opacityStyle}">${emoji}</div>`;
 
         const customIcon = L.divIcon({
             className: 'nomadsync-custom-marker',
@@ -7496,16 +7732,29 @@ function loadSpots() {
         marker.bindPopup(`
             <div style="font-family: sans-serif; max-width: 240px;">
                 <h4 style="margin: 0 0 5px 0; color: #2A1A0E;">${spot.name || 'Lieu'}</h4>
-                <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${spot.category || spot.type || 'aire'}</span><br>
-                <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
-                <p style="margin: 3px 0; font-size: 12px;"><strong>${t.priceLabel}</strong> ${priceDisplay}</p>
-                <p style="margin: 3px 0; font-size: 12px;"><strong>${t.stayLabel}</strong> ${spot.stay || 'N/A'}</p>
-                ${spot.exchange ? `<p style="margin: 3px 0; font-size: 12px;"><strong>${t.exchangeLabel}</strong> ${spot.exchange}</p>` : ''}
-                ${spot.electricity ? `<p style="margin: 3px 0; font-size: 12px;"><strong>${t.elecLabel}</strong> ${spot.electricity}</p>` : ''}
-                <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
-                    <a href="${gmapsUrl}" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>
-                    <a href="${wazeUrl}" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>
-                </div>
+                <span style="font-size: 0.85em; background: ${isLocked ? '#ffeeba' : '#eee'}; color: ${isLocked ? '#856404' : '#333'}; padding: 2px 6px; border-radius: 4px;">
+                    ${isLocked ? '🔒 Dodo secret — Réservé VIP' : (spot.category || spot.type || 'aire')}
+                </span><br>
+                
+                ${isLocked ? `
+                    <p style="margin: 10px 0; font-size: 12px; color: #856404; background: #fff3cd; padding: 8px; border-radius: 4px; line-height: 1.4;">
+                        <strong>🌿 Espace Préservation & Discrétion</strong><br>Ce spot secret est restreint pour préserver la quiétude des lieux, éviter la surfréquentation et protéger la nature.
+                    </p>
+                    <button onclick="alert('Passez membre VIP pour débloquer l\\'adresse exacte et les coordonnées GPS !')" style="width: 100%; background: #145A32; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        🔓 Débloquer ce spot
+                    </button>
+                ` : `
+                    <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
+                    ${spot.description ? `<p style="margin: 5px 0; font-size: 12px; color: #333;">${spot.description}</p>` : ''}
+                    <p style="margin: 3px 0; font-size: 12px;"><strong>${t.priceLabel}</strong> ${priceDisplay}</p>
+                    <p style="margin: 3px 0; font-size: 12px;"><strong>${t.stayLabel}</strong> ${spot.stay || 'N/A'}</p>
+                    ${spot.exchange ? `<p style="margin: 3px 0; font-size: 12px;"><strong>${t.exchangeLabel}</strong> ${spot.exchange}</p>` : ''}
+                    ${spot.electricity ? `<p style="margin: 3px 0; font-size: 12px;"><strong>${t.elecLabel}</strong> ${spot.electricity}</p>` : ''}
+                    <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+                        <a href="${gmapsUrl}" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>
+                        <a href="${wazeUrl}" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>
+                    </div>
+                `}
             </div>
         `);
 
