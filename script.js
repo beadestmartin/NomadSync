@@ -7660,7 +7660,6 @@ function loadSpots() {
         const lng = spot.lng || spot.lon;
         if (!lat || !lng) continue;
 
-        // Filtre géographique strict (Europe)
         if (lat < 35 || lat > 60 || lng < -10 || lng > 20) continue;
 
         const spotCat = getSpotCategory(spot);
@@ -7699,10 +7698,10 @@ function loadSpots() {
 
         if (isWildSpot) {
             if (userIsVip) {
-                markerColor = '#145A32'; // Vert forêt profond (VIP débloqué)
+                markerColor = '#145A32';
                 emoji = '🏕️';
             } else {
-                markerColor = '#7F8C8D'; // Gris (verrouillé)
+                markerColor = '#7F8C8D';
                 emoji = '🔒';
             }
         }
@@ -7735,7 +7734,7 @@ function loadSpots() {
         if (isLocked) {
             popupContent += '<span style="font-size: 0.85em; background: #ffeeba; color: #856404; padding: 2px 6px; border-radius: 4px;">🔒 Dodo secret — Réservé VIP</span><br>';
             popupContent += '<p style="margin: 10px 0; font-size: 12px; color: #856404; background: #fff3cd; padding: 8px; border-radius: 4px; line-height: 1.4;"><strong>🌿 Espace Préservation & Discrétion</strong><br>Ce spot secret est restreint pour préserver la quiétude des lieux, éviter la surfréquentation et protéger la nature.</p>';
-            popupContent += '<button onclick="alert(\'Passez membre VIP pour débloquer l\\\'adresse exacte et les coordonnées GPS !\')" style="width: 100%; background: #145A32; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">🔓 Débloquer ce spot</button>';
+            popupContent += '<button onclick="alert(\'Passez membre VIP pour débloquer les coordonnées GPS et les infos complètes !\')" style="width: 100%; background: #145A32; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">🔓 Débloquer ce spot</button>';
         } else {
             popupContent += '<span style="font-size: 0.85em; background: #eee; color: #333; padding: 2px 6px; border-radius: 4px;">' + (spot.category || spot.type || 'aire') + '</span><br>';
             popupContent += '<p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ' + (spot.address || '') + '</p>';
