@@ -7714,7 +7714,7 @@ function loadSpots() {
         else if (spotCat === 'farm') { markerColor = '#228B22'; emoji = '🚜'; }
 
         const opacityStyle = isLocked ? 'opacity: 0.85;' : '';
-        const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); ${opacityStyle}">${emoji}</div>`;
+        const markerHtml = '<div style="background-color: ' + markerColor + '; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); ' + opacityStyle + '">' + emoji + '</div>';
 
         const customIcon = L.divIcon({
             className: 'nomadsync-custom-marker',
@@ -7725,8 +7725,8 @@ function loadSpots() {
 
         const marker = L.marker([lat, lng], { icon: customIcon });
 
-        const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-        const wazeUrl = `https://www.waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+        const gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng;
+        const wazeUrl = 'https://www.waze.com/ul?ll=' + lat + ',' + lng + '&navigate=yes';
         const priceDisplay = (!spot.price || spot.price.toLowerCase() === 'gratuit') ? t.free : spot.price;
 
         let popupContent = '<div style="font-family: sans-serif; max-width: 240px;">';
@@ -7735,7 +7735,7 @@ function loadSpots() {
         if (isLocked) {
             popupContent += '<span style="font-size: 0.85em; background: #ffeeba; color: #856404; padding: 2px 6px; border-radius: 4px;">🔒 Dodo secret — Réservé VIP</span><br>';
             popupContent += '<p style="margin: 10px 0; font-size: 12px; color: #856404; background: #fff3cd; padding: 8px; border-radius: 4px; line-height: 1.4;"><strong>🌿 Espace Préservation & Discrétion</strong><br>Ce spot secret est restreint pour préserver la quiétude des lieux, éviter la surfréquentation et protéger la nature.</p>';
-            popupContent += '<button onclick="alert(\'Passez membre VIP pour débloquer l\'adresse exacte et les coordonnées GPS !\')" style="width: 100%; background: #145A32; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">🔓 Débloquer ce spot</button>';
+            popupContent += '<button onclick="alert(\'Passez membre VIP pour débloquer l\\\'adresse exacte et les coordonnées GPS !\')" style="width: 100%; background: #145A32; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">🔓 Débloquer ce spot</button>';
         } else {
             popupContent += '<span style="font-size: 0.85em; background: #eee; color: #333; padding: 2px 6px; border-radius: 4px;">' + (spot.category || spot.type || 'aire') + '</span><br>';
             popupContent += '<p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ' + (spot.address || '') + '</p>';
