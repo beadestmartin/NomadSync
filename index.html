@@ -14,29 +14,22 @@
   <meta name="theme-color" content="#D4621A">
 
   <style>
-   /* Forcer les sélecteurs côte à côte et compacts sur tous les écrans (PC et mobile) */
-#languageSelect, #vanSelect {
-    display: inline-block !important;
-    width: 46% !important;
-    max-width: 140px !important;
-    vertical-align: middle !important;
-    flex: 0 0 auto !important;
-}
-
-/* Empêcher l'empilement vertical du conteneur parent sur mobile */
+  /* Conteneur parent : force les éléments côte à côte sans retour à la ligne */
 div:has(#languageSelect), .header-controls, .top-bar {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important;
     gap: 8px !important;
     align-items: center !important;
 }
 
+/* Sélecteurs : taille compacte bloquée, interdit tout étirement flex */
 #languageSelect, #vanSelect {
-    width: 48% !important;
-    max-width: 180px !important;
-    flex: 1 !important;
     display: inline-block !important;
+    width: auto !important;
+    max-width: 130px !important;
+    min-width: 70px !important;
+    flex: 0 0 auto !important;
 }
     :root {
       --bg-color: #f7f2ea;
