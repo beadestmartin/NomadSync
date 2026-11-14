@@ -7389,7 +7389,7 @@ filteredWaterPoints = rawWaterPoints.filter(spot => {
     return !isForbidden && !isDuplicate;
 });
 
-// Fonction de tri avec priorité stricte (le parking l'emporte sur le sauvage si c'en est un)
+// Fonction de tri avec priorité stricte
 function getSpotCategory(spot) {
     const cat = (spot.category || '').toLowerCase();
     const type = (spot.type || '').toLowerCase();
@@ -7417,9 +7417,10 @@ function loadSpots() {
     }
     markersGroup.clearLayers();
 
+    // Correction de la parenthèse/crochet ici
     const activeFilter = window.activeSpotFilter && window.activeSpotFilter !== 'all' 
         ? window.activeSpotFilter 
-        : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter'].value : 'all');
+        : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter').value : 'all');
 
     const localSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
     const t = translations[currentLang] || translations.fr;
@@ -7431,7 +7432,7 @@ function loadSpots() {
         const lng = spot.lng || spot.lon;
         if (!lat || !lng) continue;
 
-        // Filtre géographique strict : on ne garde que l'Europe (adieu la Colombie et les bugs lointains)
+        // Filtre géographique strict (Europe)
         if (lat < 35 || lat > 60 || lng < -10 || lng > 20) continue;
 
         const spotCat = getSpotCategory(spot);
