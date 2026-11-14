@@ -189,34 +189,37 @@
     </div>
   </div>
   
-  <!-- En-tête Compact et Équilibré -->
-  <header style="width: 100% !important; flex: 0 0 100% !important; display: flex !important; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; background: transparent; box-sizing: border-box;">
-    <div class="brand" style="display: flex; align-items: center; gap: 6px;">
-      <span class="brand-icon" style="font-size: 1.2rem;">🧭</span>
-      <div>
-        <h1 style="font-size: 0.95rem; margin: 0; line-height: 1.2; color: white;" data-i18n="title">NomadSync</h1>
-        <span style="font-size: 0.6rem; opacity: 0.85; color: white;" data-i18n="subtitle">Navigation Nomade</span>
-      </div>
-    </div>
+  <!-- En-tête Compact : Tout sur la même ligne -->
+  <header style="width: 100% !important; display: flex !important; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 6px; background: transparent; box-sizing: border-box;">
     
-    <div class="user-controls" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-      <select id="langSelect" style="background: rgba(0,0,0,0.3); color: white; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); font-size: 0.75rem; cursor: pointer; outline: none;" onchange="changeLanguage(this.value)">
+    <!-- Gauche : Marque + Sélecteurs côte à côte -->
+    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; min-width: 0;">
+      <span style="font-size: 1.1rem; flex-shrink: 0;">🧭</span>
+      <div style="flex-shrink: 0;">
+        <h1 style="font-size: 0.85rem; margin: 0; line-height: 1.1; color: white;" data-i18n="title">NomadSync</h1>
+        <span style="font-size: 0.55rem; opacity: 0.85; color: white;" data-i18n="subtitle">Navigation</span>
+      </div>
+      
+      <select id="langSelect" style="background: rgba(0,0,0,0.3); color: white; padding: 3px 5px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.3); font-size: 0.7rem; cursor: pointer; outline: none; flex-shrink: 0;" onchange="changeLanguage(this.value)">
           <option value="fr" style="color: black;">FR</option>
           <option value="en" style="color: black;">EN</option>
           <option value="es" style="color: black;">ES</option>
           <option value="de" style="color: black;">DE</option>
       </select>
       
-      <select id="vehicleSelect" style="background: rgba(0,0,0,0.3); color: white; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); font-size: 0.75rem; cursor: pointer; outline: none;" onchange="updateVehicleSpec()">
+      <select id="vehicleSelect" style="background: rgba(0,0,0,0.3); color: white; padding: 3px 5px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.3); font-size: 0.7rem; cursor: pointer; outline: none; flex-shrink: 0;" onchange="updateVehicleSpec()">
           <option value="van" style="color: black;">🚐 Van</option>
           <option value="cc" style="color: black;">🚛 CC</option>
-          <option value="fourgon" style="color: black;">🚐 Fourgon</option>
+          <option value="fourgon" style="color: black;">🚐 Four.</option>
       </select>
-      
-      <button style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleQrModal()" title="QR Code" data-i18n="qrBtn">📱 QR</button>
-      <button style="background: #111; color: #f5af19; border: 1px solid #f5af19; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer;" onclick="toggleVipModal()" title="VIP" data-i18n="vipBtn">⭐ VIP</button>
-      <button id="themeBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleTheme()" title="Thème" data-i18n="dayMode">🌙</button>
-      <button id="offlineBtn" style="background: rgba(46, 125, 50, 0.9); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleOffline()" title="Statut réseau" data-i18n="online">🟢</button>
+    </div>
+    
+    <!-- Droite : Boutons d'action compacts -->
+    <div class="user-controls" style="display: flex; gap: 4px; align-items: center; flex-shrink: 0;">
+      <button style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 3px 6px; border-radius: 12px; font-size: 0.7rem; cursor: pointer;" onclick="toggleQrModal()" title="QR" data-i18n="qrBtn">📱</button>
+      <button style="background: #111; color: #f5af19; border: 1px solid #f5af19; padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; cursor: pointer;" onclick="toggleVipModal()" title="VIP" data-i18n="vipBtn">⭐</button>
+      <button id="themeBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 3px 6px; border-radius: 12px; font-size: 0.7rem; cursor: pointer;" onclick="toggleTheme()" title="Thème">🌙</button>
+      <button id="offlineBtn" style="background: rgba(46, 125, 50, 0.9); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 3px 6px; border-radius: 12px; font-size: 0.7rem; cursor: pointer;" onclick="toggleOffline()" title="Réseau">🟢</button>
     </div>
   </header>
 </div>
