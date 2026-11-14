@@ -7371,7 +7371,8 @@ function loadSpots() {
     // Fusion globale de tous les spots disponibles
     const allDisplaySpots = [...spots, ...localSpots];
 
-    allDisplaySpots.forEach(spot => {
+    // Utilisation d'une boucle for...of pour autoriser le 'continue'
+    for (const spot of allDisplaySpots) {
         const cat = (spot.category || spot.type || '').toLowerCase();
         
         // Détection large des services eau et vidange
@@ -7388,7 +7389,7 @@ function loadSpots() {
                 if (hasWaste || cat.includes('vidange') || cat.includes('drain')) matches = true;
             } else if (activeFilter === 'aire' || activeFilter === 'park') {
                 if (cat.includes('aire') || cat.includes('parking') || cat === 'free') matches = true;
-            } else if (activeFilter === 'sauvage' || activeFilter === 'wild' || activeFilter === 'nature') {
+            } else if (activeFilter === 'sauvage' || activeFilter === 'wild' || cat.includes('nature')) {
                 if (cat.includes('sauvage') || cat.includes('wild') || cat.includes('nature') || cat.includes('bivouac')) matches = true;
             } else if (activeFilter === 'ferme' || activeFilter === 'farm') {
                 if (cat.includes('ferme') || cat.includes('farm')) matches = true;
@@ -7398,67 +7399,69 @@ function loadSpots() {
                 matches = cat.includes(activeFilter);
             }
 
-            if (!matches) return;
+            if (!matches) continue;
+        }
+
+        // Filtrage strict par rapport au bouton actif (window.activeSpotFilter)
+        if (window.activeSpotFilter && window.activeSpotFilter !== 'all') {
+            if (window.activeSpotFilter === 'water' && !hasWater && !cat.includes('eau')) continue;
+            if (window.activeSpotFilter === 'drain' && !hasWaste && !cat.includes('vidange')) continue;
+            if (window.activeSpotFilter === 'fuel' && !cat.includes('carburant') && !cat.includes('fuel')) continue;
+            if (window.activeSpotFilter !== 'water' && window.activeSpotFilter !== 'drain' && window.activeSpotFilter !== 'fuel') {
+                if (!cat.includes(window.activeSpotFilter)) continue;
+            }
         }
 
         const lat = spot.lat;
         const lng = spot.lng || spot.lon;
-        if (!lat || !lng) return;
+        if (!lat || !lng) continue;
 
-        // 1. Filtrage strict par rapport au bouton actif (window.activeSpotFooter / window.activeSpotFilter)
-if (window.activeSpotFilter && window.activeSpotFilter !== 'all') {
-    if (window.activeSpotFilter === 'water' && !hasWater && !cat.includes('eau')) return;
-    if (window.activeSpotFilter === 'drain' && !hasWaste && !cat.includes('vidange')) return;
-    if (window.activeSpotFilter === 'fuel' && !cat.includes('carburant') && !cat.includes('fuel')) return;
-    if (window.activeSpotFilter !== 'water' && window.activeSpotFilter !== 'drain' && window.activeSpotFilter !== 'fuel') {
-        if (!cat.includes(window.activeSpotFilter)) return;
+        // Attribution des couleurs et emojis par catégorie
+        let markerColor = '#D4621A';
+        let emoji = spot.icon || '🚐';
+
+        if (cat.includes('carburant') || cat.includes('fuel')) { markerColor = '#FF4500'; emoji = '⛽'; }
+        else if (hasWater || cat.includes('eau') || cat.includes('water')) { markerColor = '#1E90FF'; emoji = '💧'; }
+        else if (hasWaste || cat.includes('vidange') || cat.includes('drain')) { markerColor = '#8B4513'; emoji = '🚰'; }
+        else if (cat.includes('parking')) { markerColor = '#555555'; emoji = '🅿️'; }
+        else if (cat.includes('sauvage') || cat.includes('wild')) { markerColor = '#2E8B57'; emoji = '🏕️'; }
+        else if (cat.includes('nature')) { markerColor = '#2A1A0E'; emoji = '🌙'; }
+        else if (cat.includes('ferme') || cat.includes('farm')) { markerColor = '#228B22'; emoji = '🚜'; }
+
+        const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${emoji}</div>`;
+
+        const customIcon = L.divIcon({
+            className: 'nomadsync-custom-marker',
+            html: markerHtml,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        const marker = L.marker([lat, lng], { icon: customIcon });
+
+        const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+        const wazeUrl = `https://www.waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+        const priceDisplay = (!spot.price || spot.price.toLowerCase() === 'gratuit') ? t.free : spot.price;
+
+        marker.bindPopup(`
+            <div style="font-family: sans-serif; max-width: 240px;">
+                <h4 style="margin: 0 0 5px 0; color: #2A1A0E;">${spot.name || 'Lieu'}</h4>
+                <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${spot.category || spot.type || 'aire'}</span><br>
+                <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
+                <p style="margin: 3px 0; font-size: 12px;"><strong>${t.priceLabel}</strong> ${priceDisplay}</p>
+                <p style="margin: 3px 0; font-size: 12px;"><strong>${t.stayLabel}</strong> ${spot.stay || 'N/A'}</p>
+                ${spot.exchange ? `<p style="margin: 3px 0; font-size: 12px;"><strong>${t.exchangeLabel}</strong> ${spot.exchange}</p>` : ''}
+                ${spot.electricity ? `<p style="margin: 3px 0; font-size: 12px;"><strong>${t.elecLabel}</strong> ${spot.electricity}</p>` : ''}
+                <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+                    <a href="${gmapsUrl}" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>
+                    <a href="${wazeUrl}" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>
+                </div>
+            </div>
+        `);
+
+        markersGroup.addLayer(marker);
     }
 }
-
-// Attribution des couleurs et emojis par catégorie (ordre strict du plus précis au plus général)
-let markerColor = '#D4621A';
-let emoji = spot.icon || '🚐';
-
-if (cat.includes('carburant') || cat.includes('fuel')) { markerColor = '#FF4500'; emoji = '⛽'; }
-else if (hasWater || cat.includes('eau') || cat.includes('water')) { markerColor = '#1E90FF'; emoji = '💧'; }
-else if (hasWaste || cat.includes('vidange') || cat.includes('drain')) { markerColor = '#8B4513'; emoji = '🚰'; }
-else if (cat.includes('parking')) { markerColor = '#555555'; emoji = '🅿️'; }
-else if (cat.includes('sauvage') || cat.includes('wild')) { markerColor = '#2E8B57'; emoji = '🏕️'; }
-else if (cat.includes('nature')) { markerColor = '#2A1A0E'; emoji = '🌙'; }
-else if (cat.includes('ferme') || cat.includes('farm')) { markerColor = '#228B22'; emoji = '🚜'; }
-
-const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${emoji}</div>`;
-
-const customIcon = L.divIcon({
-    className: 'nomadsync-custom-marker',
-    html: markerHtml,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15]
-});
-
-const marker = L.marker([lat, lng], { icon: customIcon });
-
-const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-const wazeUrl = `https://www.waze.com/ul?ll=${lat},${lng}&navigate=yes`;
-const priceDisplay = (!spot.price || spot.price.toLowerCase() === 'gratuit') ? t.free : spot.price;
-
-marker.bindPopup(`
-    <div style="font-family: sans-serif; max-width: 240px;">
-        <h4 style="margin: 0 0 5px 0; color: #2A1A0E;">${spot.name || 'Lieu'}</h4>
-        <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${spot.category || spot.type || 'aire'}</span><br>
-        <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
-        <p style="margin: 3px 0; font-size: 12px;"><strong>${t.priceLabel}</strong> ${priceDisplay}</p>
-        <p style="margin: 3px 0; font-size: 12px;"><strong>${t.stayLabel}</strong> ${spot.stay || 'N/A'}</p>
-        ${spot.exchange ? `<p style="margin: 3px 0; font-size: 12px;"><strong>${t.exchangeLabel}</strong> ${spot.exchange}</p>` : ''}
-        ${spot.electricity ? `<p style="margin: 3px 0; font-size: 12px;"><strong>${t.elecLabel}</strong> ${spot.electricity}</p>` : ''}
-        <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
-            <a href="${gmapsUrl}" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>
-            <a href="${wazeUrl}" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>
-        </div>
-    </div>
-`);
-
-markersGroup.addLayer(marker);
 
 // Rétrocompatibilité
 function renderNomadSyncSpots() {
