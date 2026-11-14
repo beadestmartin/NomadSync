@@ -7525,12 +7525,25 @@ function changeLanguage(lang) {
         }
     });
 
+    const filterSelect = document.getElementById('servicesFilter');
+    if (filterSelect) {
+        for (let option of filterSelect.options) {
+            if (option.value === 'all' && t.filterAll) option.text = t.filterAll;
+            if ((option.value === 'aire' || option.value === 'aire_stationnement') && t.filterAire) option.text = t.filterAire;
+            if ((option.value === 'sauvage' || option.value === 'wild') && t.filterWild) option.text = t.filterWild;
+            if ((option.value === 'ferme' || option.value === 'farm') && t.filterFarm) option.text = t.filterFarm;
+            if ((option.value === 'eau' || option.value === 'water') && t.filterWater) option.text = t.filterWater;
+            if ((option.value === 'vidange' || option.value === 'drain') && t.filterDrain) option.text = t.filterDrain;
+            if ((option.value === 'carburant' || option.value === 'fuel') && t.filterFuel) option.text = t.filterFuel;
+        }
+    }
+
     localStorage.setItem('nomadsync_lang', currentLang);
+
     if (typeof loadSpots === 'function' && leafletMap) {
         loadSpots();
     }
 }
-
 // ==========================================
 // INITIALISATION DE LA CARTE
 // ==========================================
