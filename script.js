@@ -7364,37 +7364,43 @@ function loadSpots() {
     }
     markersGroup.clearLayers();
 
-    const activeFilter = document.getElementById('servicesFilter') ? document.getElementById('servicesFilter').value : 'all';
+    // Utilisation d'un filtre unique unifié (priorité au bouton actif, sinon menu déroulant)
+    const activeFilter = window.activeSpotFilter && window.activeSpotFilter !== 'all' 
+        ? window.activeSpotFilter 
+        : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter'].value : 'all');
+
     const localSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
     const t = translations[currentLang] || translations.fr;
     
     // Fusion globale de tous les spots disponibles
     const allDisplaySpots = [...spots, ...localSpots];
 
-    // Utilisation d'une boucle for...of pour autoriser le 'continue'
     for (const spot of allDisplaySpots) {
         const cat = (spot.category || spot.type || '').toLowerCase();
+        const type = (spot.type || '').toLowerCase();
         
-        // Détection large des services eau et vidange
-        const hasWater = (spot.services && spot.services.water === true) || cat.includes('eau') || cat.includes('water') || cat.includes('potable');
-        const hasWaste = (spot.services && spot.services.waste === true) || cat.includes('vidange') || cat.includes('drain') || cat.includes('waste');
+        // Détection précise des services eau et vidange
+        const hasWater = (spot.services && spot.services.water === true) || cat.includes('eau') || cat.includes('water') || cat.includes('potable') || type === 'point_eau';
+        const hasWaste = (spot.services && spot.services.waste === true) || cat.includes('vidange') || cat.includes('drain') || cat.includes('waste') || type === 'borne_vidange' || type === 'waste';
         
-        // Filtrage dynamique robuste selon le menu déroulant
+        // Filtrage strict par catégorie pour éliminer les pollutions croisées
         if (activeFilter && activeFilter !== 'all') {
             let matches = false;
 
             if (activeFilter === 'eau' || activeFilter === 'water') {
-                if (hasWater || cat.includes('eau') || cat.includes('water')) matches = true;
+                matches = hasWater || cat.includes('eau') || cat.includes('water') || type === 'point_eau';
             } else if (activeFilter === 'vidange' || activeFilter === 'drain') {
-                if (hasWaste || cat.includes('vidange') || cat.includes('drain')) matches = true;
-            } else if (activeFilter === 'aire' || activeFilter === 'park') {
-                if (cat.includes('aire') || cat.includes('parking') || cat === 'free') matches = true;
+                matches = hasWaste || cat.includes('vidange') || cat.includes('drain') || type === 'borne_vidange' || type === 'waste';
+            } else if (activeFilter === 'aire' || activeFilter === 'park' || activeFilter === 'aire_stationnement') {
+                // Réservé aux aires et parkings, en excluant les points d'eau/vidanges purs
+                matches = (cat.includes('aire') || cat.includes('parking') || cat.includes('stationnement')) 
+                          && !type.includes('point_eau') && !type.includes('borne_vidange') && !type.includes('waste');
             } else if (activeFilter === 'sauvage' || activeFilter === 'wild' || cat.includes('nature')) {
-                if (cat.includes('sauvage') || cat.includes('wild') || cat.includes('nature') || cat.includes('bivouac')) matches = true;
+                matches = cat.includes('sauvage') || cat.includes('wild') || cat.includes('nature') || cat.includes('bivouac');
             } else if (activeFilter === 'ferme' || activeFilter === 'farm') {
-                if (cat.includes('ferme') || cat.includes('farm')) matches = true;
+                matches = cat.includes('ferme') || cat.includes('farm') || cat.includes('vignoble');
             } else if (activeFilter === 'carburant' || activeFilter === 'fuel') {
-                if (cat.includes('carburant') || cat.includes('fuel') || cat.includes('gpl')) matches = true;
+                matches = cat.includes('carburant') || cat.includes('fuel') || cat.includes('gpl');
             } else {
                 matches = cat.includes(activeFilter);
             }
@@ -7402,31 +7408,21 @@ function loadSpots() {
             if (!matches) continue;
         }
 
-        // Filtrage strict par rapport au bouton actif (window.activeSpotFilter)
-        if (window.activeSpotFilter && window.activeSpotFilter !== 'all') {
-            if (window.activeSpotFilter === 'water' && !hasWater && !cat.includes('eau')) continue;
-            if (window.activeSpotFilter === 'drain' && !hasWaste && !cat.includes('vidange')) continue;
-            if (window.activeSpotFilter === 'fuel' && !cat.includes('carburant') && !cat.includes('fuel')) continue;
-            if (window.activeSpotFilter !== 'water' && window.activeSpotFilter !== 'drain' && window.activeSpotFilter !== 'fuel') {
-                if (!cat.includes(window.activeSpotFilter)) continue;
-            }
-        }
-
         const lat = spot.lat;
         const lng = spot.lng || spot.lon;
         if (!lat || !lng) continue;
 
-        // Attribution des couleurs et emojis par catégorie
+        // Attribution des couleurs et icônes (ordre strict)
         let markerColor = '#D4621A';
         let emoji = spot.icon || '🚐';
 
         if (cat.includes('carburant') || cat.includes('fuel')) { markerColor = '#FF4500'; emoji = '⛽'; }
-        else if (hasWater || cat.includes('eau') || cat.includes('water')) { markerColor = '#1E90FF'; emoji = '💧'; }
-        else if (hasWaste || cat.includes('vidange') || cat.includes('drain')) { markerColor = '#8B4513'; emoji = '🚰'; }
+        else if (hasWater && !cat.includes('aire') && !cat.includes('parking') && (cat.includes('eau') || type === 'point_eau')) { markerColor = '#1E90FF'; emoji = '💧'; }
+        else if (hasWaste && !cat.includes('aire') && !cat.includes('parking') && (cat.includes('vidange') || type === 'borne_vidange' || type === 'waste')) { markerColor = '#8B4513'; emoji = '🚰'; }
         else if (cat.includes('parking')) { markerColor = '#555555'; emoji = '🅿️'; }
         else if (cat.includes('sauvage') || cat.includes('wild')) { markerColor = '#2E8B57'; emoji = '🏕️'; }
         else if (cat.includes('nature')) { markerColor = '#2A1A0E'; emoji = '🌙'; }
-        else if (cat.includes('ferme') || cat.includes('farm')) { markerColor = '#228B22'; emoji = '🚜'; }
+        else if (cat.includes('ferme') || cat.includes('farm') || cat.includes('vignoble')) { markerColor = '#228B22'; emoji = '🚜'; }
 
         const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${emoji}</div>`;
 
@@ -7462,7 +7458,6 @@ function loadSpots() {
         markersGroup.addLayer(marker);
     }
 }
-
 // Rétrocompatibilité
 function renderNomadSyncSpots() {
     loadSpots();
