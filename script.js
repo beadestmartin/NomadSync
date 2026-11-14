@@ -7416,7 +7416,6 @@ function loadSpots() {
     }
     markersGroup.clearLayers();
 
-    // Correction de la parenthèse/crochet ici
     const activeFilter = window.activeSpotFilter && window.activeSpotFilter !== 'all' 
         ? window.activeSpotFilter 
         : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter').value : 'all');
@@ -7424,7 +7423,13 @@ function loadSpots() {
     const localSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
     const t = translations[currentLang] || translations.fr;
     
-    const allDisplaySpots = [...spots, ...localSpots];
+    // --- ICI : On fusionne TOUTES les sources pour ne rien perdre ---
+    const allDisplaySpots = [
+        ...spots, 
+        ...(typeof rawWaterPoints !== 'undefined' ? rawWaterPoints : []), 
+        ...(typeof rawWastePoints !== 'undefined' ? rawWastePoints : []), 
+        ...localSpots
+    ];
 
     for (const spot of allDisplaySpots) {
         const lat = spot.lat;
