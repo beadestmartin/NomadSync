@@ -7372,8 +7372,8 @@ function getSpotCategory(spot) {
     return 'aire'; // Par défaut pour les aires de camping-car
 }
 
-// 1. Correction : On n'exclut plus les points d'eau/vidange payants au démarrage
-let filteredWaterPoints = rawWaterPoints.filter(spot => {
+// 1. On réassigne la variable existante sans 'let' pour éviter le doublon
+filteredWaterPoints = rawWaterPoints.filter(spot => {
     const stayText = (spot.stay || "").toLowerCase();
     const nameText = spot.name.toLowerCase();
     const addressText = (spot.address || "").toLowerCase();
@@ -7426,7 +7426,6 @@ function loadSpots() {
     for (const spot of allDisplaySpots) {
         const spotCat = getSpotCategory(spot);
 
-        // Filtrage strict sans aucune fusion croisée
         if (activeFilter && activeFilter !== 'all') {
             let matches = false;
 
@@ -7435,13 +7434,13 @@ function loadSpots() {
             } else if (activeFilter === 'vidange' || activeFilter === 'drain') {
                 matches = (spotCat === 'drain');
             } else if (activeFilter === 'aire' || activeFilter === 'aire_stationnement') {
-                matches = (spotCat === 'aire'); // Uniquement les aires pures
+                matches = (spotCat === 'aire');
             } else if (activeFilter === 'parking' || activeFilter === 'park') {
-                matches = (spotCat === 'parking'); // Uniquement les parkings purs
+                matches = (spotCat === 'parking');
             } else if (activeFilter === 'sauvage' || activeFilter === 'wild') {
-                matches = (spotCat === 'wild'); // Uniquement le sauvage / bivouac
+                matches = (spotCat === 'wild');
             } else if (activeFilter === 'nature') {
-                matches = (spotCat === 'nature'); // Uniquement la nature
+                matches = (spotCat === 'nature');
             } else if (activeFilter === 'ferme' || activeFilter === 'farm') {
                 matches = (spotCat === 'farm');
             } else if (activeFilter === 'carburant' || activeFilter === 'fuel') {
@@ -7457,7 +7456,6 @@ function loadSpots() {
         const lng = spot.lng || spot.lon;
         if (!lat || !lng) continue;
 
-        // Attribution des couleurs et icônes
         let markerColor = '#D4621A';
         let emoji = spot.icon || '🚐';
 
