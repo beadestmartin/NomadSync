@@ -181,16 +181,16 @@
 </head>
 
 <body>
-<div class="app-card" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 8px 12px; background: #d35400; border-radius: 0 0 16px 16px;">
+<div class="app-card" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 8px 12px; background: #d35400; border-radius: 0 0 16px 16px; display: flex; flex-direction: column; gap: 6px;">
   <!-- Bandeau Déroulant Compact -->
-  <div class="ticker-wrap" style="margin-bottom: 6px; overflow: hidden; white-space: nowrap; font-size: 0.75rem; opacity: 0.9; background: #2A1A0E; color: white; padding: 6px 10px; border-radius: 6px;">
+  <div class="ticker-wrap" style="width: 100%; overflow: hidden; white-space: nowrap; font-size: 0.75rem; opacity: 0.9; background: #2A1A0E; color: white; padding: 6px 10px; border-radius: 6px;">
     <div class="ticker" data-i18n="banner">
       🌤️ Météo France & Europe : Conditions favorables 🚐 | ⛽ Stations Gazole & SP95 | 🏕️ Aires & Dodos 100% Gratuits
     </div>
   </div>
   
   <!-- En-tête Compact et Équilibré -->
-  <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; background: transparent;">
+  <header style="width: 100%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; background: transparent;">
     <div class="brand" style="display: flex; align-items: center; gap: 6px;">
       <span class="brand-icon" style="font-size: 1.2rem;">🧭</span>
       <div>
@@ -214,6 +214,13 @@
       </select>
       
       <button style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleQrModal()" title="QR Code" data-i18n="qrBtn">📱 QR</button>
+      <button style="background: #111; color: #f5af19; border: 1px solid #f5af19; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" onclick="toggleVipModal()" title="VIP" data-i18n="vipBtn">⭐ VIP</button>
+      <button id="themeBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleTheme()" title="Thème" data-i18n="dayMode">🌙</button>
+      <button id="offlineBtn" style="background: rgba(46, 125, 50, 0.9); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleOffline()" title="Statut réseau" data-i18n="online">🟢</button>
+    </div>
+  </header>
+</div>
+</div>round: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleQrModal()" title="QR Code" data-i18n="qrBtn">📱 QR</button>
       <button style="background: #111; color: #f5af19; border: 1px solid #f5af19; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" onclick="toggleVipModal()" title="VIP" data-i18n="vipBtn">⭐ VIP</button>
       <button id="themeBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleTheme()" title="Thème" data-i18n="dayMode">🌙</button>
       <button id="offlineBtn" style="background: rgba(46, 125, 50, 0.9); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleOffline()" title="Statut réseau" data-i18n="online">🟢</button>
