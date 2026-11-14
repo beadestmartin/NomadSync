@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NomadSync</title>
+  <title data-i18n="title">NomadSync</title>
 
   <!-- Feuille de style Leaflet obligatoire pour l'affichage de la carte -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -177,8 +177,8 @@
     <div class="brand" style="display: flex; align-items: center; gap: 6px;">
       <span class="brand-icon" style="font-size: 1.2rem;">🧭</span>
       <div>
-        <h1 style="font-size: 0.95rem; margin: 0; line-height: 1.2; color: white;">NomadSync</h1>
-        <span style="font-size: 0.6rem; opacity: 0.85; color: white;">Navigation Nomade</span>
+        <h1 style="font-size: 0.95rem; margin: 0; line-height: 1.2; color: white;" data-i18n="title">NomadSync</h1>
+        <span style="font-size: 0.6rem; opacity: 0.85; color: white;" data-i18n="subtitle">Navigation Nomade</span>
       </div>
     </div>
     
@@ -196,10 +196,10 @@
           <option value="fourgon" style="color: black;">🚐 Fourgon</option>
       </select>
       
-      <button style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleQrModal()" title="QR Code">📱 QR</button>
-      <button style="background: #111; color: #f5af19; border: 1px solid #f5af19; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" onclick="toggleVipModal()" title="VIP">⭐ VIP</button>
-      <button id="themeBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleTheme()" title="Thème">🌙</button>
-      <button id="offlineBtn" style="background: rgba(46, 125, 50, 0.9); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleOffline()" title="Statut réseau">🟢</button>
+      <button style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleQrModal()" title="QR Code" data-i18n="qrBtn">📱 QR</button>
+      <button style="background: #111; color: #f5af19; border: 1px solid #f5af19; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" onclick="toggleVipModal()" title="VIP" data-i18n="vipBtn">⭐ VIP</button>
+      <button id="themeBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleTheme()" title="Thème" data-i18n="dayMode">🌙</button>
+      <button id="offlineBtn" style="background: rgba(46, 125, 50, 0.9); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;" onclick="toggleOffline()" title="Statut réseau" data-i18n="online">🟢</button>
     </div>
   </header>
 </div>
@@ -207,16 +207,16 @@
 <!-- NAV TABS -->
 <div style="max-width: 750px; margin: 0 auto 15px auto; width: 100%; box-sizing: border-box; padding: 0 10px;">
   <div class="nav-tabs" style="display: flex; gap: 6px; width: 100%; background-color: #f5ebe0; padding: 6px; border-radius: 12px; border: 1px solid #e0d0c0; box-sizing: border-box;">
-    <button id="tab-route" class="tab-btn active" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: #D4621A; color: white; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
-    <button id="tab-gauges" class="tab-btn" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('jauges')">🚐 Jauges & Van</button>
-    <button id="tab-security" class="tab-btn" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
+    <button id="tab-route" class="tab-btn active" data-i18n="tabRoute" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: #D4621A; color: white; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('itineraire')">🗺️ Itinéraire</button>
+    <button id="tab-gauges" class="tab-btn" data-i18n="tabGauges" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('jauges')">🚐 Jauges & Van</button>
+    <button id="tab-security" class="tab-btn" data-i18n="tabSecu" style="flex: 1; font-size: 0.80rem; padding: 8px 4px; text-align: center; border: none; border-radius: 8px; background: transparent; color: #555; font-weight: bold; cursor: pointer; white-space: nowrap;" onclick="switchTab('securite')">🛡️ Infos & Sécurité</button>
   </div>
 </div>
 
 <!-- MODAL QR CODE DE PARTAGE -->
 <div id="qr-modal" style="display: none; max-width: 800px; margin: 0 auto; padding: 20px;">
-  <h2 style="font-size: 1.25rem; margin: 0 0 10px 0;">📱 Partager NomadSync <span style="cursor:pointer; font-size:1.2rem; float:right;" onclick="toggleQrModal()">✕</span></h2>
-  <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Faites flasher ce QR code avec un autre téléphone pour partager instantanément l'application :</p>
+  <h2 style="font-size: 1.25rem; margin: 0 0 10px 0;"><span data-i18n="qrModalTitle">📱 Partager NomadSync</span> <span style="cursor:pointer; font-size:1.2rem; float:right;" onclick="toggleQrModal()">✕</span></h2>
+  <p style="margin: 4px 0 12px 0; font-size: 0.9rem;" data-i18n="qrModalText">Faites flasher ce QR code avec un autre téléphone pour partager instantanément l'application :</p>
   <div style="text-align: center; padding: 10px;">
     <img id="qrCodeImg" src="#" alt="QR Code NomadSync" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); background: white; padding: 6px;" />
   </div>
@@ -224,36 +224,36 @@
 
 <!-- ESPACE VIP -->
 <div id="vip-modal" style="max-width: 800px; margin: 0 auto; padding: 20px;">
-  <h3>⭐ Espace VIP NomadSync <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleVipModal()">✕</span></h3>
-  <p style="margin: 4px 0 12px 0; font-size: 0.9rem;">Accès illimité aux cartes hors-ligne, dodos secrets et calculateur de gabarit avancé :</p>
+  <h3><span data-i18n="vipModalTitle">⭐ Espace VIP NomadSync</span> <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleVipModal()">✕</span></h3>
+  <p style="margin: 4px 0 12px 0; font-size: 0.9rem;" data-i18n="vipModalText">Accès illimité aux cartes hors-ligne, dodos secrets et calculateur de gabarit avancé :</p>
   
   <div class="vip-pricing-grid">
     <div class="vip-price-card">
-      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">MENSUEL</div>
+      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);" data-i18n="vipMonthly">MENSUEL</div>
       <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">2,99 €</div>
-      <div style="font-size: 0.75rem; opacity: 0.7;">Sans engagement</div>
-      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Mensuel)...')">S'abonner</button>
+      <div style="font-size: 0.75rem; opacity: 0.7;" data-i18n="vipNoCommit">Sans engagement</div>
+      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Mensuel)...')" data-i18n="vipSubBtn">S'abonner</button>
     </div>
     <div class="vip-price-card featured">
-      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">ANNUEL ⭐</div>
+      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);" data-i18n="vipAnnual">ANNUEL ⭐</div>
       <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">24,99 €</div>
-      <div style="font-size: 0.75rem; opacity: 0.7;">Économique</div>
-      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Annuel)...')">S'abonner</button>
+      <div style="font-size: 0.75rem; opacity: 0.7;" data-i18n="vipEco">Économique</div>
+      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (Annuel)...')" data-i18n="vipSubBtn">S'abonner</button>
     </div>
     <div class="vip-price-card">
-      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);">À VIE</div>
+      <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-color);" data-i18n="vipLife">À VIE</div>
       <div style="font-size: 1.3rem; font-weight: bold; margin: 6px 0;">49,99 €</div>
-      <div style="font-size: 0.75rem; opacity: 0.7;">Accès illimité définitif</div>
-      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (À vie)...')">Acheter</button>
+      <div style="font-size: 0.75rem; opacity: 0.7;" data-i18n="vipUnlimited">Accès illimité définitif</div>
+      <button class="pay-btn" onclick="alert('Redirection vers le paiement sécurisé (À vie)...')" data-i18n="vipBuyBtn">Acheter</button>
     </div>
   </div>
 
   <div style="background: var(--card-bg); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin-top: 15px;">
-    <b style="font-size: 0.9rem; display: block; margin-bottom: 8px;">🔐 Connexion / Accès Membre VIP :</b>
+    <b style="font-size: 0.9rem; display: block; margin-bottom: 8px;" data-i18n="vipLoginTitle">🔐 Connexion / Accès Membre VIP :</b>
     <form onsubmit="handleVipLogin(event)" style="display: flex; gap: 8px; flex-wrap: wrap;">
-      <input type="email" id="loginEmail" placeholder="Votre adresse email" required style="flex:1; min-width: 160px; padding:9px; border-radius:6px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:0.85rem;" />
-      <input type="password" id="loginPass" placeholder="Mot de passe" required style="flex:1; min-width: 160px; padding:9px; border-radius:6px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:0.85rem;" />
-      <button type="submit" style="background: var(--accent-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Se connecter</button>
+      <input type="email" id="loginEmail" data-i18n-placeholder="emailPlaceholder" placeholder="Votre adresse email" required style="flex:1; min-width: 160px; padding:9px; border-radius:6px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:0.85rem;" />
+      <input type="password" id="loginPass" data-i18n-placeholder="passPlaceholder" placeholder="Mot de passe" required style="flex:1; min-width: 160px; padding:9px; border-radius:6px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:0.85rem;" />
+      <button type="submit" style="background: var(--accent-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;" data-i18n="loginBtn">Se connecter</button>
     </form>
     <div id="loginMessage" style="display: none; background: #ecfdf5; color: #065f46; border: 1px solid #10b981; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 10px;"></div>
   </div>
@@ -262,62 +262,62 @@
 <!-- PANEL CARTE -->
 <div style="max-width: 750px; margin: 0 auto; width: 100%; box-sizing: border-box;">
   <div class="search-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 10px; box-sizing: border-box;">
-    <input type="text" id="searchInput" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" style="width: 100%; padding: 12px 16px; border-radius: 25px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; outline: none;" />
+    <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="🔍 Rechercher Ville ou Code Postal (ex: 72000 Le Mans, Tanger)..." onkeydown="if(event.key==='Enter') handleSearch(event)" style="width: 100%; padding: 12px 16px; border-radius: 25px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; outline: none;" />
     <div style="display: flex; gap: 8px; width: 100%;">
-      <button onclick="handleSearchBtn()" style="flex: 1; padding: 12px 20px; border-radius: 25px; border: none; background: #d4621a; color: white; font-weight: bold; cursor: pointer;">Chercher</button>
-      <button onclick="locateUser()" style="flex: 1; padding: 12px 16px; border-radius: 25px; border: none; background: #0284c7; color: white; font-weight: bold; cursor: pointer;" title="Me géolocaliser">📍 Ma Position</button>
+      <button onclick="handleSearchBtn()" data-i18n="searchBtn" style="flex: 1; padding: 12px 20px; border-radius: 25px; border: none; background: #d4621a; color: white; font-weight: bold; cursor: pointer;">Chercher</button>
+      <button onclick="locateUser()" data-i18n="gpsBtn" style="flex: 1; padding: 12px 16px; border-radius: 25px; border: none; background: #0284c7; color: white; font-weight: bold; cursor: pointer;" title="Me géolocaliser">📍 Ma Position</button>
     </div>
   </div>
     
   <div class="filters-grid" style="margin: 10px 10px 0 10px; box-sizing: border-box;">
     <select id="servicesFilter" class="form-select" style="width: 100%; padding: 12px; border-radius: 25px; border: 1px solid #ccc; font-weight: bold; background: white; box-sizing: border-box;" onchange="toggleFilter(this.value)">
-        <option value="all">📂 Catégories (Tous)</option>
-        <option value="aire">🔴 Aires</option>
-        <option value="parking">🟠 Parkings</option>
-        <option value="ferme">🟢 Fermes</option>
-        <option value="nature">🌲 Nature</option>
-        <option value="sauvage">⛺ Sauvage</option>
-        <option value="eau">💧 Eau</option>
-        <option value="vidange">🟣 Vidange</option>
-        <option value="carburant">⛽ Carburant</option>
+        <option value="all" data-i18n="filterAll">📂 Catégories (Tous)</option>
+        <option value="aire" data-i18n="filterAire">🔴 Aires</option>
+        <option value="parking" data-i18n="filterParking">🟠 Parkings</option>
+        <option value="ferme" data-i18n="filterFarm">🟢 Fermes</option>
+        <option value="nature" data-i18n="filterNature">🌲 Nature</option>
+        <option value="sauvage" data-i18n="filterWild">⛺ Sauvage</option>
+        <option value="eau" data-i18n="filterWater">💧 Eau</option>
+        <option value="vidange" data-i18n="filterDrain">🟣 Vidange</option>
+        <option value="carburant" data-i18n="filterFuel">⛽ Carburant</option>
     </select>
-  </div> <!-- CORRECTION ICI : Remplacement de </dive> par </div> -->
+  </div>
 
   <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 10px 0 10px; box-sizing: border-box;">
-    <button class="add-spot-btn" onclick="toggleAddSpotForm()">➕ Ajouter un bon plan (Gratuit / Carburant)</button>
+    <button class="add-spot-btn" data-i18n="addSpotBtn" onclick="toggleAddSpotForm()">➕ Ajouter un bon plan (Gratuit / Carburant)</button>
   </div>
 </div>
       
 <!-- FORMULAIRE AJOUT DE SPOT -->
 <div id="add-spot-form" style="max-width: 750px; margin: 10px auto; box-sizing: border-box; padding: 0 10px;">
-  <h4 style="margin-top:0; color:#10b981;">📍 Partager un nouveau bon plan nomade</h4>
+  <h4 style="margin-top:0; color:#10b981;" data-i18n="formTitle">📍 Partager un nouveau bon plan nomade</h4>
   
   <div style="background: #f0fdf4; border: 1px solid #10b981; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; color: #065f46;">
-    💡 <strong>Esprit NomadSync :</strong><br>
-    Ici, on ne partage que :
+    <strong data-i18n="spiritTitle">💡 Esprit NomadSync :</strong><br>
+    <span data-i18n="spiritSubtitle">Ici, on ne partage que :</span>
     <ul style="margin: 4px 0 4px 16px; padding: 0;">
-      <li>Des <strong>spots gratuits, sauvages et en pleine nature</strong> (hors campings et aires payantes).</li>
-      <li>Des <strong>stations-service low-cost ou économiques</strong> (type Leclerc, Intermarché, Total Access, etc., en évitant les pompes hors de prix ou sur autoroute).</li>
+      <li data-i18n="spiritItem1">Des spots gratuits, sauvages et en pleine nature (hors campings et aires payantes).</li>
+      <li data-i18n="spiritItem2">Des stations-service low-cost ou économiques (type Leclerc, Intermarché, Total Access, etc.).</li>
     </ul>
   </div>
 
   <form onsubmit="handleAddNewSpot(event)">
     <div class="form-grid">
-      <input type="text" id="newSpotName" placeholder="Nom du Spot ou de la Station" required />
-      <input type="text" id="newSpotAddress" placeholder="Adresse complète / Code Postal / Ville" required />
+      <input type="text" id="newSpotName" data-i18n-placeholder="spotNamePlaceholder" placeholder="Nom du Spot ou de la Station" required />
+      <input type="text" id="newSpotAddress" data-i18n-placeholder="spotAddressPlaceholder" placeholder="Adresse complète / Code Postal / Ville" required />
       <select id="newSpotType">
-        <option value="parking">Parking</option>
-        <option value="aire">Aire</option>
-        <option value="ferme">Ferme</option>
-        <option value="nature">Nature</option>
-        <option value="sauvage">Sauvage</option>
-        <option value="eau">Eau</option>
-        <option value="vidange">Vidange</option>
-        <option value="carburant">Carburant</option>
+        <option value="parking" data-i18n="filterParking">Parking</option>
+        <option value="aire" data-i18n="filterAire">Aire</option>
+        <option value="ferme" data-i18n="filterFarm">Ferme</option>
+        <option value="nature" data-i18n="filterNature">Nature</option>
+        <option value="sauvage" data-i18n="filterWild">Sauvage</option>
+        <option value="eau" data-i18n="filterWater">Eau</option>
+        <option value="vidange" data-i18n="filterDrain">Vidange</option>
+        <option value="carburant" data-i18n="filterFuel">Carburant</option>
       </select>
       <input type="file" id="newSpotPhoto" accept="image/*" />
     </div>
-    <button type="submit" style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer; margin-top: 10px;">Enregistrer le bon plan</button>
+    <button type="submit" data-i18n="saveSpotBtn" style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer; margin-top: 10px;">Enregistrer le bon plan</button>
   </form>
 </div>
 
@@ -327,46 +327,46 @@
   <!-- 1. ONGLET ITINÉRAIRE (Contient le calculateur) -->
   <div id="panel-itineraire" style="display: block;">
     <div class="route-card">
-      <h3 style="margin-top: 0; color: var(--accent-color);">Calculateur de Trajet Temps Réel & Gabarit</h3>
+      <h3 style="margin-top: 0; color: var(--accent-color);" data-i18n="routeCalcTitle">Calculateur de Trajet Temps Réel & Gabarit</h3>
       
       <div class="vehicle-specs-grid">
         <div>
-          <label>📏 Hauteur (m)</label>
+          <label data-i18n="labelHeight">📏 Hauteur (m)</label>
           <input type="number" step="0.05" id="specH" value="2.90" />
         </div>
         <div>
-          <label>📐 Longueur (m)</label>
+          <label data-i18n="labelLength">📐 Longueur (m)</label>
           <input type="number" step="0.1" id="specL" value="6.50" />
         </div>
         <div>
-          <label>↔️ Largeur (m)</label>
+          <label data-i18n="labelWidth">↔️ Largeur (m)</label>
           <input type="number" step="0.05" id="specW" value="2.20" />
         </div>
         <div>
-          <label>⚖️ Poids (tonnes)</label>
+          <label data-i18n="labelWeight">⚖️ Poids (tonnes)</label>
           <input type="number" step="0.1" id="specP" value="3.5" />
         </div>
         <div>
-          <label>⛽ Carburant</label>
+          <label data-i18n="labelFuel">⛽ Carburant</label>
           <select id="specFuelType" onchange="updateFuelPrice()">
             <option value="gazole">Gazole (Diesel)</option>
             <option value="sp95">Sans Plomb 95 (E10)</option>
           </select>
         </div>
         <div>
-          <label>⛽ Conso (L/100km)</label>
+          <label data-i18n="labelConso">⛽ Conso (L/100km)</label>
           <input type="number" step="0.5" id="specConso" value="10.5" />
         </div>
         <div>
-          <label>💶 Prix (€/L)</label>
+          <label data-i18n="labelPrice">💶 Prix (€/L)</label>
           <input type="number" step="0.01" id="specPrice" value="1.72" />
         </div>
       </div>
 
       <div class="route-grid">
-        <input type="text" id="startInput" class="search-bar" style="margin:0" placeholder="Départ (ex: Le Mans)" />
-        <input type="text" id="destInput" class="search-bar" style="margin:0" placeholder="Arrivée (ex: Meaux)" />
-        <button onclick="calculateAndDrawRoute()" style="background:var(--accent-color); border:none; color:white; border-radius:8px; padding:10px 16px; font-weight:bold; cursor:pointer;">Calculer & Tracer</button>
+        <input type="text" id="startInput" class="search-bar" style="margin:0" data-i18n-placeholder="startPlaceholder" placeholder="Départ (ex: Le Mans)" />
+        <input type="text" id="destInput" class="search-bar" style="margin:0" data-i18n-placeholder="destPlaceholder" placeholder="Arrivée (ex: Meaux)" />
+        <button onclick="calculateAndDrawRoute()" data-i18n="calcRouteBtn" style="background:var(--accent-color); border:none; color:white; border-radius:8px; padding:10px 16px; font-weight:bold; cursor:pointer;">Calculer & Tracer</button>
       </div>
 
       <div id="route-result" class="status-banner" style="display: none;"></div>
@@ -378,13 +378,13 @@
     <!-- MODULE BLUETOOTH -->
     <div class="bluetooth-card">
       <h3 style="margin-top: 0; color: var(--accent-color); display: flex; align-items: center; gap: 8px;">
-        <span>📡 Synchronisation Bluetooth (Véhicules Récents)</span>
+        <span data-i18n="btTitle">📡 Synchronisation Bluetooth (Véhicules Récents)</span>
       </h3>
-      <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
+      <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;" data-i18n="btDesc">
         Possédez-vous un camping-car ou van récent équipé de systèmes connectés (centrales Schaudt, CBE, Truma iNet, batteries au lithium intelligentes) ? 
         <strong>NomadSync</strong> centralise toutes ces données en temps réel. Fini de multiplier les applications constructeurs : connectez votre véhicule en Bluetooth pour suivre d'un seul coup d'œil vos niveaux de vie, la charge solaire et l'état de votre chauffage.
       </p>
-      <button onclick="alert('Recherche de périphériques Bluetooth à proximité... (Assurez-vous que le Bluetooth de votre appareil et de la centrale du van sont activés)')" style="background: var(--accent-color); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
+      <button onclick="alert('Recherche de périphériques Bluetooth à proximité... (Assurez-vous que le Bluetooth de votre appareil et de la centrale du van sont activés)')" data-i18n="btBtn" style="background: var(--accent-color); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
         🔗 Connecter mon van en Bluetooth
       </button>
     </div>
@@ -392,54 +392,54 @@
     <!-- PENSE-BÊTE / CHECKLIST DÉPART -->
     <div class="bluetooth-card" style="border-color: #10b981;">
       <h3 style="margin-top: 0; color: #10b981; display: flex; align-items: center; gap: 8px;">
-        <span>📋 Pense-bête / Checklist avant le départ</span>
+        <span data-i18n="checklistTitle">📋 Pense-bête / Checklist avant le départ</span>
       </h3>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 0.9rem; margin-top: 10px;">
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-step" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🦶 Rentrer le marchepied</label>
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-roof" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🌤️ Fermer les lanterneaux</label>
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-blocks" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🧱 Ranger les cales de roues</label>
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-fridge" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> ❄️ Verrouiller le frigo</label>
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-shore" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🔌 Débrancher la prise 220V</label>
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-door" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> 🚪 Verrouiller porte cellule & soutes</label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-step" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> <span data-i18n="check1">🦶 Rentrer le marchepied</span></label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-roof" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> <span data-i18n="check2">🌤️ Fermer les lanterneaux</span></label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-blocks" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> <span data-i18n="check3">🧱 Ranger les cales de roues</span></label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-fridge" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> <span data-i18n="check4">❄️ Verrouiller le frigo</span></label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-shore" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> <span data-i18n="check5">🔌 Débrancher la prise 220V</span></label>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="chk-door" onchange="saveChecklist()" style="width:18px; height:18px; accent-color:#10b981;"> <span data-i18n="check6">🚪 Verrouiller porte cellule & soutes</span></label>
       </div>
     </div>
 
     <div class="gauges-grid">
       <div class="gauge-card">
-        <div class="gauge-header"><span>🔋 Batterie Cellule</span><span id="val-bat">85% (12.8V)</span></div>
+        <div class="gauge-header"><span data-i18n="gaugeBat">🔋 Batterie Cellule</span><span id="val-bat">85% (12.8V)</span></div>
         <div class="progress-bar"><div class="progress-fill" id="fill-bat" style="width: 85%; background: #10b981;"></div></div>
         <input type="range" id="range-bat" min="0" max="100" value="85" oninput="updateGauge('bat', this.value, '% (12.8V)')">
       </div>
 
       <div class="gauge-card">
-        <div class="gauge-header"><span>💧 Eau Propre</span><span id="val-eau">60%</span></div>
+        <div class="gauge-header"><span data-i18n="gaugeWater">💧 Eau Propre</span><span id="val-eau">60%</span></div>
         <div class="progress-bar"><div class="progress-fill" id="fill-eau" style="width: 60%; background: #0284c7;"></div></div>
         <input type="range" id="range-eau" min="0" max="100" value="60" oninput="updateGauge('eau', this.value, '%')">
       </div>
 
       <div class="gauge-card">
-        <div class="gauge-header"><span>🛢 Eaux Usées</span><span id="val-usee">30%</span></div>
+        <div class="gauge-header"><span data-i18n="gaugeGrey">🛢 Eaux Usées</span><span id="val-usee">30%</span></div>
         <div class="progress-bar"><div class="progress-fill" id="fill-usee" style="width: 30%; background: #f59e0b;"></div></div>
         <input type="range" id="range-usee" min="0" max="100" value="30" oninput="updateGauge('usee', this.value, '%')">
       </div>
 
       <div class="gauge-card">
-        <div class="gauge-header"><span>🔥 Gaz Propane</span><span id="val-gaz">50%</span></div>
+        <div class="gauge-header"><span data-i18n="gaugeGas">🔥 Gaz Propane</span><span id="val-gaz">50%</span></div>
         <div class="progress-bar"><div class="progress-fill" id="fill-gaz" style="width: 50%; background: #a855f7;"></div></div>
         <input type="range" id="range-gaz" min="0" max="100" value="50" oninput="updateGauge('gaz', this.value, '%')">
       </div>
 
       <div class="bubble-card">
-        <h4 style="margin:0 0 6px 0; color:var(--accent-color)">⚖️ Niveau à Bulle (Calage)</h4>
+        <h4 style="margin:0 0 6px 0; color:var(--accent-color)" data-i18n="bubbleTitle">⚖️ Niveau à Bulle (Calage)</h4>
         <div class="bubble-outer"><div class="bubble-inner" id="bubblePos"></div></div>
         <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
           <button onclick="moveBubble(-10, 0)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">←</button>
           <button onclick="moveBubble(10, 0)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">→</button>
           <button onclick="moveBubble(0, -10)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">↑</button>
           <button onclick="moveBubble(0, 10)" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">↓</button>
-          <button onclick="resetBubble()" style="padding: 6px 12px; border-radius: 6px; cursor: pointer; background: var(--accent-color); color: white; border: none; font-weight: bold;">Centrer</button>
+          <button onclick="resetBubble()" data-i18n="bubbleCenter" style="padding: 6px 12px; border-radius: 6px; cursor: pointer; background: var(--accent-color); color: white; border: none; font-weight: bold;">Centrer</button>
         </div>
-        <span id="bubbleText" style="font-size:0.8rem; opacity:0.8; display: block; margin-top: 6px;">Véhicule parfaitement horizontal</span>
+        <span id="bubbleText" data-i18n="bubbleHorizontal" style="font-size:0.8rem; opacity:0.8; display: block; margin-top: 6px;">Véhicule parfaitement horizontal</span>
       </div>
     </div>
   </div> <!-- Fin de #view-jauges -->
@@ -448,66 +448,66 @@
   <div id="view-securite" style="display: none;">
     <!-- MÉTÉO & VENT FORT -->
     <div class="security-card">
-      <h3 style="margin-top: 0; color: var(--accent-color);">🌬️ Vigilance Météo & Vent Fort (Lanterneaux)</h3>
-      <p style="font-size: 0.9rem; margin-bottom: 10px;">Surveillez les rafales pour éviter d'endommager les lanterneaux et les stores extérieurs de votre camping-car.</p>
+      <h3 style="margin-top: 0; color: var(--accent-color);" data-i18n="meteoTitle">🌬️ Vigilance Météo & Vent Fort (Lanterneaux)</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 10px;" data-i18n="meteoDesc">Surveillez les rafales pour éviter d'endommager les lanterneaux et les stores extérieurs de votre camping-car.</p>
       <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
-          <span style="font-weight: bold; font-size: 0.95rem;">Conditions Actuelles : </span>
-          <span id="meteo-status" style="color: #10b981; font-weight: bold;">🟢 Vent faible (15 km/h) - Lanterneaux autorisés</span>
+          <span style="font-weight: bold; font-size: 0.95rem;" data-i18n="meteoCurrent">Conditions Actuelles : </span>
+          <span id="meteo-status" style="color: #10b981; font-weight: bold;" data-i18n="meteoStatusVal">🟢 Vent faible (15 km/h) - Lanterneaux autorisés</span>
         </div>
-        <button onclick="checkMeteoAlert()" style="background: var(--accent-color); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Rafraîchir Météo</button>
+        <button onclick="checkMeteoAlert()" data-i18n="meteoBtn" style="background: var(--accent-color); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Rafraîchir Météo</button>
       </div>
     </div>
 
     <!-- SUIVI DU BUDGET CARBURANT -->
     <div class="security-card">
-      <h3 style="margin-top: 0; color: var(--accent-color);">⛽ Suivi du Budget Carburant</h3>
-      <p style="font-size: 0.9rem; margin-bottom: 10px;">Enregistrez vos pleins pour garder le contrôle sur le budget kilométrique du voyage.</p>
+      <h3 style="margin-top: 0; color: var(--accent-color);" data-i18n="fuelBudgetTitle">⛽ Suivi du Budget Carburant</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 10px;" data-i18n="fuelBudgetDesc">Enregistrez vos pleins pour garder le contrôle sur le budget kilométrique du voyage.</p>
       
       <form onsubmit="addFuelExpense(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 12px;">
         <input type="date" id="fuelDate" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
-        <input type="number" step="0.1" id="fuelLitres" placeholder="Litres (ex: 55)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
-        <input type="number" step="0.01" id="fuelCost" placeholder="Coût total (€) (ex: 95.50)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
-        <button type="submit" style="background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Ajouter un Plein</button>
+        <input type="number" step="0.1" id="fuelLitres" data-i18n-placeholder="litresPlaceholder" placeholder="Litres (ex: 55)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
+        <input type="number" step="0.01" id="fuelCost" data-i18n-placeholder="costPlaceholder" placeholder="Coût total (€) (ex: 95.50)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem;" />
+        <button type="submit" data-i18n="addFuelBtn" style="background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Ajouter un Plein</button>
       </form>
 
       <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
         <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;">
-          <span>Total Dépensé : <span id="totalFuelCost" style="color: var(--accent-color);">0.00 €</span></span>
-          <span>Total Litres : <span id="totalFuelLitres">0</span> L</span>
+          <span><span data-i18n="totalSpent">Total Dépensé : </span><span id="totalFuelCost" style="color: var(--accent-color);">0.00 €</span></span>
+          <span><span data-i18n="totalLitres">Total Litres : </span><span id="totalFuelLitres">0</span> L</span>
         </div>
-        <div id="fuelHistoryList" style="font-size: 0.85rem; opacity: 0.85; max-height: 120px; overflow-y: auto;">Aucun plein enregistré pour l'instant.</div>
+        <div id="fuelHistoryList" data-i18n="noFuelRecord" style="font-size: 0.85rem; opacity: 0.85; max-height: 120px; overflow-y: auto;">Aucun plein enregistré pour l'instant.</div>
       </div>
     </div>
 
     <!-- ANNUAIRE D'URGENCE NOMADE -->
     <div class="security-card">
-      <h3 style="margin-top: 0; color: var(--accent-color);">📞 Annuaire d'Urgence Nomade (Europe & Maroc)</h3>
-      <p style="font-size: 0.9rem; margin-bottom: 10px;">Les numéros essentiels à portée de main selon votre pays de voyage :</p>
+      <h3 style="margin-top: 0; color: var(--accent-color);" data-i18n="emergencyTitle">📞 Annuaire d'Urgence Nomade (Europe & Maroc)</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 10px;" data-i18n="emergencyDesc">Les numéros essentiels à portée de main selon votre pays de voyage :</p>
       
       <div class="emergency-grid">
         <div class="emergency-box">
-          <h4>🇫🇷 France & Europe</h4>
-          <p>🚨 Urgence Générale : <b>112</b></p>
-          <p>👮 Police / Gendarmerie : <b>17</b></p>
-          <p>🚒 Pompiers : <b>18</b></p>
+          <h4 data-i18n="countryFr">🇫🇷 France & Europe</h4>
+          <p><span data-i18n="emergGen">🚨 Urgence Générale</span> : <b>112</b></p>
+          <p><span data-i18n="policeFr">👮 Police / Gendarmerie</span> : <b>17</b></p>
+          <p><span data-i18n="fireFr">🚒 Pompiers</span> : <b>18</b></p>
         </div>
         <div class="emergency-box">
-          <h4>🇪🇸 Espagne</h4>
-          <p>🚨 Urgence Générale : <b>112</b></p>
-          <p>👮 Guardia Civil : <b>062</b></p>
-          <p>🚑 Urgences Médicales : <b>061</b></p>
+          <h4 data-i18n="countryEs">🇪🇸 Espagne</h4>
+          <p><span data-i18n="emergGen">🚨 Urgence Générale</span> : <b>112</b></p>
+          <p><span data-i18n="policeEs">👮 Guardia Civil</span> : <b>062</b></p>
+          <p><span data-i18n="medEs">🚑 Urgences Médicales</span> : <b>061</b></p>
         </div>
         <div class="emergency-box">
-          <h4>🇵🇹 Portugal</h4>
-          <p>🚨 Urgence Générale : <b>112</b></p>
-          <p>👮 GNR (Gendarmerie) : <b>213 587 232</b></p>
+          <h4 data-i18n="countryPt">🇵🇹 Portugal</h4>
+          <p><span data-i18n="emergGen">🚨 Urgence Générale</span> : <b>112</b></p>
+          <p><span data-i18n="policePt">👮 GNR (Gendarmerie)</span> : <b>213 587 232</b></p>
         </div>
         <div class="emergency-box" style="border-color: var(--accent-color);">
-          <h4>🇲🇦 Maroc</h4>
-          <p>👮 Police Secours : <b>19</b></p>
-          <p>🛡️ Gendarmerie Royale : <b>177</b></p>
-          <p>🚒 Protection Civile : <b>15</b></p>
+          <h4 data-i18n="countryMa">🇲🇦 Maroc</h4>
+          <p><span data-i18n="policeMa">👮 Police Secours</span> : <b>19</b></p>
+          <p><span data-i18n="gendarmeMa">🛡️ Gendarmerie Royale</span> : <b>177</b></p>
+          <p><span data-i18n="civMa">🚒 Protection Civile</span> : <b>15</b></p>
         </div>
       </div>
     </div>
@@ -517,9 +517,9 @@
 <!-- LA CARTE COMMUNE ET SES BOUTONS DE NAVIGATION EXTERNE -->
 <div id="map-container" style="max-width: 800px; margin: 15px auto 0 auto; width: 100%; height: 450px; box-sizing: border-box; position: relative; padding: 0 10px;">
   <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
-    <a href="https://www.google.com/maps/dir/?api=1&destination=" target="_blank" id="btn-gmaps" style="background: rgba(66, 133, 244, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🧭 Google Maps</a>
-    <a href="https://www.waze.com/ul?q=" target="_blank" id="btn-waze" style="background: rgba(51, 204, 255, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🚗 Waze</a>
-    <a href="maps://?" target="_blank" id="btn-offline" style="background: rgba(46, 125, 50, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🗺️ Maps.me</a>
+    <a href="https://www.google.com/maps/dir/?api=1&destination=" target="_blank" id="btn-gmaps" data-i18n="gmapsBtn" style="background: rgba(66, 133, 244, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🧭 Google Maps</a>
+    <a href="https://www.waze.com/ul?q=" target="_blank" id="btn-waze" data-i18n="wazeBtn" style="background: rgba(51, 204, 255, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🚗 Waze</a>
+    <a href="maps://?" target="_blank" id="btn-offline" data-i18n="mapsMeBtn" style="background: rgba(46, 125, 50, 0.92); color: white; padding: 7px 11px; border-radius: 20px; text-decoration: none; font-size: 0.75rem; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🗺️ Maps.me</a>
   </div>
 
   <!-- La carte Leaflet -->
@@ -528,7 +528,7 @@
 
 <!-- Mention légale & Footer -->
 <footer style="text-align: center; padding: 15px; font-size: 12px; color: #666; background: #f8f9fa; border-top: 1px solid #dee2e6; margin-top: 20px;">
-  <p><strong>Mention légale :</strong> Les informations de stationnement sont indicatives. L'utilisatrice demeure seule responsable du respect de la réglementation locale en vigueur sur chaque emplacement.</p>
+  <p><strong data-i18n="legalTitle">Mention légale :</strong> <span data-i18n="legalDesc">Les informations de stationnement sont indicatives. L'utilisatrice demeure seule responsable du respect de la réglementation locale en vigueur sur chaque emplacement.</span></p>
 </footer>
 
 <!-- Scripts JavaScript -->
