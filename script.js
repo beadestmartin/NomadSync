@@ -7642,7 +7642,7 @@ function loadSpots() {
 
     const activeFilter = window.activeSpotFilter && window.activeSpotFilter !== 'all' 
         ? window.activeSpotFilter 
-        : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter'].value : 'all');
+        : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter').value : 'all');
 
     const localSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
     const t = translations[currentLang] || translations.fr;
@@ -7729,37 +7729,38 @@ function loadSpots() {
         const wazeUrl = `https://www.waze.com/ul?ll=${lat},${lng}&navigate=yes`;
         const priceDisplay = (!spot.price || spot.price.toLowerCase() === 'gratuit') ? t.free : spot.price;
 
-        marker.bindPopup(`
-            <div style="font-family: sans-serif; max-width: 240px;">
-                <h4 style="margin: 0 0 5px 0; color: #2A1A0E;">${spot.name || 'Lieu'}</h4>
-                <span style="font-size: 0.85em; background: ${isLocked ? '#ffeeba' : '#eee'}; color: ${isLocked ? '#856404' : '#333'}; padding: 2px 6px; border-radius: 4px;">
-                    ${isLocked ? '🔒 Dodo secret — Réservé VIP' : (spot.category || spot.type || 'aire')}
-                </span><br>
-                
-                ${isLocked ? `
-                    <p style="margin: 10px 0; font-size: 12px; color: #856404; background: #fff3cd; padding: 8px; border-radius: 4px; line-height: 1.4;">
-                        <strong>🌿 Espace Préservation & Discrétion</strong><br>Ce spot secret est restreint pour préserver la quiétude des lieux, éviter la surfréquentation et protéger la nature.
-                    </p>
-                    <button onclick="alert('Passez membre VIP pour débloquer l\\'adresse exacte et les coordonnées GPS !')" style="width: 100%; background: #145A32; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                        🔓 Débloquer ce spot
-                    </button>
-                ` : `
-                    <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
-                    ${spot.description ? `<p style="margin: 5px 0; font-size: 12px; color: #333;">${spot.description}</p>` : ''}
-                    <p style="margin: 3px 0; font-size: 12px;"><strong>${t.priceLabel}</strong> ${priceDisplay}</p>
-                    <p style="margin: 3px 0; font-size: 12px;"><strong>${t.stayLabel}</strong> ${spot.stay || 'N/A'}</p>
-                    ${spot.exchange ? `<p style="margin: 3px 0; font-size: 12px;"><strong>${t.exchangeLabel}</strong> ${spot.exchange}</p>` : ''}
-                    ${spot.electricity ? `<p style="margin: 3px 0; font-size: 12px;"><strong>${t.elecLabel}</strong> ${spot.electricity}</p>` : ''}
-                    <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
-                        <a href="${gmapsUrl}" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>
-                        <a href="${wazeUrl}" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>
-                    </div>
-                `}
-            </div>
-        `);
+        let popupContent = '<div style="font-family: sans-serif; max-width: 240px;">';
+        popupContent += '<h4 style="margin: 0 0 5px 0; color: #2A1A0E;">' + (spot.name || 'Lieu') + '</h4>';
 
+        if (isLocked) {
+            popupContent += '<span style="font-size: 0.85em; background: #ffeeba; color: #856404; padding: 2px 6px; border-radius: 4px;">🔒 Dodo secret — Réservé VIP</span><br>';
+            popupContent += '<p style="margin: 10px 0; font-size: 12px; color: #856404; background: #fff3cd; padding: 8px; border-radius: 4px; line-height: 1.4;"><strong>🌿 Espace Préservation & Discrétion</strong><br>Ce spot secret est restreint pour préserver la quiétude des lieux, éviter la surfréquentation et protéger la nature.</p>';
+            popupContent += '<button onclick="alert(\'Passez membre VIP pour débloquer l\'adresse exacte et les coordonnées GPS !\')" style="width: 100%; background: #145A32; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">🔓 Débloquer ce spot</button>';
+        } else {
+            popupContent += '<span style="font-size: 0.85em; background: #eee; color: #333; padding: 2px 6px; border-radius: 4px;">' + (spot.category || spot.type || 'aire') + '</span><br>';
+            popupContent += '<p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ' + (spot.address || '') + '</p>';
+            if (spot.description) {
+                popupContent += '<p style="margin: 5px 0; font-size: 12px; color: #333;">' + spot.description + '</p>';
+            }
+            popupContent += '<p style="margin: 3px 0; font-size: 12px;"><strong>' + t.priceLabel + '</strong> ' + priceDisplay + '</p>';
+            popupContent += '<p style="margin: 3px 0; font-size: 12px;"><strong>' + t.stayLabel + '</strong> ' + (spot.stay || 'N/A') + '</p>';
+            if (spot.exchange) {
+                popupContent += '<p style="margin: 3px 0; font-size: 12px;"><strong>' + t.exchangeLabel + '</strong> ' + spot.exchange + '</p>';
+            }
+            if (spot.electricity) {
+                popupContent += '<p style="margin: 3px 0; font-size: 12px;"><strong>' + t.elecLabel + '</strong> ' + spot.electricity + '</p>';
+            }
+            popupContent += '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">';
+            popupContent += '<a href="' + gmapsUrl + '" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>';
+            popupContent += '<a href="' + wazeUrl + '" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>';
+            popupContent += '</div>';
+        }
+        popupContent += '</div>';
+
+        marker.bindPopup(popupContent);
         markersGroup.addLayer(marker);
     }
+}
 }
 // Rétrocompatibilité
 function renderNomadSyncSpots() {
