@@ -7364,26 +7364,22 @@ function loadSpots() {
     }
     markersGroup.clearLayers();
 
-    // Utilisation d'un filtre unique unifié (priorité au bouton actif, sinon menu déroulant)
     const activeFilter = window.activeSpotFilter && window.activeSpotFilter !== 'all' 
         ? window.activeSpotFilter 
-        : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter'].value : 'all');
+        : (document.getElementById('servicesFilter') ? document.getElementById('servicesFilter').value : 'all');
 
     const localSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
     const t = translations[currentLang] || translations.fr;
     
-    // Fusion globale de tous les spots disponibles
     const allDisplaySpots = [...spots, ...localSpots];
 
     for (const spot of allDisplaySpots) {
         const cat = (spot.category || spot.type || '').toLowerCase();
         const type = (spot.type || '').toLowerCase();
         
-        // Détection précise des services eau et vidange
         const hasWater = (spot.services && spot.services.water === true) || cat.includes('eau') || cat.includes('water') || cat.includes('potable') || type === 'point_eau';
         const hasWaste = (spot.services && spot.services.waste === true) || cat.includes('vidange') || cat.includes('drain') || cat.includes('waste') || type === 'borne_vidange' || type === 'waste';
         
-        // Filtrage strict par catégorie pour éliminer les pollutions croisées
         if (activeFilter && activeFilter !== 'all') {
             let matches = false;
 
@@ -7392,7 +7388,6 @@ function loadSpots() {
             } else if (activeFilter === 'vidange' || activeFilter === 'drain') {
                 matches = hasWaste || cat.includes('vidange') || cat.includes('drain') || type === 'borne_vidange' || type === 'waste';
             } else if (activeFilter === 'aire' || activeFilter === 'park' || activeFilter === 'aire_stationnement') {
-                // Réservé aux aires et parkings, en excluant les points d'eau/vidanges purs
                 matches = (cat.includes('aire') || cat.includes('parking') || cat.includes('stationnement')) 
                           && !type.includes('point_eau') && !type.includes('borne_vidange') && !type.includes('waste');
             } else if (activeFilter === 'sauvage' || activeFilter === 'wild' || cat.includes('nature')) {
@@ -7412,7 +7407,6 @@ function loadSpots() {
         const lng = spot.lng || spot.lon;
         if (!lat || !lng) continue;
 
-        // Attribution des couleurs et icônes (ordre strict)
         let markerColor = '#D4621A';
         let emoji = spot.icon || '🚐';
 
