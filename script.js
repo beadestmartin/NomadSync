@@ -1,4 +1,5 @@
 let map, markersGroup, routeLayer, userMarker, routeLine;
+let currentLang = 'fr';
 let isOffline = false;
 let filters = { free: false, wild: false, farm: false, fuel: false, water: false, elec: false, drain: false };
 
@@ -7380,7 +7381,7 @@ let leafletMap = null;
 markersGroup = null;
 routeLine = null;
 isOffline = false;
- currentLang = localStorage.getItem('nomadsync_lang') || 'fr';
+  currentLang = localStorage.getItem('nomadsync_lang') || 'fr';
 
 // Sécurisation propre des tableaux sans var ni doublons
 if (typeof filteredSpots === 'undefined') window.filteredSpots = [];
@@ -7850,7 +7851,7 @@ const translations = {
     }
 };
 
-let currentLang = 'fr';
+ currentLang = 'fr';
 
 function changeLanguage(lang) {
     currentLang = translations[lang] ? lang : 'fr';
