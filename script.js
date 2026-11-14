@@ -7356,6 +7356,22 @@ function locateUser() {
 // ==========================================
 // AFFICHAGE ET FILTRAGE UNIFIÉS DES SPOTS (CORRIGÉ)
 // ==========================================
+// Fonction utilitaire pour attribuer une catégorie unique et stricte à chaque spot
+function getSpotCategory(spot) {
+    const cat = (spot.category || '').toLowerCase();
+    const type = (spot.type || '').toLowerCase();
+
+    if (cat.includes('carburant') || cat.includes('fuel') || cat.includes('gpl') || type.includes('fuel')) return 'fuel';
+    if (type === 'point_eau' || cat === 'eau' || cat === 'water' || (cat.includes('eau') && !cat.includes('aire'))) return 'water';
+    if (type === 'borne_vidange' || type === 'waste' || cat === 'vidange' || cat === 'drain' || (cat.includes('vidange') && !cat.includes('aire'))) return 'drain';
+    if (cat.includes('ferme') || cat.includes('farm') || cat.includes('vignoble') || type.includes('ferme')) return 'farm';
+    if (cat.includes('sauvage') || cat.includes('wild') || cat.includes('bivouac')) return 'wild';
+    if (cat.includes('nature') || type === 'nature') return 'nature';
+    if (cat.includes('parking') || type.includes('parking')) return 'parking';
+    
+    return 'aire'; // Par défaut pour les aires de camping-car
+}
+
 function loadSpots() {
     if (!leafletMap) return;
 
@@ -7374,30 +7390,28 @@ function loadSpots() {
     const allDisplaySpots = [...spots, ...localSpots];
 
     for (const spot of allDisplaySpots) {
-        const cat = (spot.category || spot.type || '').toLowerCase();
-        const type = (spot.type || '').toLowerCase();
-        
-        const hasWater = (spot.services && spot.services.water === true) || cat.includes('eau') || cat.includes('water') || cat.includes('potable') || type === 'point_eau';
-        const hasWaste = (spot.services && spot.services.waste === true) || cat.includes('vidange') || cat.includes('drain') || cat.includes('waste') || type === 'borne_vidange' || type === 'waste';
-        
+        const spotCat = getSpotCategory(spot);
+
+        // Filtrage strict sans fuite croisée
         if (activeFilter && activeFilter !== 'all') {
             let matches = false;
 
             if (activeFilter === 'eau' || activeFilter === 'water') {
-                matches = hasWater || cat.includes('eau') || cat.includes('water') || type === 'point_eau';
+                matches = (spotCat === 'water');
             } else if (activeFilter === 'vidange' || activeFilter === 'drain') {
-                matches = hasWaste || cat.includes('vidange') || cat.includes('drain') || type === 'borne_vidange' || type === 'waste';
+                matches = (spotCat === 'drain');
             } else if (activeFilter === 'aire' || activeFilter === 'park' || activeFilter === 'aire_stationnement') {
-                matches = (cat.includes('aire') || cat.includes('parking') || cat.includes('stationnement')) 
-                          && !type.includes('point_eau') && !type.includes('borne_vidange') && !type.includes('waste');
-            } else if (activeFilter === 'sauvage' || activeFilter === 'wild' || cat.includes('nature')) {
-                matches = cat.includes('sauvage') || cat.includes('wild') || cat.includes('nature') || cat.includes('bivouac');
+                matches = (spotCat === 'aire' || spotCat === 'parking');
+            } else if (activeFilter === 'sauvage' || activeFilter === 'wild') {
+                matches = (spotCat === 'wild' || spotCat === 'nature');
+            } else if (activeFilter === 'nature') {
+                matches = (spotCat === 'nature' || spotCat === 'wild');
             } else if (activeFilter === 'ferme' || activeFilter === 'farm') {
-                matches = cat.includes('ferme') || cat.includes('farm') || cat.includes('vignoble');
+                matches = (spotCat === 'farm');
             } else if (activeFilter === 'carburant' || activeFilter === 'fuel') {
-                matches = cat.includes('carburant') || cat.includes('fuel') || cat.includes('gpl');
+                matches = (spotCat === 'fuel');
             } else {
-                matches = cat.includes(activeFilter);
+                matches = (spotCat === activeFilter);
             }
 
             if (!matches) continue;
@@ -7407,16 +7421,17 @@ function loadSpots() {
         const lng = spot.lng || spot.lon;
         if (!lat || !lng) continue;
 
+        // Attribution des couleurs et icônes selon la catégorie exclusive
         let markerColor = '#D4621A';
         let emoji = spot.icon || '🚐';
 
-        if (cat.includes('carburant') || cat.includes('fuel')) { markerColor = '#FF4500'; emoji = '⛽'; }
-        else if (hasWater && !cat.includes('aire') && !cat.includes('parking') && (cat.includes('eau') || type === 'point_eau')) { markerColor = '#1E90FF'; emoji = '💧'; }
-        else if (hasWaste && !cat.includes('aire') && !cat.includes('parking') && (cat.includes('vidange') || type === 'borne_vidange' || type === 'waste')) { markerColor = '#8B4513'; emoji = '🚰'; }
-        else if (cat.includes('parking')) { markerColor = '#555555'; emoji = '🅿️'; }
-        else if (cat.includes('sauvage') || cat.includes('wild')) { markerColor = '#2E8B57'; emoji = '🏕️'; }
-        else if (cat.includes('nature')) { markerColor = '#2A1A0E'; emoji = '🌙'; }
-        else if (cat.includes('ferme') || cat.includes('farm') || cat.includes('vignoble')) { markerColor = '#228B22'; emoji = '🚜'; }
+        if (spotCat === 'fuel') { markerColor = '#FF4500'; emoji = '⛽'; }
+        else if (spotCat === 'water') { markerColor = '#1E90FF'; emoji = '💧'; }
+        else if (spotCat === 'drain') { markerColor = '#8B4513'; emoji = '🚰'; }
+        else if (spotCat === 'parking') { markerColor = '#555555'; emoji = '🅿️'; }
+        else if (spotCat === 'wild') { markerColor = '#2E8B57'; emoji = '🏕️'; }
+        else if (spotCat === 'nature') { markerColor = '#2A1A0E'; emoji = '🌙'; }
+        else if (spotCat === 'farm') { markerColor = '#228B22'; emoji = '🚜'; }
 
         const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${emoji}</div>`;
 
