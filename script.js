@@ -7389,20 +7389,19 @@ filteredWaterPoints = rawWaterPoints.filter(spot => {
     return !isForbidden && !isDuplicate;
 });
 
-// Fonction de tri avec priorité stricte
 function getSpotCategory(spot) {
     const cat = (spot.category || '').toLowerCase();
     const type = (spot.type || '').toLowerCase();
     const name = (spot.name || '').toLowerCase();
 
     if (cat.includes('carburant') || cat.includes('fuel') || cat.includes('gpl') || type.includes('fuel')) return 'fuel';
-    if (type === 'point_eau' || cat === 'eau' || cat === 'water' || (cat.includes('eau') && !cat.includes('aire'))) return 'water';
-    if (type === 'borne_vidange' || type === 'waste' || cat === 'vidange' || cat === 'drain' || cat.includes('vidange') || name.includes('vidange')) return 'drain';
+    
+    // Détection élargie et prioritaire pour l'eau et les vidanges (basée sur ton tableau de 410 spots)
+    if (type === 'point_eau' || cat.includes('eau') || cat.includes('water') || cat.includes('potable')) return 'water';
+    if (type === 'borne_vidange' || cat.includes('vidange') || cat.includes('drain') || cat.includes('waste') || name.includes('vidange')) return 'drain';
+    
     if (cat.includes('ferme') || cat.includes('farm') || cat.includes('vignoble') || type.includes('ferme')) return 'farm';
-    
-    // Le parking est prioritaire pour éviter qu'un parking ne bascule en sauvage
     if (cat.includes('parking') || type.includes('parking') || cat.includes('park')) return 'parking';
-    
     if (cat.includes('nature') || type === 'nature') return 'nature';
     if (cat.includes('sauvage') || cat.includes('wild') || cat.includes('bivouac') || type.includes('nuit_toleree')) return 'wild';
     
