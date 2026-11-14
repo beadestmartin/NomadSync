@@ -14,12 +14,18 @@
   <meta name="theme-color" content="#D4621A">
 
   <style>
-    /* Forcer la taille normale des menus déroulants et bloquer l'étirement flexbox */
-select, #languageSelect, #vanSelect {
+    /* Forcer les sélecteurs côte à côte et compacts sur mobile */
+.top-bar, .header-controls {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+#languageSelect, #vanSelect {
     width: auto !important;
-    max-width: 160px !important;
-    flex: 0 0 auto !important;
-    display: inline-block !important;
+    max-width: 45% !important;
+    flex: 1 1 auto !important;
 }
     :root {
       --bg-color: #f7f2ea;
