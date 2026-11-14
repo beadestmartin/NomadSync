@@ -7372,6 +7372,40 @@ function getSpotCategory(spot) {
     return 'aire'; // Par défaut pour les aires de camping-car
 }
 
+// 1. Correction : On n'exclut plus les points d'eau/vidange payants au démarrage
+let filteredWaterPoints = rawWaterPoints.filter(spot => {
+    const stayText = (spot.stay || "").toLowerCase();
+    const nameText = spot.name.toLowerCase();
+    const addressText = (spot.address || "").toLowerCase();
+
+    const isForbidden = forbiddenKeywords.some(keyword => 
+        stayText.includes(keyword) || nameText.includes(keyword) || addressText.includes(keyword)
+    );
+
+    const coordKey = `${spot.lat.toFixed(4)},${spot.lng.toFixed(4)}`;
+    const isDuplicate = seenCoords.has(coordKey);
+    if (!isDuplicate) seenCoords.add(coordKey);
+
+    return !isForbidden && !isDuplicate;
+});
+
+// 2. Fonction stricte pour attribuer une seule catégorie exclusive à chaque spot
+function getSpotCategory(spot) {
+    const cat = (spot.category || '').toLowerCase();
+    const type = (spot.type || '').toLowerCase();
+    const name = (spot.name || '').toLowerCase();
+
+    if (cat.includes('carburant') || cat.includes('fuel') || cat.includes('gpl') || type.includes('fuel')) return 'fuel';
+    if (type === 'point_eau' || cat === 'eau' || cat === 'water' || (cat.includes('eau') && !cat.includes('aire'))) return 'water';
+    if (type === 'borne_vidange' || type === 'waste' || cat === 'vidange' || cat === 'drain' || cat.includes('vidange') || name.includes('vidange')) return 'drain';
+    if (cat.includes('ferme') || cat.includes('farm') || cat.includes('vignoble') || type.includes('ferme')) return 'farm';
+    if (cat.includes('sauvage') || cat.includes('wild') || cat.includes('bivouac') || type.includes('nuit_toleree')) return 'wild';
+    if (cat.includes('nature') || type === 'nature') return 'nature';
+    if (cat.includes('parking') || type.includes('parking') || cat.includes('park')) return 'parking';
+    
+    return 'aire'; // Par défaut pour les véritables aires de camping-car
+}
+
 function loadSpots() {
     if (!leafletMap) return;
 
@@ -7392,7 +7426,7 @@ function loadSpots() {
     for (const spot of allDisplaySpots) {
         const spotCat = getSpotCategory(spot);
 
-        // Filtrage strict sans fuite croisée
+        // Filtrage strict sans aucune fusion croisée
         if (activeFilter && activeFilter !== 'all') {
             let matches = false;
 
@@ -7400,12 +7434,14 @@ function loadSpots() {
                 matches = (spotCat === 'water');
             } else if (activeFilter === 'vidange' || activeFilter === 'drain') {
                 matches = (spotCat === 'drain');
-            } else if (activeFilter === 'aire' || activeFilter === 'park' || activeFilter === 'aire_stationnement') {
-                matches = (spotCat === 'aire' || spotCat === 'parking');
+            } else if (activeFilter === 'aire' || activeFilter === 'aire_stationnement') {
+                matches = (spotCat === 'aire'); // Uniquement les aires pures
+            } else if (activeFilter === 'parking' || activeFilter === 'park') {
+                matches = (spotCat === 'parking'); // Uniquement les parkings purs
             } else if (activeFilter === 'sauvage' || activeFilter === 'wild') {
-                matches = (spotCat === 'wild' || spotCat === 'nature');
+                matches = (spotCat === 'wild'); // Uniquement le sauvage / bivouac
             } else if (activeFilter === 'nature') {
-                matches = (spotCat === 'nature' || spotCat === 'wild');
+                matches = (spotCat === 'nature'); // Uniquement la nature
             } else if (activeFilter === 'ferme' || activeFilter === 'farm') {
                 matches = (spotCat === 'farm');
             } else if (activeFilter === 'carburant' || activeFilter === 'fuel') {
@@ -7421,7 +7457,7 @@ function loadSpots() {
         const lng = spot.lng || spot.lon;
         if (!lat || !lng) continue;
 
-        // Attribution des couleurs et icônes selon la catégorie exclusive
+        // Attribution des couleurs et icônes
         let markerColor = '#D4621A';
         let emoji = spot.icon || '🚐';
 
