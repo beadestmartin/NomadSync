@@ -7148,24 +7148,22 @@ const nomadSyncSpots = [
   }
 ];
 
-
+// 2. Fonction d'affichage des pastilles reliée à ton markersGroup
 // ==========================================
 // CONFIGURATION GLOBALE ET VARIABLE DE CARTE
 // ==========================================
 let leafletMap = null;
-let markersGroup = null;
-let routeLine = null;
-let isOffline = false;
+routeLine = null;
+isOffline = false;
 
 // Déclaration sécurisée des tableaux pour éviter les erreurs au chargement
-if (typeof filteredSpots === 'undefined') var filteredSpots = [];
-if (typeof filteredWaterPoints === 'undefined') var filteredWaterPoints = [];
-if (typeof rawNaturePoints === 'undefined') var rawNaturePoints = [];
-if (typeof rawFarmPoints === 'undefined') var rawFarmPoints = [];
-if (typeof rawFuelPoints === 'undefined') var rawFuelPoints = [];
-if (typeof rawDrainPoints === 'undefined') var rawDrainPoints = [];
-if (typeof nomadSyncSpots === 'undefined') var nomadSyncSpots = [];
-
+if (typeof filteredSpots === 'undefined') filteredSpots = [];
+if (typeof filteredWaterPoints === 'undefined') filteredWaterPoints = [];
+if (typeof rawNaturePoints === 'undefined') rawNaturePoints = [];
+if (typeof rawFarmPoints === 'undefined') rawFarmPoints = [];
+if (typeof rawFuelPoints === 'undefined') rawFuelPoints = [];
+if (typeof rawDrainPoints === 'undefined') rawDrainPoints = [];
+if (typeof nomadSyncSpots === 'undefined') nomadSyncSpots = [];
 // Fusion des spots personnalisés du stockage local
 let customSpots = JSON.parse(localStorage.getItem('nomadsync_custom_spots') || '[]');
 
@@ -7180,9 +7178,6 @@ const spots = [
   ...nomadSyncSpots
 ];
 
-// ==========================================
-// SYSTÈME DE TRADUCTION (FR, EN, ES, DE)
-// ==========================================
 const translations = {
     fr: {
         title: "NomadSync",
@@ -7218,24 +7213,13 @@ const translations = {
     }
 };
 
-function changeLanguage(lang) {
-    const t = translations[lang] || translations.fr;
-    document.title = t.title;
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (t[key]) {
-            el.innerHTML = t[key];
-        }
-    });
-    localStorage.setItem('nomadsync_lang', lang);
-}
-
 // ==========================================
 // INITIALISATION DE LA CARTE
-// ==========================================
 function initMap() {
     const mapContainer = document.getElementById('map');
-    if (!mapContainer || typeof L === 'undefined') return;
+    if (!mapContainer) return;
+
+    if (typeof L === 'undefined') return;
 
     if (!leafletMap) {
         try {
@@ -7245,6 +7229,7 @@ function initMap() {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(leafletMap);
 
+            // C'ICI QU'IL MANQUAIT LA BOÎTE POUR LES PASTILLES :
             markersGroup = L.layerGroup().addTo(leafletMap);
 
             leafletMap.on('click', function(e) {
@@ -7252,8 +7237,8 @@ function initMap() {
                 window.selectedLng = e.latlng.lng;
                 console.log("Coordonnées capturées :", window.selectedLat, window.selectedLng);
             });
+
         } catch (e) {
-            console.error("Erreur init carte :", e);
             return;
         }
     }
@@ -7264,7 +7249,9 @@ function initMap() {
         }
     }, 250);
 
-    loadSpots();
+    if (typeof renderNomadSyncSpots === 'function') {
+        renderNomadSyncSpots();
+    }
 }
 
 function locateUser() {
@@ -7276,100 +7263,6 @@ function locateUser() {
     }
 }
 
-// ==========================================
-// AFFICHAGE ET FILTRAGE UNIFIÉS DES SPOTS
-// ==========================================
-function loadSpots() {
-    if (!leafletMap) return;
-
-    if (!markersGroup) {
-        markersGroup = L.layerGroup().addTo(leafletMap);
-    }
-    markersGroup.clearLayers();
-
-    const activeFilter = document.getElementById('servicesFilter') ? document.getElementById('servicesFilter').value : 'all';
-    const localSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
-    
-    // Fusion globale de tous les spots disponibles
-    const allDisplaySpots = [...spots, ...localSpots];
-
-    allDisplaySpots.forEach(spot => {
-        const cat = (spot.category || spot.type || '').toLowerCase();
-        
-        // Filtrage dynamique selon le menu déroulant
-        if (activeFilter && activeFilter !== 'all') {
-            const hasWater = (spot.services && spot.services.water === true) || cat.includes('eau') || cat.includes('water');
-            const hasWaste = (spot.services && spot.services.waste === true) || cat.includes('vidange') || cat.includes('drain');
-
-            let matches = (cat === activeFilter || cat.includes(activeFilter));
-            if (activeFilter === 'eau' && hasWater) matches = true;
-            if (activeFilter === 'vidange' && hasWaste) matches = true;
-            if (activeFilter === 'aire' && (cat === 'aire' || cat === 'free')) matches = true;
-            if (activeFilter === 'sauvage' && (cat.includes('sauvage') || cat.includes('wild'))) matches = true;
-            if (activeFilter === 'ferme' && (cat.includes('ferme') || cat.includes('farm'))) matches = true;
-            if (activeFilter === 'carburant' && (cat.includes('carburant') || cat.includes('fuel'))) matches = true;
-
-            if (!matches) return;
-        }
-
-        const lat = spot.lat;
-        const lng = spot.lng || spot.lon;
-        if (!lat || !lng) return;
-
-        // Attribution des couleurs et emojis par catégorie
-        let markerColor = '#D4621A';
-        let emoji = spot.icon || '🚐';
-
-        if (cat.includes('parking')) { markerColor = '#555555'; emoji = '🅿️'; }
-        else if (cat.includes('eau') || (spot.services && spot.services.water && cat === 'eau')) { markerColor = '#1E90FF'; emoji = '💧'; }
-        else if (cat.includes('vidange')) { markerColor = '#8B4513'; emoji = '🚰'; }
-        else if (cat.includes('nature')) { markerColor = '#2A1A0E'; emoji = '🌙'; }
-        else if (cat.includes('sauvage') || cat.includes('wild')) { markerColor = '#2E8B57'; emoji = '🏕️'; }
-        else if (cat.includes('ferme') || cat.includes('farm')) { markerColor = '#228B22'; emoji = '🚜'; }
-        else if (cat.includes('carburant') || cat.includes('fuel')) { markerColor = '#FF4500'; emoji = '⛽'; }
-
-        const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${emoji}</div>`;
-        
-        const customIcon = L.divIcon({
-            className: 'nomadsync-custom-marker',
-            html: markerHtml,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        });
-
-        const marker = L.marker([lat, lng], { icon: customIcon });
-
-        const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-        const wazeUrl = `https://www.waze.com/ul?ll=${lat},${lng}&navigate=yes`;
-
-        marker.bindPopup(`
-            <div style="font-family: sans-serif; max-width: 240px;">
-                <h4 style="margin: 0 0 5px 0; color: #2A1A0E;">${spot.name || 'Lieu'}</h4>
-                <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${spot.category || spot.type || 'aire'}</span><br>
-                <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
-                <p style="margin: 3px 0; font-size: 12px;"><strong>Tarif :</strong> ${spot.price || 'Gratuit'}</p>
-                <p style="margin: 3px 0; font-size: 12px;"><strong>Durée :</strong> ${spot.stay || 'N/A'}</p>
-                ${spot.exchange ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Échange :</strong> ${spot.exchange}</p>` : ''}
-                ${spot.electricity ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Électricité :</strong> ${spot.electricity}</p>` : ''}
-                <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
-                    <a href="${gmapsUrl}" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>
-                    <a href="${wazeUrl}" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>
-                </div>
-            </div>
-        `);
-
-        markersGroup.addLayer(marker);
-    });
-}
-
-// Rétrocompatibilité
-function renderNomadSyncSpots() {
-    loadSpots();
-}
-
-// ==========================================
-// ITINÉRAIRES ET RECHERCHE
-// ==========================================
 async function calculateAndDrawRoute() {
     const startText = document.getElementById('startInput').value;
     const destText = document.getElementById('destInput').value;
@@ -7407,15 +7300,14 @@ async function calculateAndDrawRoute() {
       const mins = durationMin % 60;
       const timeStr = hours > 0 ? `${hours}h${mins > 0 ? mins + 'min' : ''}` : `${mins} min`;
 
-      const conso = parseFloat(document.getElementById('specConso').value || 10);
-      const priceL = parseFloat(document.getElementById('specPrice').value || 1.75);
+      const conso = parseFloat(document.getElementById('specConso').value);
+      const priceL = parseFloat(document.getElementById('specPrice').value);
       const cost = ((distanceKm * conso / 100) * priceL).toFixed(2);
-      const specHEl = document.getElementById('specH');
-      const gabaritInfo = specHEl ? `<br>• Gabarit pris en compte (Hauteur ${specHEl.value}m).` : '';
 
       resultDiv.innerHTML = `<b>📊 Itinéraire réel tracé :</b><br>
         • Distance : <b>${distanceKm} km</b> | Durée estimée : <b>${timeStr}</b><br>
-        • Coût carburant estimé : <b>~${cost} €</b>${gabaritInfo}`;
+        • Coût carburant estimé : <b>~${cost} €</b><br>
+        • Gabarit pris en compte (Hauteur ${document.getElementById('specH').value}m).`;
 
       if (typeof routeLine !== 'undefined' && routeLine && leafletMap) {
         leafletMap.removeLayer(routeLine);
@@ -7431,37 +7323,94 @@ async function calculateAndDrawRoute() {
       resultDiv.innerHTML = `❌ Erreur : ${err.message}`;
     }
 }
-
-async function handleSearchBtn() {
-    const searchInput = document.getElementById('searchInput');
-    if (!searchInput) return;
-    const query = searchInput.value;
-    if (!query) return;
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      if (data && data.length > 0) {
-        if (leafletMap) {
-          leafletMap.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 11);
-        }
-      } else {
-        alert("Lieu non trouvé. Essayez de rajouter le code postal ou le pays.");
-      }
-    } catch (err) {
-      alert("Recherche indisponible.");
-    }
-}
-
-function handleSearch(e) {
-    if (e.key === 'Enter') handleSearchBtn();
-}
-
 // ==========================================
-// AJOUT DE SPOT & UTILITAIRES
+// GESTION DES MARQUEURS ET SPOTS
+// ==========================================
+function renderNomadSyncSpots() {
+  // Si le groupe de pastilles n'existe pas encore, on le crée automatiquement
+  if (typeof markersGroup === 'undefined' || !markersGroup) {
+      if (typeof leafletMap !== 'undefined' && leafletMap) {
+          markersGroup = L.layerGroup().addTo(leafletMap);
+      } else {
+          return; // Si la carte n'est pas prête non plus, on s'arrête
+      }
+  }
+  markersGroup.clearLayers();
+
+  // 1. Charger dynamiquement les spots depuis le localStorage s'ils ne le sont pas
+  if (typeof nomadSyncSpots === 'undefined' || !Array.isArray(nomadSyncSpots)) {
+    nomadSyncSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
+  }
+
+  if (!Array.isArray(nomadSyncSpots)) return;
+
+  // 2. Correction de l'ID du filtre (servicesFilter au lieu de filterSelect)
+  const activeFilter = document.getElementById('servicesFilter') ? document.getElementById('servicesFilter').value : 'all';
+
+  const localSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
+  const allDisplaySpots = (typeof spots !== 'undefined' && Array.isArray(spots))
+    ? [...spots, ...localSpots]
+    : [...nomadSyncSpots, ...localSpots];
+
+  allDisplaySpots.forEach(spot => {
+    if (activeFilter && activeFilter !== 'all' && spot.type !== activeFilter && spot.category !== activeFilter) {
+      return;
+    }
+
+    let markerColor = '#D4621A'; // Couleur par défaut (aires)
+
+    if (spot.type === 'aire' || spot.category === 'aire' || spot.type === 'free' || spot.category === 'free') markerColor = '#D4621A';
+    if (spot.type === 'parking' || spot.category === 'parking') markerColor = '#555555';
+    if (spot.type === 'eau' || spot.category === 'eau') markerColor = '#1E90FF';
+    if (spot.type === 'vidange' || spot.category === 'vidange') markerColor = '#8B4513';
+    if (spot.type === 'ferme' || spot.category === 'ferme') markerColor = '#228B22';
+    if (spot.type === 'carburant' || spot.category === 'carburant' || spot.type === 'fuel' || spot.category === 'fuel') markerColor = '#FF4500';
+    if (spot.type === 'nature' || spot.category === 'nature') markerColor = '#2A1A0E';
+    if (spot.type === 'sauvage' || spot.category === 'sauvage' || spot.type === 'Dodo sauvage' || spot.category === 'Dodo sauvage' || spot.type === 'wild' || spot.category === 'wild') markerColor = '#2E8B57';
+    
+    const lat = spot.lat;
+    const lng = spot.lng || spot.lon;
+
+    if (!lat || !lng) return;
+
+    const markerHtml = `<div style="background-color: ${markerColor}; color: white; padding: 5px; border-radius: 50%; text-align: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${spot.icon || '📍'}</div>`;
+    
+    const customIcon = L.divIcon({
+      className: 'nomadsync-custom-marker',
+      html: markerHtml,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    });
+
+    const marker = L.marker([lat, lng], { icon: customIcon });
+
+    let gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng;
+    let wazeUrl = 'https://www.waze.com/ul?ll=' + lat + ',' + lng + '&navigate=yes';
+
+    marker.bindPopup(`
+      <div style="font-family: sans-serif; max-width: 240px;">
+        <h4 style="margin: 0 0 5px 0; color: #2A1A0E;">${spot.name || 'Lieu'}</h4>
+        <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">${spot.category || spot.type || 'aire'}</span><br>
+        <p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ${spot.address || ''}</p>
+        <p style="margin: 3px 0; font-size: 12px;"><strong>Tarif :</strong> ${spot.price || 'Gratuit'}</p>
+        <p style="margin: 3px 0; font-size: 12px;"><strong>Durée :</strong> ${spot.stay || 'N/A'}</p>
+        ${spot.exchange ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Échange :</strong> ${spot.exchange}</p>` : ''}
+        ${spot.electricity ? `<p style="margin: 3px 0; font-size: 12px;"><strong>Électricité :</strong> ${spot.electricity}</p>` : ''}
+        <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+          <a href="${gmapsUrl}" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>
+          <a href="${wazeUrl}" target="_blank" style="background: #33ccff; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🚗 Waze</a>
+        </div>
+      </div>
+    `);
+
+    markersGroup.addLayer(marker);
+  });
+}
+// ==========================================
+// RECHERCHE, UI ET UTILITAIRES
 // ==========================================
 function toggleFilter(valeurFiltre) {
     console.log("Filtre sélectionné :", valeurFiltre);
-    loadSpots();
 }
 
 function exportSpotsJSON() {
@@ -7479,52 +7428,6 @@ function exportSpotsJSON() {
     downloadAnchor.remove();
 }
 
-function toggleAddSpotForm() {
-    const form = document.getElementById('add-spot-form');
-    if (form) {
-        form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
-    }
-}
-
-function handleAddNewSpot(event) {
-    event.preventDefault();
-
-    const name = document.getElementById('newSpotName').value;
-    const address = document.getElementById('newSpotAddress').value;
-    const category = document.getElementById('newSpotType').value;
-    const photoInput = document.getElementById('newSpotPhoto');
-
-    let spotsList = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
-
-    const newSpot = {
-        id: Date.now(),
-        name: name,
-        address: address,
-        category: category,
-        type: category,
-        lat: window.selectedLat || (leafletMap ? leafletMap.getCenter().lat : 46.6),
-        lng: window.selectedLng || (leafletMap ? leafletMap.getCenter().lng : 1.8),
-        icon: category === 'eau' ? '💧' : (category === 'vidange' ? '🚰' : '🚐'),
-        price: 'Gratuit',
-        stay: '24h max',
-        photo: photoInput && photoInput.files && photoInput.files[0] ? URL.createObjectURL(photoInput.files[0]) : null
-    };
-
-    spotsList.push(newSpot);
-    localStorage.setItem('nomadSyncSpots', JSON.stringify(spotsList));
-
-    event.target.reset();
-    window.selectedLat = null;
-    window.selectedLng = null;
-
-    toggleAddSpotForm();
-    alert('Bon plan enregistré avec succès !');
-    loadSpots();
-}
-
-// ==========================================
-// MODALES, THÈME ET VÉHICULE
-// ==========================================
 function toggleVipModal() {
     const modal = document.getElementById('vip-modal');
     if (modal) modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
@@ -7626,9 +7529,36 @@ function updateVehicleSpec() {
     updateFuelPrice();
 }
 
-// ==========================================
-// ONGLETS, BUDGET, JAUGES, BULLE ET CHECKLIST
-// ==========================================
+async function handleSearchBtn() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+    const query = searchInput.value;
+    if (!query) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        if (leafletMap) {
+          leafletMap.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 11);
+        }
+      } else {
+        alert("Lieu non trouvé. Essayez de rajouter le code postal ou le pays.");
+      }
+    } catch (err) {
+      alert("Recherche indisponible.");
+    }
+}
+
+function handleSearch(e) {
+    if (e.key === 'Enter') handleSearchBtn();
+}
+
+function toggleAddSpotForm() {
+    const form = document.getElementById('add-spot-form');
+    if (form) {
+        form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
+    }
+  }
 function switchTab(tab) {
     const targetId = tab === 'itineraire' ? 'panel-itineraire' : (tab === 'jauges' ? 'view-jauges' : 'view-securite');
     const targetElement = document.getElementById(targetId);
@@ -7702,6 +7632,9 @@ function switchTab(tab) {
     setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 200);
 }
 
+// ==========================================
+// BUDGET, JAUGES, BULLE ET CHECKLIST
+// ==========================================
 function addFuelExpense(e) {
   e.preventDefault();
   const date = document.getElementById('fuelDate').value;
@@ -7833,11 +7766,14 @@ function loadSavedData() {
     });
 
     renderFuelExpenses();
-    loadSpots();
-}
 
+    // <-- C'EST ICI QU'ON AJOUTE L'AFFICHAGE DE TES SPOTS :
+    if (typeof renderNomadSyncSpots === 'function') {
+        renderNomadSyncSpots();
+    }
+}
 // ==========================================
-// MÉTÉO ET ÉCOUTEURS D'ÉVÉNEMENTS GLOBAUX
+// MÉTÉO ET INITIALISATION FINALE
 // ==========================================
 async function checkMeteoAlert() {
   const status = document.getElementById('meteo-status');
@@ -7884,6 +7820,77 @@ async function checkMeteoAlert() {
   );
 }
 
+function changeLanguage(lang) {
+    const t = translations ? translations[lang] : null;
+    if (t) {
+        document.title = t.title;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key]) {
+                el.innerHTML = t[key];
+            }
+        });
+    }
+    localStorage.setItem('nomadsync_lang', lang);
+}
+function handleAddNewSpot(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('newSpotName').value;
+    const address = document.getElementById('newSpotAddress').value;
+    const category = document.getElementById('newSpotType').value;
+    const photoInput = document.getElementById('newSpotPhoto');
+
+    let spots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
+
+    const newSpot = {
+        id: Date.now(),
+        name: name,
+        address: address,
+        category: category,
+        lat: window.selectedLat || null, // Récupère la latitude du clic sur la carte
+        lng: window.selectedLng || null, // Récupère la longitude du clic sur la carte
+        photo: photoInput.files && photoInput.files[0] ? URL.createObjectURL(photoInput.files[0]) : null
+    };
+
+    spots.push(newSpot);
+    localStorage.setItem('nomadSyncSpots', JSON.stringify(spots));
+
+    event.target.reset();
+    window.selectedLat = null; // Réinitialise après l'enregistrement
+    window.selectedLng = null;
+
+    if (typeof toggleAddSpotForm === 'function') {
+        toggleAddSpotForm();
+    }
+
+    alert('Bon plan enregistré avec succès !');
+    
+    if (typeof loadSpots === 'function') {
+        loadSpots();
+    }
+}
+
+function loadSpots() {
+    if (typeof map === 'undefined' && typeof leafletMap === 'undefined') return;
+    const activeMap = typeof leafletMap !== 'undefined' ? leafletMap : map;
+
+    const spots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
+
+    spots.forEach(spot => {
+        if (spot.lat && spot.lng) {
+            const emoji = typeIcons[spot.category] || '📍';
+            L.marker([spot.lat, spot.lng])
+              .addTo(activeMap)
+              .bindPopup(`<b>${emoji} ${spot.name}</b><br>${spot.address}<br><em>Catégorie : ${spot.category}</em>`);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadSpots();
+});
+
 // Expositions globales pour les boutons HTML
 window.initMap = initMap;
 window.locateUser = locateUser;
@@ -7891,12 +7898,9 @@ window.switchTab = switchTab;
 window.calculateAndDrawRoute = calculateAndDrawRoute;
 window.checkMeteoAlert = checkMeteoAlert;
 window.toggleAddSpotForm = toggleAddSpotForm;
-window.handleAddNewSpot = handleAddNewSpot;
-window.loadSpots = loadSpots;
-window.changeLanguage = changeLanguage;
 
 // Lancement global au chargement du DOM
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
     const savedLang = localStorage.getItem('nomadsync_lang');
     if (savedLang) {
         const select = document.getElementById('langSelect');
@@ -7904,24 +7908,14 @@ document.addEventListener('DOMContentLoaded', () => {
         changeLanguage(savedLang);
     }
 
-    loadSavedData();
-    initMap();
-
-    // Branchement du menu déroulant des filtres
-    const filterSelect = document.getElementById('servicesFilter');
-    if (filterSelect) {
-        filterSelect.addEventListener('change', loadSpots);
+    if (typeof loadSavedData === 'function') {
+        loadSavedData();
     }
 
-    // Branchement du sélecteur de langue
-    const langSelect = document.getElementById('langSelect');
-    if (langSelect) {
-        langSelect.addEventListener('change', (e) => {
-            changeLanguage(e.target.value);
-        });
+    if (typeof initMap === 'function') {
+        initMap();
     }
 });
-
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(() => {});
