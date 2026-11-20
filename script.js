@@ -7949,7 +7949,9 @@ function getSpotCategory(spot) {
 
     const hasWater = Boolean(spot.services && spot.services.water === true);
     const hasWaste = Boolean(spot.services && spot.services.waste === true);
-    const isAireOrParking = combined.includes('aire') || combined.includes('parking') || combined.includes('park');
+    const isAire = combined.includes('aire');
+    const isParking = combined.includes('parking') || combined.includes('park');
+    const isAireOrParking = isAire || isParking;
 
     if (combined.includes('carburant') || combined.includes('fuel') || combined.includes('gpl')) {
         return 'fuel';
@@ -7996,7 +7998,11 @@ function getSpotCategory(spot) {
         return 'nature';
     }
 
-    if (isAireOrParking) {
+    if (isAire) {
+        return 'aire';
+    }
+
+    if (isParking) {
         return 'parking';
     }
 
@@ -8021,7 +8027,7 @@ filteredWaterPoints = rawWaterPoints.filter(spot => {
 });
 
 const SPOT_TRANSLATIONS = {};
-   
+
 function getSpotTranslatedData(spot) {
     const select = document.getElementById('langSelect');
     const lang = (typeof currentLang !== 'undefined' && currentLang)
@@ -8057,9 +8063,13 @@ function loadSpots() {
     const localSpots = JSON.parse(localStorage.getItem('nomadSyncSpots')) || [];
     const t = translations[currentLang] || translations.fr;
     const userIsVip = localStorage.getItem('nomadSyncVip') === 'true';
-    
+
+    const mainSpots = typeof spots !== 'undefined'
+        ? spots
+        : (typeof rawSpots !== 'undefined' ? rawSpots : []);
+
     const allDisplaySpots = [
-        ...spots, 
+        ...mainSpots,
         ...(typeof rawWaterPoints !== 'undefined' ? rawWaterPoints : []), 
         ...(typeof rawWastePoints !== 'undefined' ? rawWastePoints : []), 
         ...localSpots
