@@ -8026,7 +8026,26 @@ filteredWaterPoints = rawWaterPoints.filter(spot => {
     return !isForbidden && !isDuplicate;
 });
 
-const SPOT_TRANSLATIONS = {};
+const SPOT_TRANSLATIONS = {
+    "Pen Bé - Aire de la Marche au Bœuf (Assérac)": {
+        fr: {
+            description: "Aire de stationnement située à Pen Bé près d'Assérac. Emplacement calme à proximité de la côte.",
+            stay: "48 heures max"
+        },
+        en: {
+            description: "Motorhome parking area located at Pen Bé near Assérac. Quiet spot close to the coast.",
+            stay: "48 hours max"
+        },
+        es: {
+            description: "Área de estacionamiento situada en Pen Bé, cerca de Assérac. Lugar tranquilo cerca de la costa.",
+            stay: "48 horas máx."
+        },
+        de: {
+            description: "Wohnmobilstellplatz in Pen Bé bei Assérac. Ruhiger Platz nahe der Küste.",
+            stay: "Max. 48 Stunden"
+        }
+    }
+};
 
 function getSpotTranslatedData(spot) {
     const select = document.getElementById('langSelect');
