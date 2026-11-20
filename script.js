@@ -7940,19 +7940,66 @@ function locateUser() {
 // ==========================================
 // AFFICHAGE ET FILTRAGE UNIFIÉS DES SPOTS (CORRIGÉ)
 // ==========================================
-// Fonction utilitaire pour attribuer une catégorie unique et stricte à chaque spot
+// Fonction unique pour attribuer une catégorie à chaque spot
 function getSpotCategory(spot) {
     const cat = (spot.category || '').toLowerCase();
     const type = (spot.type || '').toLowerCase();
+    const name = (spot.name || '').toLowerCase();
+    const combined = `${cat} ${type}`;
 
-    if (cat.includes('carburant') || cat.includes('fuel') || cat.includes('gpl') || type.includes('fuel')) return 'fuel';
-    if (type === 'point_eau' || cat === 'eau' || cat === 'water' || (cat.includes('eau') && !cat.includes('aire'))) return 'water';
-    if (type === 'borne_vidange' || type === 'waste' || cat === 'vidange' || cat === 'drain' || (cat.includes('vidange') && !cat.includes('aire'))) return 'drain';
-    if (cat.includes('ferme') || cat.includes('farm') || cat.includes('vignoble') || type.includes('ferme')) return 'farm';
-    if (cat.includes('sauvage') || cat.includes('wild') || cat.includes('bivouac')) return 'wild';
-    if (cat.includes('nature') || type === 'nature') return 'nature';
-    if (cat.includes('parking') || type.includes('parking')) return 'parking';
-    
+    const hasWater = Boolean(spot.services && spot.services.water === true);
+    const hasWaste = Boolean(spot.services && spot.services.waste === true);
+    const isAireOrParking = combined.includes('aire') || combined.includes('parking') || combined.includes('park');
+
+    if (combined.includes('carburant') || combined.includes('fuel') || combined.includes('gpl')) {
+        return 'fuel';
+    }
+
+    if (
+        type === 'point_eau' ||
+        cat === 'eau' ||
+        cat === 'water' ||
+        combined.includes('potable') ||
+        (hasWater && !isAireOrParking) ||
+        (combined.includes('eau') && !isAireOrParking)
+    ) {
+        return 'water';
+    }
+
+    if (
+        type === 'borne_vidange' ||
+        type === 'waste' ||
+        cat === 'vidange' ||
+        cat === 'drain' ||
+        name.includes('vidange') ||
+        (hasWaste && !isAireOrParking) ||
+        (combined.includes('vidange') && !isAireOrParking)
+    ) {
+        return 'drain';
+    }
+
+    if (combined.includes('ferme') || combined.includes('farm') || combined.includes('vignoble')) {
+        return 'farm';
+    }
+
+    if (
+        combined.includes('sauvage') ||
+        combined.includes('wild') ||
+        combined.includes('bivouac') ||
+        combined.includes('nuit_toleree') ||
+        spot.vip === true
+    ) {
+        return 'wild';
+    }
+
+    if (combined.includes('nature')) {
+        return 'nature';
+    }
+
+    if (isAireOrParking) {
+        return 'parking';
+    }
+
     return 'aire'; // Par défaut pour les aires de camping-car
 }
 
@@ -7973,38 +8020,26 @@ filteredWaterPoints = rawWaterPoints.filter(spot => {
     return !isForbidden && !isDuplicate;
 });
 
-function getSpotCategory(spot) {
-    const cat = (spot.category || '').toLowerCase();
-    const type = (spot.type || '').toLowerCase();
-    const name = (spot.name || '').toLowerCase();
+const SPOT_TRANSLATIONS = {};
+   
+function getSpotTranslatedData(spot) {
+    const select = document.getElementById('langSelect');
+    const lang = (typeof currentLang !== 'undefined' && currentLang)
+        || (select && select.value)
+        || localStorage.getItem('nomadsync_lang')
+        || 'fr';
 
-    if (cat.includes('carburant') || cat.includes('fuel') || cat.includes('gpl') || type.includes('fuel')) return 'fuel';
-    
-    // Détection élargie et prioritaire pour l'eau et les vidanges (basée sur ton tableau de 410 spots)
-    if (type === 'point_eau' || cat.includes('eau') || cat.includes('water') || cat.includes('potable')) return 'water';
-    if (type === 'borne_vidange' || cat.includes('vidange') || cat.includes('drain') || cat.includes('waste') || name.includes('vidange')) return 'drain';
-    
-    if (cat.includes('ferme') || cat.includes('farm') || cat.includes('vignoble') || type.includes('ferme')) return 'farm';
-    if (cat.includes('parking') || type.includes('parking') || cat.includes('park')) return 'parking';
-    if (cat.includes('nature') || type === 'nature') return 'nature';
-    if (cat.includes('sauvage') || cat.includes('wild') || cat.includes('bivouac') || type.includes('nuit_toleree')) return 'wild';
-    
-    return 'aire'; // Par défaut pour les aires de camping-car
-}
+    const spotKey = spot.id || spot.name;
+    const entry = spotKey ? SPOT_TRANSLATIONS[spotKey] : null;
+    const localized = entry ? (entry[lang] || entry.fr || Object.values(entry)[0]) : {};
 
-function getSpotCategory(spot) {
-    const cat = (spot.category || spot.type || '').toLowerCase();
-    const hasWater = (spot.services && spot.services.water === true) || cat.includes('eau') || cat.includes('water') || cat.includes('potable');
-    const hasWaste = (spot.services && spot.services.waste === true) || cat.includes('vidange') || cat.includes('drain') || cat.includes('waste');
-
-    if (hasWater && !cat.includes('aire') && !cat.includes('parking')) return 'water';
-    if (hasWaste && !cat.includes('aire') && !cat.includes('parking')) return 'drain';
-    if (cat.includes('carburant') || cat.includes('fuel') || cat.includes('gpl')) return 'fuel';
-    if (cat.includes('sauvage') || cat.includes('wild') || cat.includes('bivouac') || spot.vip === true) return 'wild';
-    if (cat.includes('nature')) return 'nature';
-    if (cat.includes('ferme') || cat.includes('farm')) return 'farm';
-    if (cat.includes('parking') || cat.includes('park')) return 'parking';
-    return 'aire';
+    return {
+        name: localized.name || localized.title || spot.name || spot.title || 'Lieu',
+        description: localized.description || localized.desc || spot.description || spot.desc || '',
+        stay: localized.stay || spot.stay || 'N/A',
+        exchange: localized.exchange || spot.exchange || '',
+        electricity: localized.electricity || spot.electricity || ''
+    };
 }
 
 function loadSpots() {
@@ -8103,8 +8138,11 @@ function loadSpots() {
         const wazeUrl = 'https://www.waze.com/ul?ll=' + lat + ',' + lng + '&navigate=yes';
         const priceDisplay = (!spot.price || spot.price.toLowerCase() === 'gratuit') ? t.free : spot.price;
 
+        // Récupération des textes traduits pour ce spot
+        const spotData = getSpotTranslatedData(spot);
+
         let popupContent = '<div style="font-family: sans-serif; max-width: 240px;">';
-        popupContent += '<h4 style="margin: 0 0 5px 0; color: #2A1A0E;">' + (spot.name || 'Lieu') + '</h4>';
+        popupContent += '<h4 style="margin: 0 0 5px 0; color: #2A1A0E;">' + spotData.name + '</h4>';
 
         if (isLocked) {
             popupContent += '<span style="font-size: 0.85em; background: #ffeeba; color: #856404; padding: 2px 6px; border-radius: 4px;">🔒 Dodo secret — Réservé VIP</span><br>';
@@ -8113,16 +8151,16 @@ function loadSpots() {
         } else {
             popupContent += '<span style="font-size: 0.85em; background: #eee; color: #333; padding: 2px 6px; border-radius: 4px;">' + (spot.category || spot.type || 'aire') + '</span><br>';
             popupContent += '<p style="margin: 5px 0; font-size: 12px; color: #666;">📍 ' + (spot.address || '') + '</p>';
-            if (spot.description) {
-                popupContent += '<p style="margin: 5px 0; font-size: 12px; color: #333;">' + spot.description + '</p>';
+            if (spotData.description) {
+                popupContent += '<p style="margin: 5px 0; font-size: 12px; color: #333;">' + spotData.description + '</p>';
             }
             popupContent += '<p style="margin: 3px 0; font-size: 12px;"><strong>' + t.priceLabel + '</strong> ' + priceDisplay + '</p>';
-            popupContent += '<p style="margin: 3px 0; font-size: 12px;"><strong>' + t.stayLabel + '</strong> ' + (spot.stay || 'N/A') + '</p>';
-            if (spot.exchange) {
-                popupContent += '<p style="margin: 3px 0; font-size: 12px;"><strong>' + t.exchangeLabel + '</strong> ' + spot.exchange + '</p>';
+            popupContent += '<p style="margin: 3px 0; font-size: 12px;"><strong>' + t.stayLabel + '</strong> ' + spotData.stay + '</p>';
+            if (spotData.exchange) {
+                popupContent += '<p style="margin: 3px 0; font-size: 12px;"><strong>' + t.exchangeLabel + '</strong> ' + spotData.exchange + '</p>';
             }
-            if (spot.electricity) {
-                popupContent += '<p style="margin: 3px 0; font-size: 12px;"><strong>' + t.elecLabel + '</strong> ' + spot.electricity + '</p>';
+            if (spotData.electricity) {
+                popupContent += '<p style="margin: 3px 0; font-size: 12px;"><strong>' + t.elecLabel + '</strong> ' + spotData.electricity + '</p>';
             }
             popupContent += '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">';
             popupContent += '<a href="' + gmapsUrl + '" target="_blank" style="background: #4285F4; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em;">🗺️ Google Maps</a>';
@@ -8135,6 +8173,7 @@ function loadSpots() {
         markersGroup.addLayer(marker);
     }
 }
+
 // Rétrocompatibilité
 function renderNomadSyncSpots() {
     loadSpots();
